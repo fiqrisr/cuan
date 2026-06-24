@@ -1,0 +1,19 @@
+# https://moonrepo.dev/docs/config/workspace
+$schema: 'https://moonrepo.dev/schemas/workspace.json'
+
+# Require a specific version of moon while running commands, otherwise fail.
+versionConstraint: '>=1.29.0'
+
+# REQUIRED: A map or list of all projects found within the workspace.
+# Cuan uses root-level directories for its applications instead of the
+# conventional apps/* layout.
+
+projects:
+  root: '.'
+  core: 'core'
+  web-app: 'web-app'
+
+vcs:
+  manager: 'git'
+  defaultBranch: 'main'
+  syncHooks: true

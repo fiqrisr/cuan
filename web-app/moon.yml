@@ -1,0 +1,12 @@
+# https://moonrepo.dev/docs/config/project
+$schema: 'https://moonrepo.dev/schemas/project.json'
+
+language: 'typescript'
+type: 'application'
+
+project:
+  name: 'web-app'
+  description: 'Cuan React + Vite + TanStack Router frontend'
+
+# Application-specific tasks will be added once Vite is integrated.
+tasks: {}

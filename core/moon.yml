@@ -1,0 +1,12 @@
+# https://moonrepo.dev/docs/config/project
+$schema: 'https://moonrepo.dev/schemas/project.json'
+
+language: 'typescript'
+type: 'application'
+
+project:
+  name: 'core'
+  description: 'Cuan backend API powered by Elysia.js'
+
+# Application-specific tasks will be added once Elysia.js is integrated.
+tasks: {}

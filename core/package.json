@@ -1,0 +1,14 @@
+{
+  "name": "@cuan/core",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Cuan backend API powered by Elysia.js",
+  "type": "module",
+  "scripts": {
+    "dev": "echo 'Backend dev server not yet configured'",
+    "build": "echo 'Backend build not yet configured'",
+    "test": "bun test"
+  },
+  "dependencies": {},
+  "devDependencies": {}
+}

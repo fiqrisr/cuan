@@ -1,0 +1,31 @@
+# https://moonrepo.dev/docs/config/project
+$schema: 'https://moonrepo.dev/schemas/project.json'
+
+# The workspace root is treated as a tooling project that owns shared tasks.
+type: 'tool'
+
+project:
+  name: 'cuan-root'
+  description: 'Shared monorepo tooling and root-level tasks'
+
+# Shared tasks that operate across the entire repository.
+tasks:
+  format:
+    command: 'prettier --write .'
+    platform: 'node'
+    options:
+      runInCI: false
+
+  format-check:
+    command: 'prettier --check .'
+    platform: 'node'
+
+  lint:
+    command: 'eslint .'
+    platform: 'node'
+
+  install:
+    command: 'bun install'
+    platform: 'node'
+    options:
+      runInCI: false
