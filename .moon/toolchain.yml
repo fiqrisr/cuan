@@ -11,6 +11,8 @@ bun:
 node:
   version: '22.12.0'
   packageManager: 'bun'
+  addEnginesConstraint: false
+  syncPackageManagerField: false
 
 # TypeScript support: ensures moon can resolve project references if needed.
 typescript:
