@@ -5,10 +5,25 @@
   "description": "Cuan backend API powered by Elysia.js",
   "type": "module",
   "scripts": {
-    "dev": "echo 'Backend dev server not yet configured'",
-    "build": "echo 'Backend build not yet configured'",
-    "test": "bun test"
+    "dev": "bun run --watch src/index.ts",
+    "build": "bun build src/index.ts --outdir dist --target bun",
+    "typecheck": "tsc --noEmit",
+    "test": "DATABASE_URL=postgresql://postgres:postgres@localhost:5433/cuan_test BETTER_AUTH_SECRET=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa OPENMODEL_API_KEY=dummy OPENMODEL_BASE_URL=http://localhost:3999/v1 OPENMODEL_MODEL=dummy bun test",
+    "db:generate-auth": "better-auth generate",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate",
+    "db:push": "drizzle-kit push"
   },
-  "dependencies": {},
-  "devDependencies": {}
+  "dependencies": {
+    "better-auth": "^1.6.20",
+    "drizzle-orm": "^0.45.2",
+    "elysia": "^1.4.29",
+    "pg": "^8.22.0",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@better-auth/cli": "^1.4.21",
+    "@types/pg": "^8.20.0",
+    "drizzle-kit": "^0.31.10"
+  }
 }

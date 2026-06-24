@@ -1,0 +1,62 @@
+import { describe, it, expect, beforeEach, afterEach } from 'bun:test';
+import { Elysia } from 'elysia';
+import { auth } from '../src/lib/auth';
+import { authGuard } from '../src/lib/auth-guard';
+import { db } from '../src/lib/db';
+import { expenses, account, session, user, verification } from '../src/db/schema';
+
+const testApp = new Elysia()
+  .use(authGuard)
+  .get('/whoami', ({ user }) => ({ id: user.id, email: user.email }), {
+    auth: true,
+  });
+
+async function clearDatabase(): Promise<void> {
+  await db.delete(expenses);
+  await db.delete(session);
+  await db.delete(account);
+  await db.delete(verification);
+  await db.delete(user);
+}
+
+async function signUp(email: string): Promise<Response> {
+  return auth.handler(
+    new Request('http://localhost/api/auth/sign-up/email', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        email,
+        password: 'password123',
+        name: 'Guard Test',
+      }),
+    }),
+  );
+}
+
+describe('authGuard', () => {
+  beforeEach(clearDatabase);
+  afterEach(clearDatabase);
+
+  it('returns 401 when no session cookie is provided', async () => {
+    const response = await testApp.handle(new Request('http://localhost/whoami'));
+
+    expect(response.status).toBe(401);
+  });
+
+  it('returns the current user when a valid session cookie is provided', async () => {
+    const email = `guard-${Date.now()}@example.com`;
+    const signUpResponse = await signUp(email);
+    expect(signUpResponse.status).toBe(200);
+
+    const cookies = signUpResponse.headers.getSetCookie();
+    const response = await testApp.handle(
+      new Request('http://localhost/whoami', {
+        headers: { Cookie: cookies.join('; ') },
+      }),
+    );
+
+    expect(response.status).toBe(200);
+    const body = (await response.json()) as { id: string; email: string };
+    expect(body.email).toBe(email);
+  });
+});

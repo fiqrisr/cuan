@@ -1,7 +1,7 @@
 {
   "$schema": "https://json.schemastore.org/tsconfig",
   "extends": "tsconfig-moon/tsconfig.projects.json",
-  "include": [],
+  "include": ["src/**/*", "tests/**/*", "drizzle.config.ts"],
   "compilerOptions": {
     "outDir": "../.moon/cache/types/core"
   }
