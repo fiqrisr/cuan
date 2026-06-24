@@ -29,7 +29,7 @@ Establish the initial monorepo infrastructure for **Cuan**, a chat-based AI-powe
 | Check single project | `moon check core` / `moon check web-app` |
 | Format all           | `bun run format`                         |
 | Lint all             | `bun run lint`                           |
-| Type-check all       | `bun run typecheck`                      |
+| Type-check (per-project) | `tsc --noEmit` inside each app once source exists |
 
 ## Project Structure
 

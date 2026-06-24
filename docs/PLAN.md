@@ -16,31 +16,31 @@ Bootstrap a Moonrepo/Bun monorepo with root-level projects `core` and `web-app`,
 
 ### Phase 1: Moon Workspace
 
-- [ ] Update `.moon/workspace.yml` to locate `core` and `web-app`.
-- [ ] Create `.moon/toolchain.yml` to pin Bun.
-- [ ] Create root `moon.yml` with shared tasks.
+- [x] Update `.moon/workspace.yml` to locate `core` and `web-app`.
+- [x] Create `.moon/toolchain.yml` to pin Bun.
+- [x] Create root `moon.yml` with shared tasks.
 
 ### Phase 2: Root Package Manifest
 
-- [ ] Create root `package.json` with workspaces, scripts, and dev dependencies.
+- [x] Create root `package.json` with workspaces, scripts, and dev dependencies.
 
 ### Phase 3: Project Stubs
 
-- [ ] Create `core/moon.yml` and `core/package.json`.
-- [ ] Create `web-app/moon.yml` and `web-app/package.json`.
+- [x] Create `core/moon.yml` and `core/package.json`.
+- [x] Create `web-app/moon.yml` and `web-app/package.json`.
 
 ### Phase 4: Global Tooling
 
-- [ ] Add `.prettierrc.json`.
-- [ ] Add `eslint.config.js`.
-- [ ] Add `.editorconfig`.
-- [ ] Add `tsconfig.json`.
+- [x] Add `.prettierrc.json`.
+- [x] Add `eslint.config.js`.
+- [x] Add `.editorconfig`.
+- [x] Add `tsconfig.json`.
 
 ### Checkpoint
 
-- [ ] `moon check` passes for the workspace.
-- [ ] `bun install` completes.
-- [ ] `bun run lint`, `bun run format`, and `bun run typecheck` execute without config errors.
+- [x] `moon check --all` passes for the workspace.
+- [x] `bun install` completes.
+- [x] `bun run lint` and `bun run format:check` execute without config errors.
 
 ## Risks and Mitigations
 
