@@ -11,9 +11,8 @@ Establish the initial monorepo infrastructure for **Cuan**, a chat-based AI-powe
 - Prettier, ESLint, EditorConfig, and the base TSConfig are present and load without errors.
 - No application code is added in this phase.
 
-## Tech Stack
+- **Monorepo:** Moonrepo 2.3
 
-- **Monorepo:** Moonrepo 1.29
 - **Runtime / Package Manager:** Bun 1.3
 - **Backend:** Elysia.js (future)
 - **Frontend:** React + Vite + TanStack Router (future)
@@ -22,13 +21,13 @@ Establish the initial monorepo infrastructure for **Cuan**, a chat-based AI-powe
 
 ## Commands
 
-| Purpose              | Command                                  |
-| -------------------- | ---------------------------------------- |
-| Install dependencies | `bun install`                            |
-| Check workspace      | `moon check`                             |
-| Check single project | `moon check core` / `moon check web-app` |
-| Format all           | `bun run format`                         |
-| Lint all             | `bun run lint`                           |
+| Purpose                  | Command                                           |
+| ------------------------ | ------------------------------------------------- |
+| Install dependencies     | `bun install`                                     |
+| Check workspace          | `moon check --all`                                |
+| Check single project     | `moon check core` / `moon check web-app`          |
+| Format all               | `bun run format`                                  |
+| Lint all                 | `bun run lint`                                    |
 | Type-check (per-project) | `tsc --noEmit` inside each app once source exists |
 
 ## Project Structure
@@ -37,7 +36,7 @@ Establish the initial monorepo infrastructure for **Cuan**, a chat-based AI-powe
 ~/devs/cuan/
 ├── .moon/
 │   ├── workspace.yml      # Moon workspace + project locations
-│   └── toolchain.yml      # Bun toolchain configuration
+│   └── toolchains.yml     # Bun / Node toolchain configuration
 ├── core/                  # Elysia.js backend (stub only for now)
 │   ├── moon.yml
 │   └── package.json

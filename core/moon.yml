@@ -2,7 +2,8 @@
 $schema: 'https://moonrepo.dev/schemas/project.json'
 
 language: 'typescript'
-type: 'application'
+layer: 'application'
+stack: 'backend'
 
 project:
   name: 'core'

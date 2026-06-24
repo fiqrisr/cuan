@@ -6,18 +6,18 @@ Bootstrap a Moonrepo/Bun monorepo with root-level projects `core` and `web-app`,
 
 ## Architecture Decisions
 
-1. **Root-level projects** — Use `projects: [core, web-app]` in `.moon/workspace.yml` instead of the default `apps/*` layout to match the requested architecture.
-2. **Bun toolchain** — Configure `.moon/toolchain.yml` with Bun as the package manager and runtime; this aligns with the stated stack.
-3. **Root workspace manifest** — Use `package.json` workspaces so `bun install` hoists shared tooling and resolves inter-project dependencies.
-4. **Flat ESLint config** — Adopt ESLint v9 `eslint.config.js` for TypeScript-first linting.
-5. **Base TSConfig** — Provide a strict root `tsconfig.json` that future packages can extend.
+1. **Root-level projects** — Use `projects: { core: 'core', web-app: 'web-app' }` in `.moon/workspace.yml` instead of the default `apps/*` layout to match the requested architecture.
+2. **Bun + Node toolchains** — Configure `.moon/toolchains.yml` with Bun as the package manager and Node for tools that require it (Prettier, ESLint).
+3. **Moon v2 project metadata** — Use `layer` and `stack` instead of the v1 `type` field.
+4. **Root workspace manifest** — Use `package.json` workspaces so `bun install` hoists shared tooling and resolves inter-project dependencies.
+5. **Flat ESLint config** — Adopt ESLint v9 `eslint.config.js` for TypeScript-first linting.
+6. **Base TSConfig** — Provide a strict root `tsconfig.json` that future packages can extend.
 
 ## Task List
 
 ### Phase 1: Moon Workspace
 
-- [x] Update `.moon/workspace.yml` to locate `core` and `web-app`.
-- [x] Create `.moon/toolchain.yml` to pin Bun.
+- [x] Create `.moon/toolchains.yml` to pin Bun and Node.
 - [x] Create root `moon.yml` with shared tasks.
 
 ### Phase 2: Root Package Manifest
@@ -46,7 +46,7 @@ Bootstrap a Moonrepo/Bun monorepo with root-level projects `core` and `web-app`,
 
 | Risk                                                         | Impact | Mitigation                                                          |
 | ------------------------------------------------------------ | ------ | ------------------------------------------------------------------- |
-| Moon/Bun version mismatch                                    | Medium | Pin versions in `toolchain.yml` and `package.json`.                 |
+| Moon/Bun version mismatch                                    | Medium | Pin versions in `.moon/toolchains.yml` and `package.json`.          |
 | Root ESLint config conflicts with future per-project configs | Low    | Keep root config minimal; projects can extend/override later.       |
 | Bun workspaces incompatible with Moon project globs          | Low    | Align `package.json` workspaces with `.moon/workspace.yml` entries. |
 

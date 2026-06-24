@@ -1,0 +1,17 @@
+# https://moonrepo.dev/docs/config/toolchains
+$schema: 'https://moonrepo.dev/schemas/toolchains.json'
+
+# Bun runtime and package manager.
+bun:
+  version: '1.3.14'
+
+# JavaScript ecosystem integration (package.json, node_modules, lockfile).
+javascript:
+  packageManager: 'bun'
+  dependencyVersionFormat: 'workspace'
+  syncProjectWorkspaceDependencies: true
+  syncPackageManagerField: false
+
+# Node.js runtime for tools that explicitly require it (e.g., Prettier, ESLint).
+node:
+  version: '22.12.0'

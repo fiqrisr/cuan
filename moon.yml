@@ -2,7 +2,7 @@
 $schema: 'https://moonrepo.dev/schemas/project.json'
 
 # The workspace root is treated as a tooling project that owns shared tasks.
-type: 'tool'
+layer: 'tool'
 
 project:
   name: 'cuan-root'
@@ -12,20 +12,20 @@ project:
 tasks:
   format:
     command: 'prettier --write .'
-    platform: 'node'
+    toolchains: ['javascript', 'node']
     options:
       runInCI: false
 
   format-check:
     command: 'prettier --check .'
-    platform: 'node'
+    toolchains: ['javascript', 'node']
 
   lint:
     command: 'eslint .'
-    platform: 'node'
+    toolchains: ['javascript', 'node']
 
   install:
     command: 'bun install'
-    platform: 'node'
+    toolchains: ['javascript', 'bun']
     options:
       runInCI: false
