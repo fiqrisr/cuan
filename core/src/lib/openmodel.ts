@@ -1,4 +1,7 @@
 import { z } from 'zod';
+import { streamText } from 'ai';
+import { createAnthropic } from '@ai-sdk/anthropic';
+import { createOpenAI } from '@ai-sdk/openai';
 
 const extractedExpenseSchema = z.object({
   amount: z.union([z.number(), z.string()]).transform(value => {
@@ -17,21 +20,6 @@ const extractedExpenseSchema = z.object({
 const chatResponseSchema = z.object({
   expense: extractedExpenseSchema,
   reply: z.string().min(1),
-});
-
-const responseSchema = z.object({
-  output: z.array(
-    z.object({
-      type: z.literal('message'),
-      role: z.literal('assistant'),
-      content: z.array(
-        z.object({
-          type: z.literal('output_text'),
-          text: z.string(),
-        }),
-      ),
-    }),
-  ),
 });
 
 export interface ExtractedExpense {
@@ -70,53 +58,47 @@ const SYSTEM_PROMPT = `You are an expense tracking assistant. Extract an expense
     "description": "short summary of the expense",
     "date": "YYYY-MM-DD"
   },
-  "reply": "a friendly one-sentence confirmation to show the user"
+  "reply": "a friendly one-sentence confirmation to show the user, written in Bahasa Indonesia"
 }
 
-If the message does not contain a clear expense, set amount to 0 and reply explaining that you could not understand.`;
+If the message does not contain a clear expense, set amount to 0 and write the "reply" in Bahasa Indonesia explaining that you could not understand.`;
 
-function extractJson(text: string): string {
-  const trimmed = text.trim();
-  const fenced = trimmed.match(/```(?:json)?\s*([\s\S]*?)\s*```/);
-  if (fenced?.[1]) return fenced[1].trim();
-  return trimmed;
+function getOpenModel(baseUrl: string, apiKey: string, modelId: string) {
+  const omAnthropic = createAnthropic({ baseURL: baseUrl, apiKey });
+  const omOpenAI = createOpenAI({ baseURL: baseUrl, apiKey });
+
+  if (modelId.includes('deepseek') || modelId.includes('claude')) {
+    return omAnthropic(modelId);
+  }
+  return omOpenAI(modelId);
 }
 
 export function createOpenModelClient(options: OpenModelClientOptions): OpenModelClient {
-  const { apiKey, baseUrl, model, fetch: fetchImpl = globalThis.fetch } = options;
-  const endpoint = `${baseUrl.replace(/\/$/, '')}/v1/responses`;
+  const { apiKey, baseUrl, model } = options;
+  const openModel = getOpenModel(baseUrl, apiKey, model);
 
   return {
     async chat(message: string): Promise<ChatResponse> {
-      const response = await fetchImpl(endpoint, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${apiKey}`,
-        },
-        body: JSON.stringify({
-          model,
-          input: [
-            { role: 'system', content: SYSTEM_PROMPT },
-            { role: 'user', content: message },
-          ],
-          temperature: 0.2,
-        }),
+      const stream = streamText({
+        model: openModel,
+        system: SYSTEM_PROMPT,
+        prompt: message,
+        temperature: 0.2,
       });
 
-      if (!response.ok) {
-        const body = await response.text();
-        throw new Error(`OpenModel request failed (${response.status}): ${body}`);
+      const streamResult = stream.toTextStreamResponse();
+      const body = await streamResult.body?.json();
+
+      if (!streamResult.ok) {
+        throw new Error(`OpenModel request failed (${streamResult.status}): ${body}`);
       }
 
-      const payload = responseSchema.parse(await response.json());
-      const content = payload.output[0]?.content[0]?.text;
-
-      if (!content) {
+      if (!body) {
         throw new Error('OpenModel response did not contain any content');
       }
 
-      const parsed = chatResponseSchema.safeParse(JSON.parse(extractJson(content)));
+      const parsed = chatResponseSchema.safeParse(body);
+
       if (!parsed.success) {
         throw new Error(`Failed to parse extracted expense: ${parsed.error.message}`);
       }
