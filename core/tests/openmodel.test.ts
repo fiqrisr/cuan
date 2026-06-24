@@ -1,6 +1,33 @@
 import { describe, it, expect } from 'bun:test';
 import { createOpenModelClient } from '../src/lib/openmodel';
 
+function makeResponsePayload(text: string) {
+  return {
+    id: 'resp_test',
+    object: 'response',
+    created_at: Date.now(),
+    model: 'test-model',
+    output: [
+      {
+        type: 'message',
+        id: 'msg_test',
+        role: 'assistant',
+        content: [
+          {
+            type: 'output_text',
+            text,
+          },
+        ],
+      },
+    ],
+    usage: {
+      input_tokens: 10,
+      output_tokens: 20,
+      total_tokens: 30,
+    },
+  };
+}
+
 function makeFakeFetch(responseBody: unknown) {
   return async () =>
     new Response(JSON.stringify(responseBody), {
@@ -10,29 +37,25 @@ function makeFakeFetch(responseBody: unknown) {
 }
 
 describe('createOpenModelClient', () => {
-  it('parses a plain JSON completion into an expense and reply', async () => {
+  it('parses a plain JSON response into an expense and reply', async () => {
     const client = createOpenModelClient({
       apiKey: 'test-key',
-      baseUrl: 'https://api.example.com/v1',
+      baseUrl: 'https://api.openmodel.ai',
       model: 'test-model',
-      fetch: makeFakeFetch({
-        choices: [
-          {
-            message: {
-              content: JSON.stringify({
-                expense: {
-                  amount: 150000,
-                  currency: 'IDR',
-                  category: 'Transport',
-                  description: 'Taxi to airport',
-                  date: '2026-06-24',
-                },
-                reply: 'Got it, saved your transport expense.',
-              }),
+      fetch: makeFakeFetch(
+        makeResponsePayload(
+          JSON.stringify({
+            expense: {
+              amount: 150000,
+              currency: 'IDR',
+              category: 'Transport',
+              description: 'Taxi to airport',
+              date: '2026-06-24',
             },
-          },
-        ],
-      }),
+            reply: 'Got it, saved your transport expense.',
+          }),
+        ),
+      ),
     });
 
     const result = await client.chat('Taxi to airport cost 150k');
@@ -46,29 +69,24 @@ describe('createOpenModelClient', () => {
   it('extracts JSON from a markdown code fence', async () => {
     const client = createOpenModelClient({
       apiKey: 'test-key',
-      baseUrl: 'https://api.example.com/v1',
+      baseUrl: 'https://api.openmodel.ai',
       model: 'test-model',
-      fetch: makeFakeFetch({
-        choices: [
-          {
-            message: {
-              content:
-                '```json\n' +
-                JSON.stringify({
-                  expense: {
-                    amount: '25000',
-                    currency: 'IDR',
-                    category: 'Food',
-                    description: 'Coffee',
-                    date: '2026-06-24',
-                  },
-                  reply: 'Saved.',
-                }) +
-                '\n```',
-            },
-          },
-        ],
-      }),
+      fetch: makeFakeFetch(
+        makeResponsePayload(
+          '```json\n' +
+            JSON.stringify({
+              expense: {
+                amount: '25000',
+                currency: 'IDR',
+                category: 'Food',
+                description: 'Coffee',
+                date: '2026-06-24',
+              },
+              reply: 'Saved.',
+            }) +
+            '\n```',
+        ),
+      ),
     });
 
     const result = await client.chat('Coffee 25k');
@@ -80,7 +98,7 @@ describe('createOpenModelClient', () => {
   it('throws when the upstream request fails', async () => {
     const client = createOpenModelClient({
       apiKey: 'test-key',
-      baseUrl: 'https://api.example.com/v1',
+      baseUrl: 'https://api.openmodel.ai',
       model: 'test-model',
       fetch: async () => new Response('bad request', { status: 400 }),
     });

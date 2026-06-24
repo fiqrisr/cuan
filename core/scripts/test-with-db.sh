@@ -6,7 +6,7 @@ export DATABASE_URL="${DATABASE_URL:-postgresql://postgres:postgres@localhost:54
 export BETTER_AUTH_SECRET="${BETTER_AUTH_SECRET:-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa}"
 export BETTER_AUTH_URL="${BETTER_AUTH_URL:-http://localhost:3000}"
 export OPENMODEL_API_KEY="${OPENMODEL_API_KEY:-dummy}"
-export OPENMODEL_BASE_URL="${OPENMODEL_BASE_URL:-http://localhost:3999/v1}"
+export OPENMODEL_BASE_URL="${OPENMODEL_BASE_URL:-http://localhost:3999}"
 export OPENMODEL_MODEL="${OPENMODEL_MODEL:-dummy}"
 export NODE_ENV="${NODE_ENV:-test}"
 

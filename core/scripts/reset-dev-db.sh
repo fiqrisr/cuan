@@ -4,7 +4,7 @@ set -euo pipefail
 export DATABASE_URL="postgresql://postgres:postgres@localhost:5433/cuan"
 export BETTER_AUTH_SECRET="aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
 export OPENMODEL_API_KEY="dummy"
-export OPENMODEL_BASE_URL="https://example.com/v1"
+export OPENMODEL_BASE_URL="https://api.openmodel.ai"
 export OPENMODEL_MODEL="dummy"
 export NODE_ENV="development"
 

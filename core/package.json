@@ -8,14 +8,13 @@
     "dev": "bun run --watch src/index.ts",
     "build": "bun build src/index.ts --outdir dist --target bun",
     "typecheck": "tsc --noEmit",
-    "test": "bash scripts/test-with-db.sh",
+    "test": "OPENMODEL_BASE_URL=http://localhost:3999 bash scripts/test-with-db.sh",
     "db:reset": "bash scripts/reset-dev-db.sh",
     "db:generate-auth": "better-auth generate",
     "db:migrate": "drizzle-kit migrate",
     "db:push": "drizzle-kit push"
   },
   "dependencies": {
-    "@elysia/openapi": "^1.4.15",
     "better-auth": "^1.6.20",
     "drizzle-orm": "^0.45.2",
     "elysia": "^1.4.29",

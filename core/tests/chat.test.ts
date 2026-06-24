@@ -60,16 +60,31 @@ describe('POST /api/chat', () => {
   beforeAll(() => {
     mockServer = Bun.serve({
       port: MOCK_PORT,
-      fetch() {
+      fetch(req) {
+        const url = new URL(req.url);
+        if (req.method !== 'POST' || url.pathname !== '/v1/responses') {
+          return new Response('Not found', { status: 404 });
+        }
         return new Response(
           JSON.stringify({
-            choices: [
+            id: 'resp_test',
+            object: 'response',
+            created_at: Date.now(),
+            model: 'test-model',
+            output: [
               {
-                message: {
-                  content: JSON.stringify(mockResponse),
-                },
+                type: 'message',
+                id: 'msg_test',
+                role: 'assistant',
+                content: [
+                  {
+                    type: 'output_text',
+                    text: JSON.stringify(mockResponse),
+                  },
+                ],
               },
             ],
+            usage: { input_tokens: 10, output_tokens: 20, total_tokens: 30 },
           }),
           { headers: { 'Content-Type': 'application/json' } },
         );

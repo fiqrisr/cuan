@@ -18,12 +18,18 @@ const chatResponseSchema = z.object({
   expense: extractedExpenseSchema,
   reply: z.string().min(1),
 });
-const completionResponseSchema = z.object({
-  choices: z.array(
+
+const responseSchema = z.object({
+  output: z.array(
     z.object({
-      message: z.object({
-        content: z.string(),
-      }),
+      type: z.literal('message'),
+      role: z.literal('assistant'),
+      content: z.array(
+        z.object({
+          type: z.literal('output_text'),
+          text: z.string(),
+        }),
+      ),
     }),
   ),
 });
@@ -45,14 +51,14 @@ export interface OpenModelClient {
   chat(message: string): Promise<ChatResponse>;
 }
 
-export type FetchLike = (input: string | URL | Request, init?: RequestInit) => Promise<Response>;
-
 export interface OpenModelClientOptions {
   apiKey: string;
   baseUrl: string;
   model: string;
   fetch?: FetchLike;
 }
+
+export type FetchLike = (input: string | URL | Request, init?: RequestInit) => Promise<Response>;
 
 const SYSTEM_PROMPT = `You are an expense tracking assistant. Extract an expense from the user's message and respond with a single JSON object (no markdown, no explanation) in this exact shape:
 
@@ -78,7 +84,7 @@ function extractJson(text: string): string {
 
 export function createOpenModelClient(options: OpenModelClientOptions): OpenModelClient {
   const { apiKey, baseUrl, model, fetch: fetchImpl = globalThis.fetch } = options;
-  const endpoint = `${baseUrl.replace(/\/$/, '')}/chat/completions`;
+  const endpoint = `${baseUrl.replace(/\/$/, '')}/v1/responses`;
 
   return {
     async chat(message: string): Promise<ChatResponse> {
@@ -90,7 +96,7 @@ export function createOpenModelClient(options: OpenModelClientOptions): OpenMode
         },
         body: JSON.stringify({
           model,
-          messages: [
+          input: [
             { role: 'system', content: SYSTEM_PROMPT },
             { role: 'user', content: message },
           ],
@@ -103,8 +109,8 @@ export function createOpenModelClient(options: OpenModelClientOptions): OpenMode
         throw new Error(`OpenModel request failed (${response.status}): ${body}`);
       }
 
-      const payload = completionResponseSchema.parse(await response.json());
-      const content = payload.choices[0]?.message.content;
+      const payload = responseSchema.parse(await response.json());
+      const content = payload.output[0]?.content[0]?.text;
 
       if (!content) {
         throw new Error('OpenModel response did not contain any content');
