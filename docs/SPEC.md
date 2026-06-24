@@ -8,7 +8,7 @@ Establish the initial monorepo infrastructure for **Cuan**, a chat-based AI-powe
 
 - `moon check --all` passes using inherited `format` and `lint` tasks.
 - `bun install` can resolve workspace dependencies from the root.
-- Prettier, ESLint, EditorConfig, and the base TSConfig are present and load without errors.
+- Root `tsconfig.json` extends `tsconfig-moon`, and `core`/`web-app` tsconfigs extend `tsconfig-moon/projects`.
 - No application code is added in this phase.
 
 - **Monorepo:** Moonrepo 2.3
@@ -17,7 +17,7 @@ Establish the initial monorepo infrastructure for **Cuan**, a chat-based AI-powe
 - **Backend:** Elysia.js (future)
 - **Frontend:** React + Vite + TanStack Router (future)
 - **Database:** PostgreSQL (future)
-- **Language:** TypeScript
+- **TypeScript base config:** tsconfig-moon
 
 ## Commands
 
@@ -31,7 +31,7 @@ Establish the initial monorepo infrastructure for **Cuan**, a chat-based AI-powe
 | Format single project    | `moon run core:format` / `moon run web-app:format` |
 | Lint all (root)          | `bun run lint`                                     |
 | Lint single project      | `moon run core:lint` / `moon run web-app:lint`     |
-| Type-check (per-project) | `tsc --noEmit` inside each app once source exists  |
+| Type-check (per-project) | `moon run <project>:typecheck` once source exists  |
 
 ## Project Structure
 
@@ -44,10 +44,12 @@ Establish the initial monorepo infrastructure for **Cuan**, a chat-based AI-powe
 │       └── node.yml       # Shared format/lint tasks for JS/TS projects
 ├── core/                  # Elysia.js backend (stub only for now)
 │   ├── moon.yml
-│   └── package.json
+│   ├── package.json
+│   └── tsconfig.json      # Extends tsconfig-moon/projects
 ├── web-app/               # React + Vite frontend (stub only for now)
 │   ├── moon.yml
-│   └── package.json
+│   ├── package.json
+│   └── tsconfig.json      # Extends tsconfig-moon/projects + React
 ├── docs/
 │   └── SPEC.md            # This spec
 ├── .editorconfig

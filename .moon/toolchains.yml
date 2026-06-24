@@ -15,3 +15,12 @@ javascript:
 # Node.js runtime for tools that explicitly require it (e.g., Prettier, ESLint).
 node:
   version: '22.12.0'
+
+# TypeScript project reference sync.
+typescript:
+  createMissingConfig: true
+  syncProjectReferences: true
+  syncProjectReferencesToPaths: true
+  routeOutDirToCache: true
+  rootConfigFileName: 'tsconfig.json'
+  projectConfigFileName: 'tsconfig.json'

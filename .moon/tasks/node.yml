@@ -19,5 +19,6 @@ tasks:
     toolchains: ['javascript', 'node']
 
   lint:
-    toolchains: ['javascript', 'node']
     command: 'eslint --no-error-on-unmatched-pattern .'
+    toolchains: ['javascript', 'node']
+

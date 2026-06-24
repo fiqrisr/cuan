@@ -11,7 +11,10 @@ Bootstrap a Moonrepo/Bun monorepo with root-level projects `core` and `web-app`,
 3. **Moon v2 project metadata** — Use `layer` and `stack` instead of the v1 `type` field.
 4. **Root workspace manifest** — Use `package.json` workspaces so `bun install` hoists shared tooling and resolves inter-project dependencies.
 5. **Flat ESLint config** — Adopt ESLint v9 `eslint.config.js` for TypeScript-first linting.
-6. **Base TSConfig** — Provide a strict root `tsconfig.json` that future packages can extend.
+6. **tsconfig-moon** — Use Moon's strict `tsconfig-moon` presets:
+   - Root extends `tsconfig-moon/tsconfig.json`.
+   - `core` extends `tsconfig-moon/tsconfig.projects.json`.
+   - `web-app` extends `tsconfig-moon/tsconfig.projects.json` with React DOM + JSX overrides.
 7. **Shared tasks** — Define reusable `format` and `lint` tasks in `.moon/tasks/node.yml` inherited by all JS/TS projects.
 
 ## Task List
@@ -19,23 +22,22 @@ Bootstrap a Moonrepo/Bun monorepo with root-level projects `core` and `web-app`,
 ### Phase 1: Moon Workspace
 
 - [x] Create `.moon/workspace.yml` to locate `core` and `web-app`.
-- [x] Create `.moon/toolchains.yml` to pin Bun and Node.
+- [x] Create `.moon/toolchains.yml` to pin Bun and Node, and sync TypeScript project references.
 
 ### Phase 2: Root Package Manifest
 
-- [x] Create root `package.json` with workspaces, scripts, and dev dependencies.
+- [x] Create root `package.json` with workspaces, scripts, and dev dependencies (including `tsconfig-moon`).
 
 ### Phase 3: Project Stubs
 
-- [x] Create `core/moon.yml` and `core/package.json`.
-- [x] Create `web-app/moon.yml` and `web-app/package.json`.
+- [x] Create `core/moon.yml`, `core/package.json`, and `core/tsconfig.json`.
+- [x] Create `web-app/moon.yml`, `web-app/package.json`, and `web-app/tsconfig.json`.
 
 ### Phase 4: Global Tooling
 
 - [x] Add `.prettierrc.json`.
 - [x] Add `eslint.config.js`.
 - [x] Add `.editorconfig`.
-- [x] Add `tsconfig.json`.
 
 ### Phase 5: Shared Tasks
 

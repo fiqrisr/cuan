@@ -1,0 +1,10 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "extends": "tsconfig-moon/tsconfig.projects.json",
+  "compilerOptions": {
+    "lib": ["dom", "esnext"],
+    "jsx": "react-jsx",
+    "outDir": "../.moon/cache/types/web-app"
+  },
+  "include": []
+}
