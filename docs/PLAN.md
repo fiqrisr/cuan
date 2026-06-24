@@ -12,11 +12,13 @@ Bootstrap a Moonrepo/Bun monorepo with root-level projects `core` and `web-app`,
 4. **Root workspace manifest** — Use `package.json` workspaces so `bun install` hoists shared tooling and resolves inter-project dependencies.
 5. **Flat ESLint config** — Adopt ESLint v9 `eslint.config.js` for TypeScript-first linting.
 6. **Base TSConfig** — Provide a strict root `tsconfig.json` that future packages can extend.
+7. **Shared tasks** — Define reusable `format` and `lint` tasks in `.moon/tasks/node.yml` inherited by all JS/TS projects.
 
 ## Task List
 
 ### Phase 1: Moon Workspace
 
+- [x] Create `.moon/workspace.yml` to locate `core` and `web-app`.
 - [x] Create `.moon/toolchains.yml` to pin Bun and Node.
 
 ### Phase 2: Root Package Manifest
@@ -35,8 +37,13 @@ Bootstrap a Moonrepo/Bun monorepo with root-level projects `core` and `web-app`,
 - [x] Add `.editorconfig`.
 - [x] Add `tsconfig.json`.
 
+### Phase 5: Shared Tasks
+
+- [x] Add `.moon/tasks/node.yml` with inherited `format` and `lint` tasks.
+
 ### Checkpoint
 
+- [x] `moon check --all` passes for `core` and `web-app`.
 - [x] `moon query projects` lists `core` and `web-app` as valid projects.
 - [x] `bun install` completes.
 - [x] `bun run lint` and `bun run format:check` execute without config errors.

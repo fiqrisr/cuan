@@ -6,7 +6,7 @@ Establish the initial monorepo infrastructure for **Cuan**, a chat-based AI-powe
 
 **Success criteria:**
 
-- `moon query projects` recognizes `core` and `web-app` as valid projects.
+- `moon check --all` passes using inherited `format` and `lint` tasks.
 - `bun install` can resolve workspace dependencies from the root.
 - Prettier, ESLint, EditorConfig, and the base TSConfig are present and load without errors.
 - No application code is added in this phase.
@@ -21,14 +21,17 @@ Establish the initial monorepo infrastructure for **Cuan**, a chat-based AI-powe
 
 ## Commands
 
-| Purpose                           | Command                                           |
-| --------------------------------- | ------------------------------------------------- |
-| Install dependencies              | `bun install`                                     |
-| List Moon projects                | `moon query projects`                             |
-| Check project (once it has tasks) | `moon check core` / `moon check web-app`          |
-| Format all                        | `bun run format`                                  |
-| Lint all                          | `bun run lint`                                    |
-| Type-check (per-project)          | `tsc --noEmit` inside each app once source exists |
+| Purpose                  | Command                                            |
+| ------------------------ | -------------------------------------------------- |
+| Install dependencies     | `bun install`                                      |
+| List Moon projects       | `moon query projects`                              |
+| Check all projects       | `moon check --all`                                 |
+| Check single project     | `moon check core` / `moon check web-app`           |
+| Format all (root)        | `bun run format`                                   |
+| Format single project    | `moon run core:format` / `moon run web-app:format` |
+| Lint all (root)          | `bun run lint`                                     |
+| Lint single project      | `moon run core:lint` / `moon run web-app:lint`     |
+| Type-check (per-project) | `tsc --noEmit` inside each app once source exists  |
 
 ## Project Structure
 
@@ -36,7 +39,9 @@ Establish the initial monorepo infrastructure for **Cuan**, a chat-based AI-powe
 ~/devs/cuan/
 ├── .moon/
 │   ├── workspace.yml      # Moon workspace + project locations
-│   └── toolchains.yml     # Bun / Node toolchain configuration
+│   ├── toolchains.yml     # Bun / Node toolchain configuration
+│   └── tasks/
+│       └── node.yml       # Shared format/lint tasks for JS/TS projects
 ├── core/                  # Elysia.js backend (stub only for now)
 │   ├── moon.yml
 │   └── package.json

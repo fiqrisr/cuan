@@ -1,0 +1,23 @@
+# https://moonrepo.dev/docs/config/tasks
+$schema: 'https://moonrepo.dev/schemas/tasks.json'
+
+# Inherit these tasks by all projects using the JavaScript/TypeScript toolchains.
+inheritedBy:
+  toolchains:
+    or: ['javascript', 'typescript']
+
+# Shared tasks for Node-based tooling. Commands run from the inheriting project root.
+tasks:
+  format:
+    command: 'prettier --write .'
+    toolchains: ['javascript', 'node']
+    options:
+      runInCI: false
+
+  format-check:
+    command: 'prettier --check .'
+    toolchains: ['javascript', 'node']
+
+  lint:
+    toolchains: ['javascript', 'node']
+    command: 'eslint --no-error-on-unmatched-pattern .'
