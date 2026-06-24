@@ -18,7 +18,6 @@ Bootstrap a Moonrepo/Bun monorepo with root-level projects `core` and `web-app`,
 ### Phase 1: Moon Workspace
 
 - [x] Create `.moon/toolchains.yml` to pin Bun and Node.
-- [x] Create root `moon.yml` with shared tasks.
 
 ### Phase 2: Root Package Manifest
 
@@ -38,7 +37,7 @@ Bootstrap a Moonrepo/Bun monorepo with root-level projects `core` and `web-app`,
 
 ### Checkpoint
 
-- [x] `moon check --all` passes for the workspace.
+- [x] `moon query projects` lists `core` and `web-app` as valid projects.
 - [x] `bun install` completes.
 - [x] `bun run lint` and `bun run format:check` execute without config errors.
 

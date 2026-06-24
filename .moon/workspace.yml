@@ -7,9 +7,7 @@ versionConstraint: '>=2.0.0'
 # REQUIRED: A map or list of all projects found within the workspace.
 # Cuan uses root-level directories for its applications instead of the
 # conventional apps/* layout.
-
 projects:
-  root: '.'
   core: 'core'
   web-app: 'web-app'
 

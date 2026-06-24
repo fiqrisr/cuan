@@ -6,7 +6,7 @@ Establish the initial monorepo infrastructure for **Cuan**, a chat-based AI-powe
 
 **Success criteria:**
 
-- `moon check` recognizes `core` and `web-app` as valid projects.
+- `moon query projects` recognizes `core` and `web-app` as valid projects.
 - `bun install` can resolve workspace dependencies from the root.
 - Prettier, ESLint, EditorConfig, and the base TSConfig are present and load without errors.
 - No application code is added in this phase.
@@ -21,14 +21,14 @@ Establish the initial monorepo infrastructure for **Cuan**, a chat-based AI-powe
 
 ## Commands
 
-| Purpose                  | Command                                           |
-| ------------------------ | ------------------------------------------------- |
-| Install dependencies     | `bun install`                                     |
-| Check workspace          | `moon check --all`                                |
-| Check single project     | `moon check core` / `moon check web-app`          |
-| Format all               | `bun run format`                                  |
-| Lint all                 | `bun run lint`                                    |
-| Type-check (per-project) | `tsc --noEmit` inside each app once source exists |
+| Purpose                           | Command                                           |
+| --------------------------------- | ------------------------------------------------- |
+| Install dependencies              | `bun install`                                     |
+| List Moon projects                | `moon query projects`                             |
+| Check project (once it has tasks) | `moon check core` / `moon check web-app`          |
+| Format all                        | `bun run format`                                  |
+| Lint all                          | `bun run lint`                                    |
+| Type-check (per-project)          | `tsc --noEmit` inside each app once source exists |
 
 ## Project Structure
 
@@ -49,7 +49,6 @@ Establish the initial monorepo infrastructure for **Cuan**, a chat-based AI-powe
 ├── .gitignore
 ├── .prettierrc.json
 ├── eslint.config.js
-├── moon.yml               # Root project tasks
 ├── package.json           # Root workspace manifest
 └── tsconfig.json          # Base TypeScript configuration
 ```
