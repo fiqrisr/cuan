@@ -8,9 +8,9 @@
     "dev": "bun run --watch src/index.ts",
     "build": "bun build src/index.ts --outdir dist --target bun",
     "typecheck": "tsc --noEmit",
-    "test": "DATABASE_URL=postgresql://postgres:postgres@localhost:5433/cuan_test BETTER_AUTH_SECRET=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa OPENMODEL_API_KEY=dummy OPENMODEL_BASE_URL=http://localhost:3999/v1 OPENMODEL_MODEL=dummy bun test",
+    "test": "bash scripts/test-with-db.sh",
+    "db:reset": "bash scripts/reset-dev-db.sh",
     "db:generate-auth": "better-auth generate",
-    "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "db:push": "drizzle-kit push"
   },

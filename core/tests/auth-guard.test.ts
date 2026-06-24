@@ -1,3 +1,4 @@
+import { z } from 'zod';
 import { describe, it, expect, beforeEach, afterEach } from 'bun:test';
 import { Elysia } from 'elysia';
 import { auth } from '../src/lib/auth';
@@ -56,7 +57,8 @@ describe('authGuard', () => {
     );
 
     expect(response.status).toBe(200);
-    const body = (await response.json()) as { id: string; email: string };
+    const bodySchema = z.object({ id: z.string(), email: z.string() });
+    const body = bodySchema.parse(await response.json());
     expect(body.email).toBe(email);
   });
 });

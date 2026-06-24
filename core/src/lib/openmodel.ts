@@ -18,6 +18,15 @@ const chatResponseSchema = z.object({
   expense: extractedExpenseSchema,
   reply: z.string().min(1),
 });
+const completionResponseSchema = z.object({
+  choices: z.array(
+    z.object({
+      message: z.object({
+        content: z.string(),
+      }),
+    }),
+  ),
+});
 
 export interface ExtractedExpense {
   amount: number;
@@ -94,10 +103,8 @@ export function createOpenModelClient(options: OpenModelClientOptions): OpenMode
         throw new Error(`OpenModel request failed (${response.status}): ${body}`);
       }
 
-      const payload = (await response.json()) as {
-        choices?: Array<{ message?: { content?: string } }>;
-      };
-      const content = payload.choices?.[0]?.message?.content;
+      const payload = completionResponseSchema.parse(await response.json());
+      const content = payload.choices[0]?.message.content;
 
       if (!content) {
         throw new Error('OpenModel response did not contain any content');

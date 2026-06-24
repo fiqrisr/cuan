@@ -1,3 +1,4 @@
+import { z } from 'zod';
 import { describe, it, expect, beforeAll, afterAll, beforeEach, afterEach } from 'bun:test';
 import type { Server } from 'bun';
 import { createApp } from '../src/app';
@@ -17,6 +18,19 @@ const mockResponse = {
   },
   reply: 'Saved your weekly grocery expense.',
 };
+
+const chatResponseSchema = z.object({
+  expense: z.object({
+    id: z.string().uuid(),
+    userId: z.string(),
+    amount: z.number(),
+    currency: z.string(),
+    category: z.string(),
+    description: z.string(),
+    date: z.string(),
+  }),
+  reply: z.string(),
+});
 
 let mockServer: Server<unknown>;
 
@@ -89,17 +103,7 @@ describe('POST /api/chat', () => {
     );
 
     expect(response.status).toBe(201);
-    const body = (await response.json()) as {
-      expense: {
-        id: string;
-        userId: string;
-        amount: number;
-        category: string;
-        description: string;
-        date: string;
-      };
-      reply: string;
-    };
+    const body = chatResponseSchema.parse(await response.json());
 
     expect(body.reply).toBe(mockResponse.reply);
     expect(body.expense.amount).toBe(125000);
