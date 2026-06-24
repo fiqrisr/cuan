@@ -1,11 +1,20 @@
 import { Elysia } from 'elysia';
-import { auth } from './lib/auth';
+import { openapi } from '@elysia/openapi';
+import { auth, OpenAPI } from './lib/auth';
 import { chatRoutes } from './routes/chat';
 
-export function createApp() {
+export async function createApp() {
   return new Elysia()
+    .use(
+      openapi({
+        documentation: {
+          components: await OpenAPI.components,
+          paths: await OpenAPI.getPaths(),
+        },
+      }),
+    )
     .get('/health', () => ({ status: 'ok' }))
-    .all('/api/auth/*', ({ request }) => auth.handler(request))
+    .mount('/auth', auth.handler)
     .use(chatRoutes)
     .onError(({ code, error, set }) => {
       console.error(`[${code}]`, error);
