@@ -32,12 +32,15 @@ export const OpenAPI = {
       for (const path of Object.keys(paths)) {
         const key = prefix + path;
         reference[key] = paths[path];
+        const refObj = reference as Record<string, Record<string, { tags?: string[] }>>;
         for (const method of Object.keys(paths[path] as Record<string, unknown>)) {
-          const operation = (reference[key] as any)[method];
+          const operation = refObj[key][method];
           operation.tags = ['Better Auth'];
         }
       }
       return reference;
+      // biome-ignore lint/suspicious/noExplicitAny: required for elysia openapi
     }) as Promise<any>,
+  // biome-ignore lint/suspicious/noExplicitAny: required for elysia openapi
   components: getSchema().then(({ components }) => components) as Promise<any>,
 } as const;

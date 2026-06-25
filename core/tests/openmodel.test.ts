@@ -66,7 +66,10 @@ describe('createOpenModelClient', () => {
     const result = await client.chat('Taxi to airport cost 150k');
 
     expect(result.intent).toBe('add_transaction');
-    const addResult = result as any;
+    const addResult = result as unknown as {
+      transactions: Array<{ amount: number; currency: string; category: string }>;
+      reply: string;
+    };
     expect(addResult.transactions).toHaveLength(1);
     expect(addResult.transactions[0].amount).toBe(150000);
     expect(addResult.transactions[0].currency).toBe('IDR');
@@ -110,7 +113,9 @@ describe('createOpenModelClient', () => {
     const result = await client.chat('coffee 15k, lunch 30k');
 
     expect(result.intent).toBe('add_transaction');
-    const addResult = result as any;
+    const addResult = result as unknown as {
+      transactions: Array<{ amount: number; currency: string; category: string }>;
+    };
     expect(addResult.transactions).toHaveLength(2);
     expect(addResult.transactions[0].amount).toBe(15000);
     expect(addResult.transactions[1].amount).toBe(30000);
@@ -144,7 +149,10 @@ describe('createOpenModelClient', () => {
     const result = await client.chat('pengeluaran terbesar minggu ini?');
 
     expect(result.intent).toBe('query');
-    const qResult = result as any;
+    const qResult = result as unknown as {
+      intent: string;
+      query: { queryType: string; filters: { period: unknown } };
+    };
     if (qResult.intent === 'query') {
       expect(qResult.query.queryType).toBe('biggest_expense');
       expect(qResult.query.filters.period).toBeDefined();
@@ -174,7 +182,13 @@ describe('createOpenModelClient', () => {
     const result = await client.chat('buat akun BCA bank IDR 5jt');
 
     expect(result.intent).toBe('manage_account');
-    const mResult = result as any;
+    const mResult = result as unknown as {
+      intent: string;
+      action: string;
+      accountName: string;
+      accountType: string;
+      initialBalance: number;
+    };
     if (mResult.intent === 'manage_account') {
       expect(mResult.action).toBe('create_account');
       expect(mResult.accountName).toBe('BCA');

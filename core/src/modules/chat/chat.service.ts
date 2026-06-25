@@ -136,9 +136,10 @@ export class ChatService {
       conditions.push(gte(transactions.date, new Date(filters.period.from)));
       conditions.push(lte(transactions.date, new Date(filters.period.to)));
     }
-    if (filters.category) {
+    const categoryName = filters.category;
+    if (categoryName) {
       const cat = await db.query.categories.findFirst({
-        where: (c, { eq }) => eq(c.name, filters.category!),
+        where: (c, { eq }) => eq(c.name, categoryName),
       });
       if (cat) conditions.push(eq(transactions.categoryId, cat.id));
     }

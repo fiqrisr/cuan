@@ -74,9 +74,10 @@ export class TransactionService {
       conditions.push(lte(transactions.date, new Date(filters.to)));
     }
 
-    if (filters.category) {
+    const categoryName = filters.category;
+    if (categoryName) {
       const cat = await db.query.categories.findFirst({
-        where: (c, { eq }) => eq(c.name, filters.category!),
+        where: (c, { eq }) => eq(c.name, categoryName),
       });
       if (cat) {
         conditions.push(eq(transactions.categoryId, cat.id));
@@ -201,7 +202,8 @@ export class TransactionService {
     });
 
     const updated = await this.getById(id, userId);
-    return updated!;
+    if (!updated) throw new TransactionError('Failed to retrieve updated transaction', 500);
+    return updated;
   }
 
   async remove(id: string, userId: string): Promise<void> {

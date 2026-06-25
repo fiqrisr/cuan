@@ -88,7 +88,8 @@ export class FinancialAccountService {
     }
 
     const updated = await this.getById(id, userId);
-    return updated!;
+    if (!updated) throw new AccountError('Failed to retrieve updated account', 500);
+    return updated;
   }
 
   async remove(id: string, userId: string): Promise<void> {

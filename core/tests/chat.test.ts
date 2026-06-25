@@ -12,6 +12,7 @@ import {
 } from '../src/db/schema';
 import { auth } from '../src/lib/auth';
 import { db } from '../src/lib/db';
+import type { ChatResult } from '../src/modules/chat/chat.service';
 
 const MOCK_PORT = 3999;
 
@@ -81,7 +82,7 @@ async function createAccount(cookies: string, name: string): Promise<{ id: strin
       body: JSON.stringify({ name, type: 'bank', initialBalance: 1000000 }),
     }),
   );
-  return ((await res.json()) as any).data;
+  return ((await res.json()) as { data: { id: string } }).data;
 }
 
 async function chat(cookies: string, message: string): Promise<Response> {
@@ -135,11 +136,11 @@ describe('POST /api/chat', () => {
     const response = await chat(cookies, 'belanja 125k');
 
     expect(response.status).toBe(201);
-    const body = (await response.json()) as any;
+    const body = (await response.json()) as ChatResult;
     expect(body.intent).toBe('add_transaction');
-    expect(body.transactions).toHaveLength(1);
-    expect(body.transactions[0].amount).toBe(125000);
-    expect(body.transactions[0].category).toBe('groceries');
+    expect(body.transactions?.length).toBe(1);
+    expect(body.transactions?.[0].amount).toBe(125000);
+    expect(body.transactions?.[0].category).toBe('groceries');
   });
 
   it('saves multiple transactions from one chat message', async () => {
@@ -172,12 +173,11 @@ describe('POST /api/chat', () => {
     const response = await chat(cookies, 'coffee 15k, lunch 30k');
 
     expect(response.status).toBe(201);
-    const body = (await response.json()) as any;
+    const body = (await response.json()) as ChatResult;
     expect(body.intent).toBe('add_transaction');
-    expect(body.transactions).toHaveLength(2);
-    expect(body.transactions[0].amount).toBe(15000);
-    expect(body.transactions[1].amount).toBe(30000);
-
+    expect(body.transactions?.length).toBe(2);
+    expect(body.transactions?.[0].amount).toBe(15000);
+    expect(body.transactions?.[1].amount).toBe(30000);
     // Verify both saved in DB
     const allTx = await db.query.transactions.findMany();
     expect(allTx.length).toBeGreaterThanOrEqual(2);
@@ -205,8 +205,8 @@ describe('POST /api/chat', () => {
     const response = await chat(cookies, 'coffee 20k');
 
     expect(response.status).toBe(201);
-    const body = (await response.json()) as any;
-    expect(body.transactions[0].accountId).toBe(acct.id);
+    const body = (await response.json()) as ChatResult;
+    expect(body.transactions?.[0].accountId).toBe(acct.id);
   });
 
   it('handles manage_account create intent', async () => {
@@ -225,11 +225,12 @@ describe('POST /api/chat', () => {
     const response = await chat(cookies, 'buat akun BCA bank 5jt');
 
     expect(response.status).toBe(200);
-    const body = (await response.json()) as any;
+    const body = (await response.json()) as ChatResult;
     expect(body.intent).toBe('manage_account');
     expect(body.account).toBeDefined();
-    expect(body.account.name).toBe('BCA');
-    expect(body.account.balance).toBe(5000000);
+    const acctResult = body.account as { name: string; balance: number };
+    expect(acctResult.name).toBe('BCA');
+    expect(acctResult.balance).toBe(5000000);
   });
 
   it('handles query intent (biggest_expense placeholder)', async () => {
@@ -246,7 +247,7 @@ describe('POST /api/chat', () => {
         headers: { Cookie: cookies },
       }),
     );
-    const sessionData = (await sessionRes.json()) as any;
+    const sessionData = (await sessionRes.json()) as { user: { id: string } };
     const userId = sessionData.user.id;
 
     await db.insert(transactions).values({
@@ -255,7 +256,7 @@ describe('POST /api/chat', () => {
       type: 'expense',
       amount: '50000',
       currency: 'IDR',
-      categoryId: cat!.id,
+      categoryId: cat?.id ?? 0,
       description: 'Expensive coffee',
       date: new Date(),
     });
@@ -278,7 +279,7 @@ describe('POST /api/chat', () => {
     const response = await chat(cookies, 'pengeluaran terbesar minggu ini?');
 
     expect(response.status).toBe(200);
-    const body = (await response.json()) as any;
+    const body = (await response.json()) as ChatResult;
     expect(body.intent).toBe('query');
     expect(body.reply).toContain('50');
     expect(body.queryResult).toBeDefined();

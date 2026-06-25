@@ -60,7 +60,9 @@ describe('Financial Accounts API', () => {
     );
 
     expect(response.status).toBe(201);
-    const body = (await response.json()) as any;
+    const body = (await response.json()) as unknown as {
+      data: { name: string; type: string; balance: number; isDefault: boolean };
+    };
     expect(body.data.name).toBe('BCA');
     expect(body.data.type).toBe('bank');
     expect(body.data.balance).toBe(5000000);
@@ -93,7 +95,7 @@ describe('Financial Accounts API', () => {
     );
 
     expect(response.status).toBe(200);
-    const body = (await response.json()) as any;
+    const body = (await response.json()) as unknown as { data: unknown[] };
     expect(body.data).toHaveLength(2);
   });
 
@@ -107,7 +109,8 @@ describe('Financial Accounts API', () => {
         body: JSON.stringify({ name: 'BCA', type: 'bank' }),
       }),
     );
-    const bca = ((await res1.json()) as any).data;
+    const bca = ((await res1.json()) as unknown as { data: { isDefault: boolean; id: string } })
+      .data;
     expect(bca.isDefault).toBe(true);
 
     const res2 = await app.handle(
@@ -117,7 +120,7 @@ describe('Financial Accounts API', () => {
         body: JSON.stringify({ name: 'GoPay', type: 'e-wallet' }),
       }),
     );
-    const gopay = ((await res2.json()) as any).data;
+    const gopay = ((await res2.json()) as unknown as { data: { id: string } }).data;
 
     // Set GoPay as default
     const patchRes = await app.handle(
@@ -128,7 +131,7 @@ describe('Financial Accounts API', () => {
       }),
     );
     expect(patchRes.status).toBe(200);
-    const updated = ((await patchRes.json()) as any).data;
+    const updated = ((await patchRes.json()) as unknown as { data: { isDefault: boolean } }).data;
     expect(updated.isDefault).toBe(true);
 
     // BCA should no longer be default
@@ -137,9 +140,11 @@ describe('Financial Accounts API', () => {
         headers: { Cookie: cookies },
       }),
     );
-    const all = ((await listRes.json()) as any).data;
+    const all = (
+      (await listRes.json()) as unknown as { data: Array<{ name: string; isDefault: boolean }> }
+    ).data;
     const bcaAccount = all.find((a: { name: string }) => a.name === 'BCA');
-    expect(bcaAccount.isDefault).toBe(false);
+    expect(bcaAccount?.isDefault).toBe(false);
   });
 
   it('prevents deleting the default account', async () => {
@@ -152,7 +157,7 @@ describe('Financial Accounts API', () => {
         body: JSON.stringify({ name: 'Cash', type: 'cash' }),
       }),
     );
-    const acct = ((await res.json()) as any).data;
+    const acct = ((await res.json()) as unknown as { data: { id: string } }).data;
 
     const delRes = await app.handle(
       new Request(`http://localhost/api/financial-accounts/${acct.id}`, {

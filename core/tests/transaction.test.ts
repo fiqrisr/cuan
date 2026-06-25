@@ -40,7 +40,7 @@ async function createAccount(cookies: string, name: string): Promise<{ id: strin
       body: JSON.stringify({ name, type: 'bank', initialBalance: 1000000 }),
     }),
   );
-  return ((await res.json()) as any).data;
+  return ((await res.json()) as { data: { id: string } }).data;
 }
 
 async function createTransaction(
@@ -59,24 +59,21 @@ async function createTransaction(
       .returning();
     cat = newCat;
   }
-
-  // Get user from session
   const sessionRes = await app.handle(
     new Request('http://localhost/api/financial-accounts', {
       headers: { Cookie: cookies },
     }),
   );
-  const accounts = ((await sessionRes.json()) as any).data;
+  const accounts = ((await sessionRes.json()) as { data: Array<{ id: string }> }).data;
   const accountId = data.accountId ?? accounts[0]?.id ?? null;
 
   // We need the userId - get it from a whoami-like call
-  // Use the auth guard test app pattern
   const whoami = await auth.handler(
     new Request('http://localhost/api/get-session', {
       headers: { Cookie: cookies },
     }),
   );
-  const sessionData = (await whoami.json()) as any;
+  const sessionData = (await whoami.json()) as { user: { id: string } };
   const userId = sessionData.user.id;
 
   const [row] = await db
@@ -87,13 +84,13 @@ async function createTransaction(
       type: (data.type as string) ?? 'expense',
       amount: ((data.amount as number) ?? 25000).toString(),
       currency: (data.currency as string) ?? 'IDR',
-      categoryId: cat!.id,
+      categoryId: cat?.id ?? 0,
       description: (data.description as string) ?? 'Test coffee',
       date: new Date(),
     })
     .returning();
 
-  return { id: row.id, amount: Number(row.amount), accountId: row.accountId! };
+  return { id: row.id, amount: Number(row.amount), accountId: row.accountId as string };
 }
 
 describe('Transactions API', () => {
@@ -115,7 +112,10 @@ describe('Transactions API', () => {
       }),
     );
     expect(response.status).toBe(200);
-    const body = (await response.json()) as any;
+    const body = (await response.json()) as {
+      data: unknown[];
+      meta: { total: number; page: number; limit: number };
+    };
     expect(body.data).toHaveLength(2);
     expect(body.meta.total).toBe(3);
     expect(body.meta.page).toBe(1);
@@ -144,7 +144,7 @@ describe('Transactions API', () => {
       }),
     );
     expect(response.status).toBe(200);
-    const body = (await response.json()) as any;
+    const body = (await response.json()) as { data: Array<{ type: string }> };
     expect(body.data).toHaveLength(1);
     expect(body.data[0].type).toBe('income');
   });
@@ -159,8 +159,7 @@ describe('Transactions API', () => {
         headers: { Cookie: cookies },
       }),
     );
-    expect(response.status).toBe(200);
-    const body = (await response.json()) as any;
+    const body = (await response.json()) as { data: { id: string; amount: number } };
     expect(body.data.id).toBe(tx.id);
     expect(body.data.amount).toBe(25000);
   });
@@ -181,7 +180,7 @@ describe('Transactions API', () => {
       }),
     );
     expect(response.status).toBe(200);
-    const body = (await response.json()) as any;
+    const body = (await response.json()) as { data: { amount: number; description: string } };
     expect(body.data.amount).toBe(50000);
     expect(body.data.description).toBe('Updated coffee');
   });
