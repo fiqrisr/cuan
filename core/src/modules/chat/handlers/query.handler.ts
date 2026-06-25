@@ -1,7 +1,7 @@
 import { and, count, desc, eq, gte, lte, type SQL, sum } from 'drizzle-orm';
 import { transactions } from '../../../db/schema';
 import { db } from '../../../lib/db';
-import type { QueryResponse } from '../../../lib/openmodel.schema';
+import type { QueryResponse } from '../../../lib/openmodel.types';
 import { financialAccountService } from '../../financial-account/financial-account.service';
 import type { ChatResult } from '../chat.types';
 

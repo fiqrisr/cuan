@@ -1,4 +1,4 @@
-import type { ManageAccountResponse } from '../../../lib/openmodel.schema';
+import type { ManageAccountResponse } from '../../../lib/openmodel.types';
 import { financialAccountService } from '../../financial-account/financial-account.service';
 import type { ChatResult } from '../chat.types';
 

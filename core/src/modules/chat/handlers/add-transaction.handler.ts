@@ -1,6 +1,6 @@
 import { transactions } from '../../../db/schema';
 import { db } from '../../../lib/db';
-import type { AddTransactionResponse } from '../../../lib/openmodel.schema';
+import type { AddTransactionResponse } from '../../../lib/openmodel.types';
 import { financialAccountService } from '../../financial-account/financial-account.service';
 import type { ChatResult, SavedTransaction } from '../chat.types';
 

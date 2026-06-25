@@ -1,6 +1,6 @@
-import { Elysia } from 'elysia';
+import { Elysia, t } from 'elysia';
 import { authGuard } from '../../lib/auth-guard';
-import { chatBodySchema } from './chat.schema';
+import { CreateChatRequestDto, CreateChatResponseDto } from './chat.dto';
 import { chatService } from './chat.service';
 
 export const chatController = new Elysia({ prefix: '/api/chat' }).use(authGuard).post(
@@ -18,6 +18,11 @@ export const chatController = new Elysia({ prefix: '/api/chat' }).use(authGuard)
   },
   {
     auth: true,
-    body: chatBodySchema,
+    body: CreateChatRequestDto,
+    response: {
+      200: CreateChatResponseDto,
+      201: CreateChatResponseDto,
+      400: t.Object({ error: t.String() }),
+    },
   },
 );

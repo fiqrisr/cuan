@@ -1,6 +1,6 @@
 import { env } from '../../lib/env';
 import { createOpenModelClient } from '../../lib/openmodel';
-import type { ChatResponse } from '../../lib/openmodel.schema';
+import type { ChatResponse } from '../../lib/openmodel.types';
 import type { ChatResult } from './chat.types';
 import { handleAddTransaction } from './handlers/add-transaction.handler';
 import { handleManageAccount } from './handlers/manage-account.handler';

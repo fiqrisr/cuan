@@ -1,13 +1,13 @@
-export interface ChatResult {
+export type ChatResult = {
   intent: string;
   reply: string;
   transactions?: SavedTransaction[];
   queryResult?: unknown;
   account?: unknown;
   accounts?: unknown[];
-}
+};
 
-export interface SavedTransaction {
+export type SavedTransaction = {
   id: string;
   userId: string;
   accountId: string | null;
@@ -19,4 +19,4 @@ export interface SavedTransaction {
   date: string;
   createdAt: string;
   updatedAt: string;
-}
+};

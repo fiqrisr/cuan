@@ -1,3 +1,3 @@
 export * from './chat.controller';
-export * from './chat.schema';
+export * from './chat.dto';
 export * from './chat.service';
