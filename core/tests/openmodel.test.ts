@@ -37,7 +37,7 @@ function makeFakeFetch(responseBody: unknown) {
 }
 
 describe('createOpenModelClient', () => {
-  it('parses a plain JSON response into an expense and reply', async () => {
+  it('parses a plain JSON response into a transaction and reply', async () => {
     const client = createOpenModelClient({
       apiKey: 'test-key',
       baseUrl: 'https://api.openmodel.ai',
@@ -45,14 +45,15 @@ describe('createOpenModelClient', () => {
       fetch: makeFakeFetch(
         makeResponsePayload(
           JSON.stringify({
-            expense: {
+            transaction: {
+              type: 'expense',
               amount: 150000,
               currency: 'IDR',
-              category: 'Transport',
+              category: 'public-transit',
               description: 'Taxi to airport',
-              date: '2026-06-24',
+              date: '2026-06-25T08:00:00.000Z',
             },
-            reply: 'Got it, saved your transport expense.',
+            reply: 'Got it, saved your transport transaction.',
           }),
         ),
       ),
@@ -60,10 +61,10 @@ describe('createOpenModelClient', () => {
 
     const result = await client.chat('Taxi to airport cost 150k');
 
-    expect(result.expense.amount).toBe(150000);
-    expect(result.expense.currency).toBe('IDR');
-    expect(result.expense.category).toBe('Transport');
-    expect(result.reply).toBe('Got it, saved your transport expense.');
+    expect(result.transaction.amount).toBe(150000);
+    expect(result.transaction.currency).toBe('IDR');
+    expect(result.transaction.category).toBe('public-transit');
+    expect(result.reply).toBe('Got it, saved your transport transaction.');
   });
 
   it('extracts JSON from a markdown code fence', async () => {
@@ -75,12 +76,13 @@ describe('createOpenModelClient', () => {
         makeResponsePayload(
           '```json\n' +
             JSON.stringify({
-              expense: {
+              transaction: {
+                type: 'expense',
                 amount: '25000',
                 currency: 'IDR',
-                category: 'Food',
+                category: 'coffee',
                 description: 'Coffee',
-                date: '2026-06-24',
+                date: '2026-06-25T08:00:00.000Z',
               },
               reply: 'Saved.',
             }) +
@@ -91,8 +93,8 @@ describe('createOpenModelClient', () => {
 
     const result = await client.chat('Coffee 25k');
 
-    expect(result.expense.amount).toBe(25000);
-    expect(result.expense.description).toBe('Coffee');
+    expect(result.transaction.amount).toBe(25000);
+    expect(result.transaction.description).toBe('Coffee');
   });
 
   it('throws when the upstream request fails', async () => {

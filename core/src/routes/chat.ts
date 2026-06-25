@@ -1,5 +1,5 @@
 import { Elysia, t } from 'elysia';
-import { expenses } from '../db/schema';
+import { transactions } from '../db/schema';
 import { authGuard } from '../lib/auth-guard';
 import { db } from '../lib/db';
 import { env } from '../lib/env';
@@ -14,9 +14,9 @@ const openmodel = createOpenModelClient({
 export const chatRoutes = new Elysia({ prefix: '/api/chat' }).use(authGuard).post(
   '/',
   async ({ body, user, set }) => {
-    const { expense, reply } = await openmodel.chat(body.message);
+    const { transaction, reply } = await openmodel.chat(body.message);
 
-    const categoryName = expense.category;
+    const categoryName = transaction.category;
     const cat = await db.query.categories.findFirst({
       where: (categories, { eq }) => eq(categories.name, categoryName),
     });
@@ -27,20 +27,21 @@ export const chatRoutes = new Elysia({ prefix: '/api/chat' }).use(authGuard).pos
     }
 
     const [saved] = await db
-      .insert(expenses)
+      .insert(transactions)
       .values({
         userId: user.id,
-        amount: expense.amount.toString(),
-        currency: expense.currency,
+        type: transaction.type,
+        amount: transaction.amount.toString(),
+        currency: transaction.currency,
         categoryId: cat.id,
-        description: expense.description,
-        date: expense.date,
+        description: transaction.description,
+        date: new Date(transaction.date),
       })
       .returning();
 
     set.status = 201;
     return {
-      expense: {
+      transaction: {
         ...saved,
         category: cat.name,
         amount: Number(saved.amount),

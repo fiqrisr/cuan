@@ -2,27 +2,29 @@ import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it } from
 import type { Server } from 'bun';
 import { z } from 'zod';
 import { app } from '../src/app';
-import { account, expenses, session, user, verification } from '../src/db/schema';
+import { account, transactions, session, user, verification } from '../src/db/schema';
 import { auth } from '../src/lib/auth';
 import { db } from '../src/lib/db';
 
 const MOCK_PORT = 3999;
 
 const mockResponse = {
-  expense: {
+  transaction: {
+    type: 'expense',
     amount: 125000,
     currency: 'IDR',
     category: 'groceries',
     description: 'Weekly groceries',
-    date: '2026-06-24',
+    date: '2026-06-24T08:00:00.000Z',
   },
-  reply: 'Saved your weekly grocery expense.',
+  reply: 'Saved your weekly grocery transaction.',
 };
 
 const chatResponseSchema = z.object({
-  expense: z.object({
+  transaction: z.object({
     id: z.string().uuid(),
     userId: z.string(),
+    type: z.string(),
     amount: z.number(),
     currency: z.string(),
     category: z.string(),
@@ -35,7 +37,7 @@ const chatResponseSchema = z.object({
 let mockServer: Server<unknown>;
 
 async function clearDatabase(): Promise<void> {
-  await db.delete(expenses);
+  await db.delete(transactions);
   await db.delete(session);
   await db.delete(account);
   await db.delete(verification);
@@ -99,7 +101,7 @@ describe('POST /api/chat', () => {
   beforeEach(clearDatabase);
   afterEach(clearDatabase);
 
-  it('saves an expense extracted from a chat message', async () => {
+  it('saves a transaction extracted from a chat message', async () => {
     const email = `chat-${Date.now()}@example.com`;
     const signUpResponse = await signUp(email);
     expect(signUpResponse.status).toBe(200);
@@ -120,15 +122,16 @@ describe('POST /api/chat', () => {
     const body = chatResponseSchema.parse(await response.json());
 
     expect(body.reply).toBe(mockResponse.reply);
-    expect(body.expense.amount).toBe(125000);
-    expect(body.expense.category).toBe('groceries');
-    expect(body.expense.description).toBe('Weekly groceries');
-    expect(body.expense.date).toBe('2026-06-24');
+    expect(body.transaction.type).toBe('expense');
+    expect(body.transaction.amount).toBe(125000);
+    expect(body.transaction.category).toBe('groceries');
+    expect(body.transaction.description).toBe('Weekly groceries');
+    expect(body.transaction.date).toBe(new Date('2026-06-24T08:00:00.000Z').toISOString());
 
-    const saved = await db.query.expenses.findFirst({
-      where: (expenses, { eq }) => eq(expenses.id, body.expense.id),
+    const saved = await db.query.transactions.findFirst({
+      where: (transactions, { eq }) => eq(transactions.id, body.transaction.id),
     });
     expect(saved).toBeDefined();
-    expect(saved?.userId).toBe(body.expense.userId);
+    expect(saved?.userId).toBe(body.transaction.userId);
   });
 });

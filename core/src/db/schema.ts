@@ -1,6 +1,5 @@
 import { relations } from 'drizzle-orm';
 import {
-  date,
   index,
   integer,
   numeric,
@@ -26,35 +25,36 @@ export const categories = pgTable(
 );
 
 export const categoryRelations = relations(categories, ({ many }) => ({
-  expenses: many(expenses),
+  transactions: many(transactions),
 }));
 
-export const expenses = pgTable('expenses', {
+export const transactions = pgTable('transactions', {
   id: uuid('id').defaultRandom().primaryKey(),
   userId: text('user_id')
     .notNull()
     .references(() => user.id, { onDelete: 'cascade' }),
+  type: text('type').notNull(), // 'expense' or 'income'
   amount: numeric('amount', { precision: 12, scale: 2 }).notNull(),
   currency: text('currency').notNull().default('IDR'),
   categoryId: integer('category_id')
     .references(() => categories.id)
     .notNull(),
   description: text('description').notNull(),
-  date: date('date').notNull(),
+  date: timestamp('date', { withTimezone: true }).defaultNow().notNull(),
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
 });
 
-export const expenseRelations = relations(expenses, ({ one }) => ({
+export const transactionRelations = relations(transactions, ({ one }) => ({
   user: one(user, {
-    fields: [expenses.userId],
+    fields: [transactions.userId],
     references: [user.id],
   }),
   category: one(categories, {
-    fields: [expenses.categoryId],
+    fields: [transactions.categoryId],
     references: [categories.id],
   }),
 }));
 
-export type Expense = typeof expenses.$inferSelect;
-export type NewExpense = typeof expenses.$inferInsert;
+export type Transaction = typeof transactions.$inferSelect;
+export type NewTransaction = typeof transactions.$inferInsert;

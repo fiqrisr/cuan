@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it } from 'bun:test';
 import { Elysia } from 'elysia';
 import { z } from 'zod';
-import { account, expenses, session, user, verification } from '../src/db/schema';
+import { account, transactions, session, user, verification } from '../src/db/schema';
 import { auth } from '../src/lib/auth';
 import { authGuard } from '../src/lib/auth-guard';
 import { db } from '../src/lib/db';
@@ -13,7 +13,7 @@ const testApp = new Elysia()
   });
 
 async function clearDatabase(): Promise<void> {
-  await db.delete(expenses);
+  await db.delete(transactions);
   await db.delete(session);
   await db.delete(account);
   await db.delete(verification);
