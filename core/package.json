@@ -12,7 +12,8 @@
     "db:reset": "bash scripts/reset-dev-db.sh",
     "db:generate-auth": "better-auth generate",
     "db:migrate": "drizzle-kit migrate",
-    "db:push": "drizzle-kit push"
+    "db:push": "drizzle-kit push",
+    "db:seed": "bun run scripts/seed.ts"
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^3.0.86",

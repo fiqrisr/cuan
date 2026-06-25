@@ -54,7 +54,7 @@ const SYSTEM_PROMPT = `You are an expense tracking assistant. Extract an expense
   "expense": {
     "amount": number,
     "currency": "3-letter ISO code, e.g. IDR or USD",
-    "category": "one or two words, e.g. Food, Transport, Utilities",
+    "category": "MUST be exactly one of the following kebab-case values: groceries, dining-out, coffee, snacks, public-transit, ride-hailing, fuel, parking, maintenance, rent, electricity, water, internet, subscriptions, gaming, hobbies, events, clothing, electronics, personal-care, medical, pharmacy, fitness, flights, accommodation, vacation, savings, investment, insurance, gifts, charity, misc",
     "description": "short summary of the expense",
     "date": "YYYY-MM-DD"
   },

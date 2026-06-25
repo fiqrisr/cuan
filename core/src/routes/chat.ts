@@ -16,13 +16,23 @@ export const chatRoutes = new Elysia({ prefix: '/api/chat' }).use(authGuard).pos
   async ({ body, user, set }) => {
     const { expense, reply } = await openmodel.chat(body.message);
 
+    const categoryName = expense.category;
+    const cat = await db.query.categories.findFirst({
+      where: (categories, { eq }) => eq(categories.name, categoryName),
+    });
+
+    if (!cat) {
+      set.status = 400;
+      return { error: `Category '${categoryName}' not found` };
+    }
+
     const [saved] = await db
       .insert(expenses)
       .values({
         userId: user.id,
         amount: expense.amount.toString(),
         currency: expense.currency,
-        category: expense.category,
+        categoryId: cat.id,
         description: expense.description,
         date: expense.date,
       })
@@ -32,6 +42,7 @@ export const chatRoutes = new Elysia({ prefix: '/api/chat' }).use(authGuard).pos
     return {
       expense: {
         ...saved,
+        category: cat.name,
         amount: Number(saved.amount),
       },
       reply,

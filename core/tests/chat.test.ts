@@ -12,7 +12,7 @@ const mockResponse = {
   expense: {
     amount: 125000,
     currency: 'IDR',
-    category: 'Groceries',
+    category: 'groceries',
     description: 'Weekly groceries',
     date: '2026-06-24',
   },
@@ -121,7 +121,7 @@ describe('POST /api/chat', () => {
 
     expect(body.reply).toBe(mockResponse.reply);
     expect(body.expense.amount).toBe(125000);
-    expect(body.expense.category).toBe('Groceries');
+    expect(body.expense.category).toBe('groceries');
     expect(body.expense.description).toBe('Weekly groceries');
     expect(body.expense.date).toBe('2026-06-24');
 
