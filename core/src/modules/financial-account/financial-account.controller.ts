@@ -1,6 +1,13 @@
 import { Elysia, t } from 'elysia';
 import { authGuard } from '../../lib/auth-guard';
+import {
+  CreateFinancialAccountRequestDto,
+  FinancialAccountResponseDto,
+  GetFinancialAccountsResponseDto,
+  UpdateFinancialAccountRequestDto,
+} from './financial-account.dto';
 import { AccountError, financialAccountService } from './financial-account.service';
+import type { FormattedAccount } from './financial-account.types';
 
 export const financialAccountController = new Elysia({ prefix: '/api/financial-accounts' })
   .use(authGuard)
@@ -17,7 +24,10 @@ export const financialAccountController = new Elysia({ prefix: '/api/financial-a
       const accounts = await financialAccountService.getByUserId(user.id);
       return { data: accounts.map(formatAccount) };
     },
-    { auth: true },
+    {
+      auth: true,
+      response: GetFinancialAccountsResponseDto,
+    },
   )
   .post(
     '/',
@@ -34,17 +44,10 @@ export const financialAccountController = new Elysia({ prefix: '/api/financial-a
     },
     {
       auth: true,
-      body: t.Object({
-        name: t.String({ minLength: 1 }),
-        type: t.Union([
-          t.Literal('bank'),
-          t.Literal('e-wallet'),
-          t.Literal('cash'),
-          t.Literal('other'),
-        ]),
-        currency: t.Optional(t.String({ minLength: 3, maxLength: 3 })),
-        initialBalance: t.Optional(t.Number({ minimum: 0 })),
-      }),
+      body: CreateFinancialAccountRequestDto,
+      response: {
+        201: FinancialAccountResponseDto,
+      },
     },
   )
   .patch(
@@ -56,18 +59,8 @@ export const financialAccountController = new Elysia({ prefix: '/api/financial-a
     {
       auth: true,
       params: t.Object({ id: t.String({ format: 'uuid' }) }),
-      body: t.Object({
-        name: t.Optional(t.String({ minLength: 1 })),
-        type: t.Optional(
-          t.Union([
-            t.Literal('bank'),
-            t.Literal('e-wallet'),
-            t.Literal('cash'),
-            t.Literal('other'),
-          ]),
-        ),
-        isDefault: t.Optional(t.Boolean()),
-      }),
+      body: UpdateFinancialAccountRequestDto,
+      response: FinancialAccountResponseDto,
     },
   )
   .delete(
@@ -81,17 +74,6 @@ export const financialAccountController = new Elysia({ prefix: '/api/financial-a
       params: t.Object({ id: t.String({ format: 'uuid' }) }),
     },
   );
-
-export interface FormattedAccount {
-  id: string;
-  name: string;
-  type: string;
-  currency: string;
-  balance: number;
-  isDefault: boolean;
-  createdAt: string;
-  updatedAt: string;
-}
 
 function formatAccount(a: {
   id: string;
