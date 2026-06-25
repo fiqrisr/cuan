@@ -1,0 +1,6 @@
+# Git Commit Rules
+
+## Conventional Commits Scope
+- Do NOT use descriptive text inside the scope of a commit message (e.g., `feat(ai): ...`).
+- ONLY use the app or package name as the scope (e.g., `feat(core): ...`, `fix(web-app): ...`, `chore(docs): ...`).
+- If a commit affects multiple apps, either split the commit or omit the scope (e.g., `feat: ...`) depending on the team's preference, but never invent a custom descriptive scope.
