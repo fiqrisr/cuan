@@ -19,8 +19,16 @@ export const auth = betterAuth({
   plugins: [openAPI()],
 });
 
-let _schema: ReturnType<typeof auth.api.generateOpenAPISchema>;
-const getSchema = async () => (_schema ??= auth.api.generateOpenAPISchema());
+interface OpenAPISchema {
+  paths: Record<string, Record<string, unknown>>;
+  components: Record<string, unknown>;
+}
+
+let _schema: Promise<OpenAPISchema> | undefined;
+const getSchema = async () => {
+  _schema ??= auth.api.generateOpenAPISchema() as Promise<OpenAPISchema>;
+  return _schema;
+};
 export const OpenAPI = {
   getPaths: (prefix = '/auth/api') =>
     getSchema().then(({ paths }) => {
