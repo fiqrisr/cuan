@@ -9,6 +9,7 @@ export const financialAccountController = new Elysia({ prefix: '/api/financial-a
       set.status = error.statusCode;
       return { error: error.message };
     }
+    return undefined;
   })
   .get(
     '/',
@@ -81,7 +82,7 @@ export const financialAccountController = new Elysia({ prefix: '/api/financial-a
     },
   );
 
-interface FormattedAccount {
+export interface FormattedAccount {
   id: string;
   name: string;
   type: string;
