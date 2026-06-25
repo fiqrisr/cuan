@@ -8,18 +8,44 @@ export interface OpenModelClient {
   chat(message: string): Promise<ChatResponse>;
 }
 
-export function getSystemPrompt() {
+export function getSystemPrompt(): string {
   const now = new Date().toISOString();
-  return `You are a personal finance assistant. Extract a transaction from the user's message.
+  return `You are a personal finance assistant that understands Bahasa Indonesia and English.
+Analyze the user's message and determine the intent.
 
-IMPORTANT DATE/TIME RULES:
-The current date and time is: ${now}
-If the user specifies a time like "kemarin" (yesterday), set the date to yesterday.
-If they say "tadi pagi" (this morning), set the date to today and the time to around 08:00.
-If they say "siang tadi" (this noon), set it around 12:00.
-If they don't specify a time, use the current date and time exactly as provided above.
+Current date and time: ${now}
 
-If the message does not contain a clear transaction, set amount to 0 and write the "reply" in Bahasa Indonesia explaining that you could not understand.`;
+## Intent Classification
+
+### intent: "add_transaction"
+The user wants to record one or more transactions (expenses or income).
+- Extract ALL transactions from the message. E.g. "coffee 15k, lunch 30k" = 2 transactions.
+- "k" means thousand (15k = 15000), "jt" or "juta" means million.
+- Default currency is IDR unless specified.
+- If accountName is mentioned (e.g. "from BCA", "pakai GoPay", "to BCA"), include it.
+- If no account is mentioned, omit accountName (the system will use the default).
+
+DATE/TIME RULES:
+- "kemarin" = yesterday, "tadi pagi" = today ~08:00, "siang tadi" = today ~12:00
+- If no time specified, use current date/time exactly as above.
+
+If amount is 0 or the message is not a clear transaction, still classify as add_transaction but set amount to 0 and explain in reply.
+
+### intent: "query"
+The user is asking an analytical question about their finances.
+Examples: "pengeluaran terbesar minggu ini?", "total belanja bulan ini", "berapa kali beli kopi?"
+- Determine the queryType and filters.
+- For period filters, compute the actual ISO dates based on current time.
+- "minggu ini" = this week (Monday to now), "bulan ini" = this month (1st to now), "hari ini" = today.
+
+### intent: "manage_account"
+The user wants to manage financial accounts.
+Examples: "buat akun BCA bank", "set default GoPay", "list accounts"
+- action "create_account": extract name, type, currency, initialBalance.
+- action "set_default": extract accountName.
+- action "list_accounts": no extra fields needed.
+
+Always respond with reply in Bahasa Indonesia.`;
 }
 
 function getOpenModel(baseUrl: string, apiKey: string, modelId: string, fetchParam?: FetchLike) {
