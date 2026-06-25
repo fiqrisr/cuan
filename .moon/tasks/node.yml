@@ -9,18 +9,28 @@ inheritedBy:
 # Shared tasks for Node-based tooling. Commands run from the inheriting project root.
 tasks:
   format:
-    command: 'prettier --write .'
+    command: 'biome format --write .'
     toolchains: ['javascript', 'node']
     options:
       runInCI: false
 
   format-check:
-    command: 'prettier --check .'
+    command: 'biome format .'
     toolchains: ['javascript', 'node']
 
   lint:
-    command: 'eslint --no-error-on-unmatched-pattern .'
+    command: 'biome lint .'
     toolchains: ['javascript', 'node']
+
+  check:
+    command: 'biome check .'
+    toolchains: ['javascript', 'node']
+
+  check-write:
+    command: 'biome check --write .'
+    toolchains: ['javascript', 'node']
+    options:
+      runInCI: false
 
   typecheck:
     command: 'tsc --noEmit'

@@ -1,10 +1,10 @@
-import { z } from 'zod';
-import { describe, it, expect, beforeAll, afterAll, beforeEach, afterEach } from 'bun:test';
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it } from 'bun:test';
 import type { Server } from 'bun';
+import { z } from 'zod';
 import { app } from '../src/app';
+import { account, expenses, session, user, verification } from '../src/db/schema';
 import { auth } from '../src/lib/auth';
 import { db } from '../src/lib/db';
-import { expenses, account, session, user, verification } from '../src/db/schema';
 
 const MOCK_PORT = 3999;
 

@@ -1,8 +1,8 @@
 import { Elysia, t } from 'elysia';
-import { db } from '../lib/db';
 import { expenses } from '../db/schema';
-import { env } from '../lib/env';
 import { authGuard } from '../lib/auth-guard';
+import { db } from '../lib/db';
+import { env } from '../lib/env';
 import { createOpenModelClient } from '../lib/openmodel';
 
 const openmodel = createOpenModelClient({

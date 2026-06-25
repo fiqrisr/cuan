@@ -1,10 +1,10 @@
-import { z } from 'zod';
-import { describe, it, expect, beforeEach, afterEach } from 'bun:test';
+import { afterEach, beforeEach, describe, expect, it } from 'bun:test';
 import { Elysia } from 'elysia';
+import { z } from 'zod';
+import { account, expenses, session, user, verification } from '../src/db/schema';
 import { auth } from '../src/lib/auth';
 import { authGuard } from '../src/lib/auth-guard';
 import { db } from '../src/lib/db';
-import { expenses, account, session, user, verification } from '../src/db/schema';
 
 const testApp = new Elysia()
   .use(authGuard)

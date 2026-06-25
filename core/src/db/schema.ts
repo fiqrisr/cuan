@@ -1,6 +1,8 @@
 import { relations } from 'drizzle-orm';
 import { date, numeric, pgTable, text, timestamp, uuid } from 'drizzle-orm/pg-core';
+
 export * from './auth-schema';
+
 import { user } from './auth-schema';
 
 export const expenses = pgTable('expenses', {
