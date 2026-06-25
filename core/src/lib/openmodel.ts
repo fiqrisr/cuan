@@ -1,10 +1,10 @@
 import { createAnthropic } from '@ai-sdk/anthropic';
 import { createOpenAI } from '@ai-sdk/openai';
-import { streamText } from 'ai';
+import { generateObject } from 'ai';
 import { z } from 'zod';
 
 const extractedTransactionSchema = z.object({
-  type: z.enum(['expense', 'income']),
+  type: z.enum(['expense', 'income']).describe('Whether this is an expense or income'),
   amount: z.union([z.number(), z.string()]).transform(value => {
     const parsed = typeof value === 'string' ? Number(value) : value;
     if (Number.isNaN(parsed) || parsed <= 0) {
@@ -12,16 +12,24 @@ const extractedTransactionSchema = z.object({
     }
     return parsed;
   }),
-  currency: z.string().length(3).default('IDR'),
-  category: z.string().min(1),
-  description: z.string().min(1),
-  date: z.string().datetime(),
+  currency: z.string().length(3).default('IDR').describe('3-letter ISO code, default IDR'),
+  category: z.enum([
+    'groceries', 'dining-out', 'coffee', 'snacks', 'public-transit',
+    'ride-hailing', 'fuel', 'parking', 'maintenance', 'rent', 'electricity',
+    'water', 'internet', 'subscriptions', 'gaming', 'hobbies', 'events',
+    'clothing', 'electronics', 'personal-care', 'medical', 'pharmacy',
+    'fitness', 'flights', 'accommodation', 'vacation', 'savings', 'investment',
+    'insurance', 'gifts', 'charity', 'misc'
+  ]),
+  description: z.string().min(1).describe('Short summary of the transaction'),
+  date: z.string().datetime().describe('ISO 8601 string of the transaction date. Resolve relative times using the provided current time.'),
 });
 
 const chatResponseSchema = z.object({
   transaction: extractedTransactionSchema,
-  reply: z.string().min(1),
+  reply: z.string().min(1).describe('A friendly one-sentence confirmation to show the user, written in Bahasa Indonesia. If not a valid transaction, explain why.'),
 });
+
 
 export interface ExtractedTransaction {
   type: 'expense' | 'income';
@@ -52,19 +60,7 @@ export type FetchLike = (input: string | URL | Request, init?: RequestInit) => P
 
 export function getSystemPrompt() {
   const now = new Date().toISOString();
-  return `You are a personal finance assistant. Extract a transaction from the user's message and respond with a single JSON object (no markdown, no explanation) in this exact shape:
-
-{
-  "transaction": {
-    "type": "expense or income",
-    "amount": number,
-    "currency": "3-letter ISO code, e.g. IDR or USD",
-    "category": "MUST be exactly one of the following kebab-case values: groceries, dining-out, coffee, snacks, public-transit, ride-hailing, fuel, parking, maintenance, rent, electricity, water, internet, subscriptions, gaming, hobbies, events, clothing, electronics, personal-care, medical, pharmacy, fitness, flights, accommodation, vacation, savings, investment, insurance, gifts, charity, misc",
-    "description": "short summary of the transaction",
-    "date": "ISO 8601 string (e.g. 2026-06-25T08:00:00.000Z)"
-  },
-  "reply": "a friendly one-sentence confirmation to show the user, written in Bahasa Indonesia"
-}
+  return `You are a personal finance assistant. Extract a transaction from the user's message.
 
 IMPORTANT DATE/TIME RULES:
 The current date and time is: ${now}
@@ -92,31 +88,15 @@ export function createOpenModelClient(options: OpenModelClientOptions): OpenMode
 
   return {
     async chat(message: string): Promise<ChatResponse> {
-      const stream = streamText({
+      const result = await generateObject({
         model: openModel,
+        schema: chatResponseSchema,
         system: getSystemPrompt(),
         prompt: message,
         temperature: 0.2,
       });
 
-      const streamResult = stream.toTextStreamResponse();
-      const body = await streamResult.body?.json();
-
-      if (!streamResult.ok) {
-        throw new Error(`OpenModel request failed (${streamResult.status}): ${body}`);
-      }
-
-      if (!body) {
-        throw new Error('OpenModel response did not contain any content');
-      }
-
-      const parsed = chatResponseSchema.safeParse(body);
-
-      if (!parsed.success) {
-        throw new Error(`Failed to parse extracted transaction: ${parsed.error.message}`);
-      }
-
-      return parsed.data;
+      return result.object;
     },
   };
 }
