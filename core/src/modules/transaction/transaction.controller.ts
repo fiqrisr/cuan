@@ -1,5 +1,11 @@
 import { Elysia, t } from 'elysia';
 import { authGuard } from '../../lib/auth-guard';
+import {
+  ListTransactionsRequestDto,
+  ListTransactionsResponseDto,
+  TransactionResponseDto,
+  UpdateTransactionRequestDto,
+} from './transaction.dto';
 import { TransactionError, transactionService } from './transaction.service';
 
 export const transactionController = new Elysia({ prefix: '/api/transactions' })
@@ -29,19 +35,8 @@ export const transactionController = new Elysia({ prefix: '/api/transactions' })
     },
     {
       auth: true,
-      query: t.Object({
-        type: t.Optional(t.Union([t.Literal('expense'), t.Literal('income')])),
-        category: t.Optional(t.String()),
-        accountId: t.Optional(t.String()),
-        from: t.Optional(t.String()),
-        to: t.Optional(t.String()),
-        page: t.Optional(t.String()),
-        limit: t.Optional(t.String()),
-        sort: t.Optional(
-          t.Union([t.Literal('date'), t.Literal('amount'), t.Literal('created_at')]),
-        ),
-        order: t.Optional(t.Union([t.Literal('asc'), t.Literal('desc')])),
-      }),
+      query: ListTransactionsRequestDto,
+      response: ListTransactionsResponseDto,
     },
   )
   .get(
@@ -57,6 +52,10 @@ export const transactionController = new Elysia({ prefix: '/api/transactions' })
     {
       auth: true,
       params: t.Object({ id: t.String({ format: 'uuid' }) }),
+      response: {
+        200: TransactionResponseDto,
+        404: t.Object({ error: t.String() }),
+      },
     },
   )
   .patch(
@@ -68,14 +67,8 @@ export const transactionController = new Elysia({ prefix: '/api/transactions' })
     {
       auth: true,
       params: t.Object({ id: t.String({ format: 'uuid' }) }),
-      body: t.Object({
-        amount: t.Optional(t.Number({ minimum: 0 })),
-        description: t.Optional(t.String({ minLength: 1 })),
-        categoryId: t.Optional(t.Number()),
-        date: t.Optional(t.String()),
-        type: t.Optional(t.Union([t.Literal('expense'), t.Literal('income')])),
-        accountId: t.Optional(t.String({ format: 'uuid' })),
-      }),
+      body: UpdateTransactionRequestDto,
+      response: TransactionResponseDto,
     },
   )
   .delete(

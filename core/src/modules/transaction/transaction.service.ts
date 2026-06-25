@@ -2,39 +2,11 @@ import { and, count, eq, gte, lte, sql } from 'drizzle-orm';
 import { financialAccounts, transactions } from '../../db/schema';
 import { db } from '../../lib/db';
 import type { Transaction } from './transaction.schema';
-
-export interface TransactionFilters {
-  userId: string;
-  type?: 'expense' | 'income';
-  category?: string;
-  accountId?: string;
-  from?: string;
-  to?: string;
-  page?: number;
-  limit?: number;
-  sort?: 'date' | 'amount' | 'created_at';
-  order?: 'asc' | 'desc';
-}
-
-export interface PaginatedResult {
-  data: FormattedTransaction[];
-  meta: { page: number; limit: number; total: number };
-}
-
-export interface FormattedTransaction {
-  id: string;
-  userId: string;
-  accountId: string | null;
-  type: string;
-  amount: number;
-  currency: string;
-  categoryId: number;
-  category: string | null;
-  description: string;
-  date: string;
-  createdAt: string;
-  updatedAt: string;
-}
+import type {
+  FormattedTransaction,
+  PaginatedResult,
+  TransactionFilters,
+} from './transaction.types';
 
 function formatTransaction(tx: Transaction, categoryName: string | null): FormattedTransaction {
   return {
