@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { describe, it, expect, beforeAll, afterAll, beforeEach, afterEach } from 'bun:test';
 import type { Server } from 'bun';
-import { createApp } from '../src/app';
+import { app } from '../src/app';
 import { auth } from '../src/lib/auth';
 import { db } from '../src/lib/db';
 import { expenses, account, session, user, verification } from '../src/db/schema';
@@ -100,7 +100,6 @@ describe('POST /api/chat', () => {
   afterEach(clearDatabase);
 
   it('saves an expense extracted from a chat message', async () => {
-    const app = createApp();
     const email = `chat-${Date.now()}@example.com`;
     const signUpResponse = await signUp(email);
     expect(signUpResponse.status).toBe(200);

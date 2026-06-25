@@ -1,8 +1,6 @@
-import { createApp } from './app';
+import { app } from './app';
 import { env } from './lib/env';
 import { pool } from './lib/db';
-
-const app = await createApp();
 
 const server = app.listen(env.PORT, () => {
   console.log(`🚀 Core API running at http://localhost:${env.PORT}`);

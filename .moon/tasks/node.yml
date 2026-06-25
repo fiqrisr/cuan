@@ -22,3 +22,9 @@ tasks:
     command: 'eslint --no-error-on-unmatched-pattern .'
     toolchains: ['javascript', 'node']
 
+  typecheck:
+    command: 'tsc --noEmit'
+    inputs:
+      - 'src/**/*'
+      - 'tsconfig.json'
+
