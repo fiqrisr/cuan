@@ -1,12 +1,12 @@
 import { createAnthropic } from '@ai-sdk/anthropic';
 import { createOpenAI } from '@ai-sdk/openai';
 import { generateObject } from 'ai';
-import type { ChatResponse, FetchLike, OpenModelClientOptions } from './openmodel.schema';
 import { chatResponseSchema } from './openmodel.schema';
+import type { ChatResponse, FetchLike, OpenModelClientOptions } from './openmodel.types';
 
-export interface OpenModelClient {
+export type OpenModelClient = {
   chat(message: string): Promise<ChatResponse>;
-}
+};
 
 export function getSystemPrompt(): string {
   const now = new Date().toISOString();
