@@ -37,6 +37,9 @@ The monorepo uses **Moonrepo** for task orchestration and **Bun** as the primary
 - **Formatting Rules**: Enforced by **Biome**. 2 spaces, 100 character line limit, single quotes, and trailing commas.
 - **Git Commits**: Must use Conventional Commits. The scope **MUST** exactly match the project name (e.g., `feat(core): ...`, `fix(web-app): ...`). Enforced by `.cursorrules`.
 
+- **Types**: Put all type definitions into their own type file, e.g., `chat.types.ts`. Import the types to the file that uses it. ALWAYS use `type` instead of `interface`.
+- **DTOs**: Put all Data Transfer Objects (DTOs) into their own DTO file using Elysia's TypeBox (`t`), e.g., `chat.dto.ts`. Name DTOs explicitly like `CreateFinancialAccountRequestDto` and `CreateFinancialAccountResponseDto`. Always create explicit DTOs for both requests and responses.
+
 ## Important Files
 - `core/src/app.ts`: Elysia app definition, global error handling, and route mounting.
 - `core/src/db/schema.ts`: Central barrel file aggregating Drizzle schemas from individual modules.
