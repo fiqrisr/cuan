@@ -22,7 +22,7 @@ async function clearDatabase(): Promise<void> {
 
 async function signUp(email: string): Promise<Response> {
   return auth.handler(
-    new Request('http://localhost/api/auth/sign-up/email', {
+    new Request('http://localhost/api/sign-up/email', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({

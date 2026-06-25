@@ -1,9 +1,7 @@
-import { Elysia, t } from 'elysia';
-import { transactions } from '../db/schema';
-import { authGuard } from '../lib/auth-guard';
-import { db } from '../lib/db';
-import { env } from '../lib/env';
-import { createOpenModelClient } from '../lib/openmodel';
+import { transactions } from '../../db/schema';
+import { db } from '../../lib/db';
+import { env } from '../../lib/env';
+import { createOpenModelClient } from '../../lib/openmodel';
 
 const openmodel = createOpenModelClient({
   apiKey: env.OPENMODEL_API_KEY,
@@ -11,10 +9,9 @@ const openmodel = createOpenModelClient({
   model: env.OPENMODEL_MODEL,
 });
 
-export const chatRoutes = new Elysia({ prefix: '/api/chat' }).use(authGuard).post(
-  '/',
-  async ({ body, user, set }) => {
-    const { transaction, reply } = await openmodel.chat(body.message);
+export class ChatService {
+  async processChat(message: string, userId: string) {
+    const { transaction, reply } = await openmodel.chat(message);
 
     const categoryName = transaction.category;
     const cat = await db.query.categories.findFirst({
@@ -22,14 +19,13 @@ export const chatRoutes = new Elysia({ prefix: '/api/chat' }).use(authGuard).pos
     });
 
     if (!cat) {
-      set.status = 400;
       return { error: `Category '${categoryName}' not found` };
     }
 
     const [saved] = await db
       .insert(transactions)
       .values({
-        userId: user.id,
+        userId,
         type: transaction.type,
         amount: transaction.amount.toString(),
         currency: transaction.currency,
@@ -39,20 +35,18 @@ export const chatRoutes = new Elysia({ prefix: '/api/chat' }).use(authGuard).pos
       })
       .returning();
 
-    set.status = 201;
     return {
-      transaction: {
-        ...saved,
-        category: cat.name,
-        amount: Number(saved.amount),
+      success: true,
+      data: {
+        transaction: {
+          ...saved,
+          category: cat.name,
+          amount: Number(saved.amount),
+        },
+        reply,
       },
-      reply,
     };
-  },
-  {
-    auth: true,
-    body: t.Object({
-      message: t.String({ minLength: 1 }),
-    }),
-  },
-);
+  }
+}
+
+export const chatService = new ChatService();
