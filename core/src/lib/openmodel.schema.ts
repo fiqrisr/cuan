@@ -105,10 +105,7 @@ const queryResponseSchema = z.object({
       .describe('The type of analytical query'),
     filters: queryFiltersSchema,
   }),
-  reply: z
-    .string()
-    .min(1)
-    .describe('Placeholder reply - backend will replace with actual data'),
+  reply: z.string().min(1).describe('Placeholder reply - backend will replace with actual data'),
 });
 
 const manageAccountResponseSchema = z.object({
@@ -121,16 +118,9 @@ const manageAccountResponseSchema = z.object({
     .enum(['bank', 'e-wallet', 'cash', 'other'])
     .optional()
     .describe('Type of financial account'),
-  currency: z
-    .string()
-    .length(3)
-    .optional()
-    .describe('3-letter ISO currency code'),
+  currency: z.string().length(3).optional().describe('3-letter ISO currency code'),
   initialBalance: z.number().optional().describe('Starting balance for new account'),
-  reply: z
-    .string()
-    .min(1)
-    .describe('Confirmation reply in Bahasa Indonesia'),
+  reply: z.string().min(1).describe('Confirmation reply in Bahasa Indonesia'),
 });
 
 export const chatResponseSchema = z.discriminatedUnion('intent', [

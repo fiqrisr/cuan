@@ -9,6 +9,7 @@ export const transactionController = new Elysia({ prefix: '/api/transactions' })
       set.status = error.statusCode;
       return { error: error.message };
     }
+    return undefined;
   })
   .get(
     '/',

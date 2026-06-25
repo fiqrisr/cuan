@@ -1,5 +1,5 @@
-import { and, count, desc, eq, gte, lte, sql } from 'drizzle-orm';
-import { categories, financialAccounts, transactions } from '../../db/schema';
+import { and, count, eq, gte, lte, sql } from 'drizzle-orm';
+import { financialAccounts, transactions } from '../../db/schema';
 import { db } from '../../lib/db';
 import type { Transaction } from './transaction.schema';
 
@@ -36,10 +36,7 @@ export interface FormattedTransaction {
   updatedAt: string;
 }
 
-function formatTransaction(
-  tx: Transaction,
-  categoryName: string | null,
-): FormattedTransaction {
+function formatTransaction(tx: Transaction, categoryName: string | null): FormattedTransaction {
   return {
     id: tx.id,
     userId: tx.userId,
@@ -77,15 +74,7 @@ export class TransactionService {
       conditions.push(lte(transactions.date, new Date(filters.to)));
     }
 
-    const where = and(...conditions);
-
-    let categoryCondition = undefined as ReturnType<typeof eq> | undefined;
     if (filters.category) {
-      categoryCondition = eq(categories.name, filters.category);
-    }
-
-    // If filtering by category name, we need a join-based approach
-    if (categoryCondition) {
       const cat = await db.query.categories.findFirst({
         where: (c, { eq }) => eq(c.name, filters.category!),
       });

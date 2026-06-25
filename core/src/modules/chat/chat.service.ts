@@ -1,5 +1,5 @@
-import { and, count, desc, eq, gte, lte, sql, sum } from 'drizzle-orm';
-import { categories, financialAccounts, transactions } from '../../db/schema';
+import { and, count, desc, eq, gte, lte, sum } from 'drizzle-orm';
+import { transactions } from '../../db/schema';
 import { db } from '../../lib/db';
 import { env } from '../../lib/env';
 import { createOpenModelClient } from '../../lib/openmodel';
@@ -226,10 +226,7 @@ export class ChatService {
       }
 
       case 'transaction_count': {
-        const [result] = await db
-          .select({ count: count() })
-          .from(transactions)
-          .where(where);
+        const [result] = await db.select({ count: count() }).from(transactions).where(where);
         return {
           intent: 'query',
           reply: `Jumlah transaksi: ${result?.count ?? 0}.`,
@@ -320,7 +317,10 @@ export class ChatService {
     switch (response.action) {
       case 'create_account': {
         if (!response.accountName) {
-          return { intent: 'manage_account', reply: 'Nama akun diperlukan untuk membuat akun baru.' };
+          return {
+            intent: 'manage_account',
+            reply: 'Nama akun diperlukan untuk membuat akun baru.',
+          };
         }
         const created = await financialAccountService.create({
           userId,
@@ -376,7 +376,8 @@ export class ChatService {
         if (formatted.length === 0) {
           return {
             intent: 'manage_account',
-            reply: 'Belum ada akun keuangan. Buat akun baru dengan chat, contoh: "buat akun BCA bank".',
+            reply:
+              'Belum ada akun keuangan. Buat akun baru dengan chat, contoh: "buat akun BCA bank".',
             accounts: [],
           };
         }

@@ -53,7 +53,10 @@ async function createTransaction(
     where: (c, { eq }) => eq(c.name, 'coffee'),
   });
   if (!cat) {
-    const [newCat] = await db.insert(categories).values({ name: 'coffee', label: 'Coffee' }).returning();
+    const [newCat] = await db
+      .insert(categories)
+      .values({ name: 'coffee', label: 'Coffee' })
+      .returning();
     cat = newCat;
   }
 
@@ -123,7 +126,11 @@ describe('Transactions API', () => {
     const cookies = await getAuthCookies(`tx-filter-${Date.now()}@example.com`);
     const acct = await createAccount(cookies, 'TestBank');
 
-    await createTransaction(cookies, { accountId: acct.id, type: 'expense', description: 'Coffee' });
+    await createTransaction(cookies, {
+      accountId: acct.id,
+      type: 'expense',
+      description: 'Coffee',
+    });
     await createTransaction(cookies, {
       accountId: acct.id,
       type: 'income',
@@ -213,9 +220,7 @@ describe('Transactions API', () => {
   });
 
   it('returns 401 without auth', async () => {
-    const response = await app.handle(
-      new Request('http://localhost/api/transactions'),
-    );
+    const response = await app.handle(new Request('http://localhost/api/transactions'));
     expect(response.status).toBe(401);
   });
 });

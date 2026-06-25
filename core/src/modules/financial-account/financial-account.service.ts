@@ -97,7 +97,9 @@ export class FinancialAccountService {
       throw new AccountError('Account not found', 404);
     }
     if (existing.isDefault) {
-      throw new AccountError('Cannot delete the default account. Set another account as default first.');
+      throw new AccountError(
+        'Cannot delete the default account. Set another account as default first.',
+      );
     }
 
     const hasTx = await db.query.transactions.findFirst({
@@ -105,9 +107,7 @@ export class FinancialAccountService {
       columns: { id: true },
     });
     if (hasTx) {
-      throw new AccountError(
-        'Cannot delete an account with transactions. Reassign them first.',
-      );
+      throw new AccountError('Cannot delete an account with transactions. Reassign them first.');
     }
 
     await db

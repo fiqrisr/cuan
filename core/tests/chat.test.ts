@@ -55,7 +55,7 @@ async function clearDatabase(): Promise<void> {
   const cats = [
     { name: 'groceries', label: 'Groceries' },
     { name: 'coffee', label: 'Coffee' },
-    { name: 'dining-out', label: 'Dining Out' }
+    { name: 'dining-out', label: 'Dining Out' },
   ];
   for (const c of cats) {
     await db.insert(categories).values(c).onConflictDoNothing({ target: categories.name });

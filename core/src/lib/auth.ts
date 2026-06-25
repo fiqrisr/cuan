@@ -19,14 +19,10 @@ export const auth = betterAuth({
   plugins: [openAPI()],
 });
 
-interface OpenAPISchema {
-  paths: Record<string, Record<string, unknown>>;
-  components: Record<string, unknown>;
-}
-
-let _schema: Promise<OpenAPISchema> | undefined;
-const getSchema = async () => {
-  _schema ??= auth.api.generateOpenAPISchema() as Promise<OpenAPISchema>;
+let _schema: Promise<{ paths: Record<string, unknown>; components: Record<string, unknown> }>;
+const getSchema = () => {
+  // biome-ignore lint: single-assignment cache
+  _schema ??= auth.api.generateOpenAPISchema() as any;
   return _schema;
 };
 export const OpenAPI = {
@@ -36,7 +32,7 @@ export const OpenAPI = {
       for (const path of Object.keys(paths)) {
         const key = prefix + path;
         reference[key] = paths[path];
-        for (const method of Object.keys(paths[path])) {
+        for (const method of Object.keys(paths[path] as Record<string, unknown>)) {
           const operation = (reference[key] as any)[method];
           operation.tags = ['Better Auth'];
         }

@@ -185,9 +185,7 @@ describe('Financial Accounts API', () => {
   });
 
   it('returns 401 without auth', async () => {
-    const response = await app.handle(
-      new Request('http://localhost/api/financial-accounts'),
-    );
+    const response = await app.handle(new Request('http://localhost/api/financial-accounts'));
     expect(response.status).toBe(401);
   });
 });
