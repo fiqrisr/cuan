@@ -2,7 +2,7 @@ import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it } from
 import type { Server } from 'bun';
 import { z } from 'zod';
 import { app } from '../src/app';
-import { account, transactions, session, user, verification } from '../src/db/schema';
+import { account, session, transactions, user, verification } from '../src/db/schema';
 import { auth } from '../src/lib/auth';
 import { db } from '../src/lib/db';
 
