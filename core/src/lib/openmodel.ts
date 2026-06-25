@@ -1,8 +1,8 @@
 import { createAnthropic } from '@ai-sdk/anthropic';
 import { createOpenAI } from '@ai-sdk/openai';
 import { generateObject } from 'ai';
-import { chatResponseSchema } from './openmodel.schema';
 import type { ChatResponse, FetchLike, OpenModelClientOptions } from './openmodel.schema';
+import { chatResponseSchema } from './openmodel.schema';
 
 export interface OpenModelClient {
   chat(message: string): Promise<ChatResponse>;
@@ -23,8 +23,12 @@ If the message does not contain a clear transaction, set amount to 0 and write t
 }
 
 function getOpenModel(baseUrl: string, apiKey: string, modelId: string, fetchParam?: FetchLike) {
-  const omAnthropic = createAnthropic({ baseURL: baseUrl, apiKey, fetch: fetchParam as any });
-  const omOpenAI = createOpenAI({ baseURL: baseUrl, apiKey, fetch: fetchParam as any });
+  const omAnthropic = createAnthropic({
+    baseURL: baseUrl,
+    apiKey,
+    fetch: fetchParam as typeof fetch,
+  });
+  const omOpenAI = createOpenAI({ baseURL: baseUrl, apiKey, fetch: fetchParam as typeof fetch });
 
   if (modelId.includes('deepseek') || modelId.includes('claude')) {
     return omAnthropic(modelId);
