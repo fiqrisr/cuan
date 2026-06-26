@@ -4,8 +4,7 @@ The chat module is the primary natural-language interface for Cuan. It allows us
 
 ## Context & Rationale
 Rather than using complex UI forms, Cuan leverages AI to parse natural language into structured actions.
-We chose a structured "Intent" classification system instead of letting the AI generate raw SQL or answer freely. This prevents hallucination (a critical requirement for financial data) and completely eliminates SQL injection risks. The AI acts only as a parser; the backend retains full control over database execution.
-
+We use a Vercel AI SDK Tool Calling architecture. The AI acts as a parser and conversationalist, deciding which tool to trigger. The backend executes the actual SQL queries securely and returns raw JSON data back to the AI. Finally, the AI summarizes the result conversationally. This prevents hallucination and SQL injection risks while preserving a dynamic chat experience.
 ## Architecture
 
 - **Endpoint:** `POST /api/chat`
@@ -16,80 +15,37 @@ We chose a structured "Intent" classification system instead of letting the AI g
   - `manage-account.handler.ts`
   - `query.handler.ts`
 
-## 3-Intent System
+## 3-Intent Tool System
 
-The LLM classifies incoming messages into one of three intents and extracts structured data based on it.
+The LLM uses predefined tools (`chat.tools.ts`) to fulfill user intents.
 
 ### 1. `add_transaction`
 Used when the user wants to add one or more transactions (expenses or incomes).
-- **Extraction Schema:**
-  ```ts
-  {
-    intent: 'add_transaction';
-    transactions: Array<{
-      type: 'expense' | 'income';
-      amount: number;
-      currency: string;
-      category: string;
-      description: string;
-      date: string; // ISO 8601
-      accountName?: string;
-    }>;
-    reply: string;
-  }
-  ```
 - **Behavior:**
+  - The LLM extracts transactions and triggers the `add_transaction` tool.
   - If `accountName` is omitted, the system falls back to the user's **default account**.
-  - All extracted transactions are inserted in a single database transaction.
-  - Account balances are updated atomically (deducts for expenses, adds for incomes).
+  - All extracted transactions are inserted into the database.
+  - The handler returns the raw saved records, and the LLM formulates a confirmation message.
 
-### 2. `query`
+### 2. `query_finances`
 Used for analytical questions about the user's data (e.g., "what's my biggest expense this week?").
-- **Extraction Schema:**
-  ```ts
-  {
-    intent: 'query';
-    query: {
-      queryType: string; // e.g., 'biggest_expense', 'total_spent', 'recent_transactions'
-      filters: {
-        period?: { from: string; to: string };
-        category?: string;
-        accountName?: string;
-        type?: 'expense' | 'income';
-        limit?: number;
-      };
-    };
-    reply: string;
-  }
-  ```
 - **Behavior:**
-  - The AI does **not** hallucinate financial data. It returns the query descriptor.
-  - The backend executes the real SQL query on the database using the filters provided.
-  - The real result is formatted and returned to the user in a human-readable reply.
+  - The LLM identifies the `queryType` (e.g., `biggest_expense`, `total_spent`, `category_breakdown`) and any `filters`.
+  - The backend executes the real, safe Drizzle ORM query on the PostgreSQL database.
+  - The backend returns raw data (e.g. `{ total: 50000 }`) to the LLM.
+  - The LLM reads this real data to generate an accurate, conversational response without hallucinating.
 
 ### 3. `manage_account`
 Used for account management operations via chat.
-- **Extraction Schema:**
-  ```ts
-  {
-    intent: 'manage_account';
-    action: 'create_account' | 'set_default' | 'list_accounts';
-    accountName?: string;
-    accountType?: string;
-    currency?: string;
-    initialBalance?: number;
-    reply: string;
-  }
-  ```
 - **Behavior:**
-  - Executes the requested action (creating an account, changing the default account, etc.).
-  - Returns a confirmation reply.
-
+  - The LLM extracts the action (`create_account`, `set_default`, `list_accounts`) and parameters.
+  - Executes the requested action securely in the database.
+  - The LLM receives the result and generates a confirmation reply.
 ## OpenModel Client
 The interaction with the LLM is abstracted via `openmodel.ts`. It acts as an OpenAI-compatible client, configured via environment variables (`OPENMODEL_API_KEY`, `OPENMODEL_BASE_URL`, `OPENMODEL_MODEL`), meaning it can swap between OpenAI, DeepInfra, Groq, Anthropic (via Vercel AI SDK), or local models seamlessly.
 
 ## Known Gotchas
 
-- **AI Output Parsing:** The AI might occasionally generate malformed JSON. The `openmodel.ts` client must strictly validate the output against Zod schemas (`openmodel.schema.ts`) and handle retries or graceful fallbacks.
+- **Tool Fallbacks:** The AI might occasionally hallucinate an unsupported tool or format. Vercel AI SDK handles retries automatically up to the `maxSteps` loop limit.
 - **Account Matching:** The AI is instructed to return an `accountName`. If the user has multiple accounts with similar names, the handler must carefully match the exact name (case-insensitive) against the database.
-- **Stateless LLM:** This iteration of the chat endpoint does not retain conversation history. Each request is evaluated entirely independently.
+- **Stateless LLM:** This iteration of the chat endpoint does not retain conversation history. Each request is evaluated entirely independently via a single `generateText` multi-step call.

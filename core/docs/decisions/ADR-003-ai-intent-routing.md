@@ -1,7 +1,7 @@
 # ADR-003: AI Intent Routing System
 
 ## Status
-Accepted
+Superseded by ADR-005
 
 ## Date
 2026-06-26
