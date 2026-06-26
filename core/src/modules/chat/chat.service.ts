@@ -1,9 +1,9 @@
+import { generateText, stepCountIs } from 'ai';
 import type { Pino as Logger } from 'logixlysia';
 import { env } from '../../lib/env';
-import { generateText } from 'ai';
 import { createOpenModelClient, getSystemPrompt } from '../../lib/openmodel';
-import type { ChatResult, SavedTransaction } from './chat.types';
 import { buildChatTools } from './chat.tools';
+import type { ChatResult, SavedTransaction } from './chat.types';
 
 const openmodel = createOpenModelClient({
   apiKey: env.OPENMODEL_API_KEY,
@@ -19,7 +19,7 @@ export class ChatService {
     const aiResponse = await generateText({
       model: openmodel,
       tools,
-      maxSteps: 3,
+      stopWhen: stepCountIs(3),
       system: getSystemPrompt(),
       prompt: message,
     });
@@ -39,14 +39,14 @@ export class ChatService {
       for (const res of aiResponse.toolResults) {
         if (res.toolName === 'add_transaction') {
           intent = 'add_transaction';
-          const data = res.result as { savedTransactions: SavedTransaction[] };
+          const data = res.output as { savedTransactions: SavedTransaction[] };
           transactions = data.savedTransactions;
         } else if (res.toolName === 'query_finances') {
           intent = 'query';
-          queryResult = res.result;
+          queryResult = res.output;
         } else if (res.toolName === 'manage_account') {
           intent = 'manage_account';
-          const data = res.result as { account?: unknown; accounts?: unknown[] };
+          const data = res.output as { account?: unknown; accounts?: unknown[] };
           account = data.account;
           accounts = data.accounts;
         }

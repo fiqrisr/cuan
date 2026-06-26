@@ -1,10 +1,10 @@
 import type { Pino as Logger } from 'logixlysia';
+import type { z } from 'zod';
 import { transactions } from '../../../db/schema';
 import { db } from '../../../lib/db';
-import type { z } from 'zod';
 import type { extractedTransactionSchema } from '../../../lib/openmodel.schema';
 import { financialAccountService } from '../../financial-account/financial-account.service';
-import type { ChatResult, SavedTransaction } from '../chat.types';
+import type { SavedTransaction } from '../chat.types';
 
 export async function handleAddTransaction(
   transactionsParams: z.infer<typeof extractedTransactionSchema>[],

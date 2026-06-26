@@ -22,7 +22,7 @@ mock.module('ai', () => ({
     }
     return {
       text: config.text,
-      toolResults: config.toolToCall ? [{ toolName: config.toolToCall, result }] : [],
+      toolResults: config.toolToCall ? [{ toolName: config.toolToCall, output: result }] : [],
       steps: [],
     };
   },

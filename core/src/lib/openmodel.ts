@@ -1,12 +1,9 @@
 import { createAnthropic } from '@ai-sdk/anthropic';
 import { createOpenAI } from '@ai-sdk/openai';
-import { generateObject } from 'ai';
-import { chatResponseSchema } from './openmodel.schema';
-import type { ChatResponse, FetchLike, OpenModelClientOptions } from './openmodel.types';
+import type { LanguageModel } from 'ai';
+import type { FetchLike, OpenModelClientOptions } from './openmodel.types';
 
-import type { LanguageModelV1 } from 'ai';
-
-export type OpenModelClient = LanguageModelV1;
+export type OpenModelClient = LanguageModel;
 
 export function getSystemPrompt(): string {
   const now = new Date().toISOString();

@@ -10,6 +10,5 @@ describe('createOpenModelClient', () => {
     });
 
     expect(client).toBeDefined();
-    expect(client.provider).toBeDefined();
   });
 });
