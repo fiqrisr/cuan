@@ -9,16 +9,25 @@ The monorepo uses **Moonrepo** for task orchestration and **Bun** as the primary
   - **Feature-Module Architecture**: Domain logic is grouped vertically into feature modules (e.g., `auth`, `chat`, `transaction`, `category`). 
   - **Data Flow**: Controllers (`Elysia.post`) extract HTTP payloads -> delegate to Services -> Services orchestrate business logic (e.g., calling AI models via `openmodel.ts`) -> interact directly with Drizzle ORM for async database operations.
   - **State Management**: The API is completely stateless. Sessions are managed via PostgreSQL and validated using an Elysia macro (`authGuard.ts`).
+  - **AI Intent System**: Chat messages are sent to an LLM via `openmodel.ts`. The LLM classifies the intent into `add_transaction`, `query`, or `manage_account`. It returns structured JSON. It **MUST NOT** generate raw SQL or hallucinate financial numbers.
+  - **Money Storage**: Money is stored as `numeric(12,2)` in PostgreSQL for exact precision. The `pg` driver returns these as strings in JS to prevent floating-point truncation; be aware of this when doing math.
+
 - **Frontend (`web-app`)**: Currently an empty scaffold planned to be a React SPA built with Vite and TanStack Router.
 - **Database**: Local development relies on **PostgreSQL 15** via Docker Compose on port `5433`. Database columns for money use `numeric(12,2)` to avoid floating-point errors.
 
+## Core Domain Concepts & Gotchas
+- **Atomic Balances**: `financial_accounts` maintain a running `balance`. Any service modifying `transactions` MUST recalculate the linked account's balance within the same `db.transaction()` block to prevent data corruption.
+- **Default Account**: Users can have one default `financial_account`. Transactions from chat without a specified account fallback to the default. When toggling `is_default` for an account, all other accounts for that user must be set to `false`.
+- **Backward Compatibility**: `transactions.account_id` is nullable to support legacy rows from before financial accounts existed.
+- **Auth Guard Headers**: Elysia relies on Web Standard Requests. When using Better Auth in `authGuard.ts`, you MUST manually extract headers: `auth.api.getSession({ headers: request.headers })`.
+- **Auth Schema**: Do not manually modify tables like `user` or `session` in `schema.ts`. Use `@better-auth/cli generate` if auth configuration changes.
+
 ## Key Directories
-- `core/src/lib/`: Core cross-cutting concerns (DB connection, environment validation via Zod, custom AI client wrappers).
-- `core/src/modules/<feature>/`: Vertical feature folders containing controller, service, and Drizzle schemas specific to the domain.
+- `core/src/lib/`: Core cross-cutting concerns (DB connection, environment validation via Zod, custom AI client wrappers `openmodel.ts`).
+- `core/src/modules/<feature>/`: Feature-sliced modules (e.g., `chat`, `financial-account`, `transaction`, `auth`). Each contains its own `.controller.ts`, `.service.ts`, `.schema.ts`, `.dto.ts`, and `.types.ts`.
 - `core/src/db/`: Centralized database configurations.
 - `core/tests/`: Integration tests for the backend.
 - `web-app/`: React frontend workspace.
-- `docs/`: Architecture decisions, implementation plans, and specifications (e.g., `PLAN-core-backend.md`).
 - `.moon/`: Moonrepo toolchains, inherited tasks, and workspace configurations.
 
 ## Development Commands
