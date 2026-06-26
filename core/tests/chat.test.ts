@@ -1,5 +1,41 @@
-import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it } from 'bun:test';
-import type { Server } from 'bun';
+import { afterEach, beforeEach, describe, expect, it, mock } from 'bun:test';
+
+type MockResponse = {
+  toolToCall?: string;
+  args?: unknown;
+  text: string;
+};
+
+let currentMockResponse: MockResponse | null = null;
+
+mock.module('ai', () => ({
+  generateText: async (options: {
+    tools: Record<string, { execute: (args: unknown) => Promise<unknown> }>;
+  }) => {
+    const { tools } = options;
+    const config = currentMockResponse;
+    if (!config) throw new Error('Mock response not set');
+
+    let result = null;
+    if (config.toolToCall && tools[config.toolToCall]) {
+      result = await tools[config.toolToCall].execute(config.args);
+    }
+    return {
+      text: config.text,
+      toolResults: config.toolToCall ? [{ toolName: config.toolToCall, result }] : [],
+      steps: [],
+    };
+  },
+  tool: (c: unknown) => c,
+}));
+
+mock.module('../src/lib/openmodel', () => {
+  return {
+    createOpenModelClient: () => ({}),
+    getSystemPrompt: () => 'prompt',
+  };
+});
+
 import { app } from '../src/app';
 import {
   account,
@@ -13,37 +49,6 @@ import {
 import { auth } from '../src/lib/auth';
 import { db } from '../src/lib/db';
 import type { ChatResult } from '../src/modules/chat/chat.service';
-
-const MOCK_PORT = 3999;
-
-function makeMockResponse(body: unknown) {
-  return {
-    id: 'resp_test',
-    object: 'response',
-    created_at: Date.now(),
-    model: 'test-model',
-    output: [
-      {
-        type: 'message',
-        id: 'msg_test',
-        role: 'assistant',
-        content: [
-          {
-            type: 'output_text',
-            text: JSON.stringify(body),
-            annotations: [],
-          },
-        ],
-      },
-    ],
-    usage: { input_tokens: 10, output_tokens: 20, total_tokens: 30 },
-  };
-}
-
-// The mock response to return — swappable per test
-let currentMockResponse: unknown;
-
-let mockServer: Server<unknown>;
 
 async function clearDatabase(): Promise<void> {
   await db.delete(transactions);
@@ -82,7 +87,9 @@ async function createAccount(cookies: string, name: string): Promise<{ id: strin
       body: JSON.stringify({ name, type: 'bank', initialBalance: 1000000 }),
     }),
   );
-  return ((await res.json()) as { data: { id: string } }).data;
+  // Tests expect this specific format from the API
+  const parsed = (await res.json()) as { data: { id: string } };
+  return parsed.data;
 }
 
 async function chat(cookies: string, message: string): Promise<Response> {
@@ -96,39 +103,29 @@ async function chat(cookies: string, message: string): Promise<Response> {
 }
 
 describe('POST /api/chat', () => {
-  beforeAll(() => {
-    mockServer = Bun.serve({
-      port: MOCK_PORT,
-      fetch() {
-        return new Response(JSON.stringify(currentMockResponse), {
-          headers: { 'Content-Type': 'application/json' },
-        });
-      },
-    });
+  beforeEach(() => {
+    currentMockResponse = null;
+    return clearDatabase();
   });
-
-  afterAll(() => {
-    mockServer.stop();
-  });
-
-  beforeEach(clearDatabase);
   afterEach(clearDatabase);
 
   it('saves a single transaction via add_transaction intent', async () => {
-    currentMockResponse = makeMockResponse({
-      intent: 'add_transaction',
-      transactions: [
-        {
-          type: 'expense',
-          amount: 125000,
-          currency: 'IDR',
-          category: 'groceries',
-          description: 'Weekly groceries',
-          date: '2026-06-24T08:00:00.000Z',
-        },
-      ],
-      reply: 'Pengeluaran groceries Rp125.000 berhasil dicatat.',
-    });
+    currentMockResponse = {
+      toolToCall: 'add_transaction',
+      args: {
+        transactions: [
+          {
+            type: 'expense',
+            amount: 125000,
+            currency: 'IDR',
+            category: 'groceries',
+            description: 'Weekly groceries',
+            date: '2026-06-24T08:00:00.000Z',
+          },
+        ],
+      },
+      text: 'Pengeluaran groceries Rp125.000 berhasil dicatat.',
+    };
 
     const cookies = await signUpAndGetCookies(`chat-single-${Date.now()}@example.com`);
     await createAccount(cookies, 'Cash');
@@ -144,28 +141,30 @@ describe('POST /api/chat', () => {
   });
 
   it('saves multiple transactions from one chat message', async () => {
-    currentMockResponse = makeMockResponse({
-      intent: 'add_transaction',
-      transactions: [
-        {
-          type: 'expense',
-          amount: 15000,
-          currency: 'IDR',
-          category: 'coffee',
-          description: 'Coffee',
-          date: '2026-06-25T08:00:00.000Z',
-        },
-        {
-          type: 'expense',
-          amount: 30000,
-          currency: 'IDR',
-          category: 'dining-out',
-          description: 'Lunch',
-          date: '2026-06-25T12:00:00.000Z',
-        },
-      ],
-      reply: 'Berhasil catat 2 transaksi.',
-    });
+    currentMockResponse = {
+      toolToCall: 'add_transaction',
+      args: {
+        transactions: [
+          {
+            type: 'expense',
+            amount: 15000,
+            currency: 'IDR',
+            category: 'coffee',
+            description: 'Coffee',
+            date: '2026-06-25T08:00:00.000Z',
+          },
+          {
+            type: 'expense',
+            amount: 30000,
+            currency: 'IDR',
+            category: 'dining-out',
+            description: 'Lunch',
+            date: '2026-06-25T12:00:00.000Z',
+          },
+        ],
+      },
+      text: 'Berhasil catat 2 transaksi.',
+    };
 
     const cookies = await signUpAndGetCookies(`chat-multi-${Date.now()}@example.com`);
     await createAccount(cookies, 'Cash');
@@ -184,20 +183,22 @@ describe('POST /api/chat', () => {
   });
 
   it('uses default account when no account name is specified', async () => {
-    currentMockResponse = makeMockResponse({
-      intent: 'add_transaction',
-      transactions: [
-        {
-          type: 'expense',
-          amount: 20000,
-          currency: 'IDR',
-          category: 'coffee',
-          description: 'Coffee',
-          date: '2026-06-25T08:00:00.000Z',
-        },
-      ],
-      reply: 'Pengeluaran coffee Rp20.000 dicatat.',
-    });
+    currentMockResponse = {
+      toolToCall: 'add_transaction',
+      args: {
+        transactions: [
+          {
+            type: 'expense',
+            amount: 20000,
+            currency: 'IDR',
+            category: 'coffee',
+            description: 'Coffee',
+            date: '2026-06-25T08:00:00.000Z',
+          },
+        ],
+      },
+      text: 'Pengeluaran coffee Rp20.000 dicatat.',
+    };
 
     const cookies = await signUpAndGetCookies(`chat-default-${Date.now()}@example.com`);
     const acct = await createAccount(cookies, 'MyWallet');
@@ -210,15 +211,17 @@ describe('POST /api/chat', () => {
   });
 
   it('handles manage_account create intent', async () => {
-    currentMockResponse = makeMockResponse({
-      intent: 'manage_account',
-      action: 'create_account',
-      accountName: 'BCA',
-      accountType: 'bank',
-      currency: 'IDR',
-      initialBalance: 5000000,
-      reply: 'Akun BCA berhasil dibuat dengan saldo Rp5.000.000.',
-    });
+    currentMockResponse = {
+      toolToCall: 'manage_account',
+      args: {
+        action: 'create_account',
+        accountName: 'BCA',
+        accountType: 'bank',
+        currency: 'IDR',
+        initialBalance: 5000000,
+      },
+      text: 'Akun BCA berhasil dibuat dengan saldo Rp5.000.000.',
+    };
 
     const cookies = await signUpAndGetCookies(`chat-acct-${Date.now()}@example.com`);
 
@@ -247,6 +250,7 @@ describe('POST /api/chat', () => {
         headers: { Cookie: cookies },
       }),
     );
+    // Tests expect this specific format from the API
     const sessionData = (await sessionRes.json()) as { user: { id: string } };
     const userId = sessionData.user.id;
 
@@ -261,9 +265,9 @@ describe('POST /api/chat', () => {
       date: new Date(),
     });
 
-    currentMockResponse = makeMockResponse({
-      intent: 'query',
-      query: {
+    currentMockResponse = {
+      toolToCall: 'query_finances',
+      args: {
         queryType: 'biggest_expense',
         filters: {
           period: {
@@ -273,8 +277,8 @@ describe('POST /api/chat', () => {
           limit: 1,
         },
       },
-      reply: 'placeholder',
-    });
+      text: 'Pengeluaran terbesar minggu ini adalah Rp 50.000',
+    };
 
     const response = await chat(cookies, 'pengeluaran terbesar minggu ini?');
 

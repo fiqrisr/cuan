@@ -4,9 +4,9 @@ import { generateObject } from 'ai';
 import { chatResponseSchema } from './openmodel.schema';
 import type { ChatResponse, FetchLike, OpenModelClientOptions } from './openmodel.types';
 
-export type OpenModelClient = {
-  chat(message: string): Promise<ChatResponse>;
-};
+import type { LanguageModelV1 } from 'ai';
+
+export type OpenModelClient = LanguageModelV1;
 
 export function getSystemPrompt(): string {
   const now = new Date().toISOString();
@@ -64,19 +64,5 @@ function getOpenModel(baseUrl: string, apiKey: string, modelId: string, fetchPar
 
 export function createOpenModelClient(options: OpenModelClientOptions): OpenModelClient {
   const { apiKey, baseUrl, model, fetch } = options;
-  const openModel = getOpenModel(baseUrl, apiKey, model, fetch);
-
-  return {
-    async chat(message: string): Promise<ChatResponse> {
-      const result = await generateObject({
-        model: openModel,
-        schema: chatResponseSchema,
-        system: getSystemPrompt(),
-        prompt: message,
-        temperature: 0.2,
-      });
-
-      return result.object;
-    },
-  };
+  return getOpenModel(baseUrl, apiKey, model, fetch);
 }

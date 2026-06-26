@@ -1,21 +1,27 @@
 import { and, count, desc, eq, gte, lte, type SQL, sum } from 'drizzle-orm';
 import type { Pino as Logger } from 'logixlysia';
+import type { z } from 'zod';
 import { transactions } from '../../../db/schema';
 import { db } from '../../../lib/db';
-import type { QueryResponse } from '../../../lib/openmodel.types';
+import type { queryFiltersSchema } from '../../../lib/openmodel.schema';
 import { financialAccountService } from '../../financial-account/financial-account.service';
-import type { ChatResult } from '../chat.types';
+
+type QueryType =
+  | 'biggest_expense'
+  | 'biggest_income'
+  | 'total_spent'
+  | 'total_income'
+  | 'transaction_count'
+  | 'recent_transactions'
+  | 'category_breakdown';
 
 export async function handleQuery(
-  response: QueryResponse,
+  queryType: QueryType,
+  filters: z.infer<typeof queryFiltersSchema>,
   userId: string,
   log: Logger,
-): Promise<ChatResult> {
-  log.info(
-    { event: 'handle_query', queryType: response.query.queryType, filters: response.query.filters },
-    'processing chat query',
-  );
-  const { queryType, filters } = response.query;
+) {
+  log.info({ event: 'handle_query', queryType, filters }, 'processing chat query');
   const conditions = [eq(transactions.userId, userId)];
 
   if (filters.type) {
@@ -58,15 +64,11 @@ export async function handleQuery(
     case 'category_breakdown':
       return getCategoryBreakdown(where);
     default:
-      return { intent: 'query', reply: 'Maaf, query tidak dikenali.' };
+      throw new Error('Maaf, query tidak dikenali.');
   }
 }
 
-async function getBiggestTransaction(
-  baseConditions: SQL<unknown>[],
-  type: 'expense' | 'income',
-): Promise<ChatResult> {
-  const label = type === 'expense' ? 'Pengeluaran' : 'Pemasukan';
+async function getBiggestTransaction(baseConditions: SQL<unknown>[], type: 'expense' | 'income') {
   const conditions = [...baseConditions, eq(transactions.type, type)];
 
   const rows = await db
@@ -77,10 +79,7 @@ async function getBiggestTransaction(
     .limit(1);
 
   if (rows.length === 0) {
-    return {
-      intent: 'query',
-      reply: `Tidak ada ${label.toLowerCase()} ditemukan pada periode ini.`,
-    };
+    return { transaction: null };
   }
 
   const tx = rows[0];
@@ -88,18 +87,10 @@ async function getBiggestTransaction(
     where: (c, { eq }) => eq(c.id, tx.categoryId),
   });
 
-  return {
-    intent: 'query',
-    reply: `${label} terbesar: ${tx.description} sebesar ${Number(tx.amount).toLocaleString('id-ID')} ${tx.currency} (${cat?.label ?? tx.categoryId}) pada ${tx.date.toLocaleDateString('id-ID')}.`,
-    queryResult: { transaction: { ...tx, amount: Number(tx.amount), category: cat?.name } },
-  };
+  return { transaction: { ...tx, amount: Number(tx.amount), category: cat?.name } };
 }
 
-async function getTotalAmount(
-  baseConditions: SQL<unknown>[],
-  type: 'expense' | 'income',
-): Promise<ChatResult> {
-  const label = type === 'expense' ? 'pengeluaran' : 'pemasukan';
+async function getTotalAmount(baseConditions: SQL<unknown>[], type: 'expense' | 'income') {
   const conditions = [...baseConditions, eq(transactions.type, type)];
 
   const [result] = await db
@@ -108,26 +99,15 @@ async function getTotalAmount(
     .where(and(...conditions));
 
   const total = Number(result?.total ?? 0);
-  return {
-    intent: 'query',
-    reply: `Total ${label}: ${total.toLocaleString('id-ID')} IDR.`,
-    queryResult: { total },
-  };
+  return { total };
 }
 
-async function getTransactionCount(where: SQL<unknown> | undefined): Promise<ChatResult> {
+async function getTransactionCount(where: SQL<unknown> | undefined) {
   const [result] = await db.select({ count: count() }).from(transactions).where(where);
-  return {
-    intent: 'query',
-    reply: `Jumlah transaksi: ${result?.count ?? 0}.`,
-    queryResult: { count: result?.count ?? 0 },
-  };
+  return { count: result?.count ?? 0 };
 }
 
-async function getRecentTransactions(
-  where: SQL<unknown> | undefined,
-  limit: number,
-): Promise<ChatResult> {
+async function getRecentTransactions(where: SQL<unknown> | undefined, limit: number) {
   const rows = await db
     .select()
     .from(transactions)
@@ -143,19 +123,10 @@ async function getRecentTransactions(
     category: catMap.get(r.categoryId) ?? null,
   }));
 
-  const lines = formatted.map(
-    (t, i) =>
-      `${i + 1}. ${t.description} - ${t.amount.toLocaleString('id-ID')} ${t.currency} (${t.type})`,
-  );
-
-  return {
-    intent: 'query',
-    reply: `Transaksi terbaru:\n${lines.join('\n')}`,
-    queryResult: { transactions: formatted },
-  };
+  return { transactions: formatted };
 }
 
-async function getCategoryBreakdown(where: SQL<unknown> | undefined): Promise<ChatResult> {
+async function getCategoryBreakdown(where: SQL<unknown> | undefined) {
   const rows = await db
     .select({
       categoryId: transactions.categoryId,
@@ -175,15 +146,7 @@ async function getCategoryBreakdown(where: SQL<unknown> | undefined): Promise<Ch
     count: r.count,
   }));
 
-  const lines = breakdown.map(
-    b => `- ${b.category}: ${b.total.toLocaleString('id-ID')} IDR (${b.count}x)`,
-  );
-
-  return {
-    intent: 'query',
-    reply: `Ringkasan per kategori:\n${lines.join('\n')}`,
-    queryResult: { breakdown },
-  };
+  return { breakdown };
 }
 
 async function getCategoryMap(categoryIds: number[]): Promise<Map<number, string>> {

@@ -1,45 +1,40 @@
 import type { Pino as Logger } from 'logixlysia';
 import { transactions } from '../../../db/schema';
 import { db } from '../../../lib/db';
-import type { AddTransactionResponse } from '../../../lib/openmodel.types';
+import type { z } from 'zod';
+import type { extractedTransactionSchema } from '../../../lib/openmodel.schema';
 import { financialAccountService } from '../../financial-account/financial-account.service';
 import type { ChatResult, SavedTransaction } from '../chat.types';
 
 export async function handleAddTransaction(
-  response: AddTransactionResponse,
+  transactionsParams: z.infer<typeof extractedTransactionSchema>[],
   userId: string,
   log: Logger,
-): Promise<ChatResult> {
+) {
   log.info(
-    { event: 'handle_add_transaction', transactionCount: response.transactions.length },
+    { event: 'handle_add_transaction', transactionCount: transactionsParams.length },
     'adding transactions from chat',
   );
   const saved: SavedTransaction[] = [];
 
-  for (const tx of response.transactions) {
+  for (const tx of transactionsParams) {
     const result = await processSingleTransaction(tx, userId, log);
     if ('error' in result) {
       log.warn(
         { event: 'add_transaction_failed', reason: result.error, transaction: tx },
         'failed to process single transaction',
       );
-      return {
-        intent: 'add_transaction',
-        reply: result.error,
-      };
+      // If one fails, we throw so the LLM knows it failed
+      throw new Error(result.error);
     }
     saved.push(result.saved);
   }
 
-  return {
-    intent: 'add_transaction',
-    reply: response.reply,
-    transactions: saved,
-  };
+  return { savedTransactions: saved };
 }
 
 async function processSingleTransaction(
-  tx: AddTransactionResponse['transactions'][0],
+  tx: z.infer<typeof extractedTransactionSchema>,
   userId: string,
   log: Logger,
 ): Promise<{ error: string } | { saved: SavedTransaction }> {

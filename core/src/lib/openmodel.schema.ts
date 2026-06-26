@@ -2,7 +2,7 @@ import { z } from 'zod';
 
 // --- Shared sub-schemas ---
 
-const extractedTransactionSchema = z.object({
+export const extractedTransactionSchema = z.object({
   type: z.enum(['expense', 'income']).describe('Whether this is an expense or income'),
   amount: z.union([z.number(), z.string()]).transform(value => {
     const parsed = typeof value === 'string' ? Number(value) : value;
@@ -60,7 +60,7 @@ const extractedTransactionSchema = z.object({
     .describe('Name of the financial account to use. Omit to use default account.'),
 });
 
-const queryFiltersSchema = z.object({
+export const queryFiltersSchema = z.object({
   period: z
     .object({
       from: z.string().describe('ISO 8601 date start'),
@@ -107,6 +107,8 @@ const queryResponseSchema = z.object({
   }),
   reply: z.string().min(1).describe('Placeholder reply - backend will replace with actual data'),
 });
+
+export const manageAccountActionSchema = z.enum(['create_account', 'set_default', 'list_accounts']);
 
 const manageAccountResponseSchema = z.object({
   intent: z.literal('manage_account'),

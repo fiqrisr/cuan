@@ -1,56 +1,56 @@
 import type { Pino as Logger } from 'logixlysia';
-import type { ManageAccountResponse } from '../../../lib/openmodel.types';
+import type { z } from 'zod';
+import type { manageAccountActionSchema } from '../../../lib/openmodel.schema';
 import { financialAccountService } from '../../financial-account/financial-account.service';
-import type { ChatResult } from '../chat.types';
+
+type ManageAccountParams = {
+  action: z.infer<typeof manageAccountActionSchema>;
+  accountName?: string;
+  accountType?: string;
+  currency?: string;
+  initialBalance?: number;
+};
 
 export async function handleManageAccount(
-  response: ManageAccountResponse,
+  params: ManageAccountParams,
   userId: string,
   log: Logger,
-): Promise<ChatResult> {
+) {
   log.info(
-    { event: 'handle_manage_account', action: response.action, accountName: response.accountName },
+    { event: 'handle_manage_account', action: params.action, accountName: params.accountName },
     'processing manage account intent',
   );
-  switch (response.action) {
+  switch (params.action) {
     case 'create_account':
-      return createAccount(response, userId, log);
+      return createAccount(params, userId, log);
     case 'set_default':
-      return setDefaultAccount(response, userId, log);
+      return setDefaultAccount(params, userId, log);
     case 'list_accounts':
       return listAccounts(userId, log);
     default:
-      return { intent: 'manage_account', reply: 'Aksi tidak dikenali.' };
+      throw new Error('Aksi tidak dikenali.');
   }
 }
 
-async function createAccount(
-  response: ManageAccountResponse,
-  userId: string,
-  log: Logger,
-): Promise<ChatResult> {
-  if (!response.accountName) {
-    return {
-      intent: 'manage_account',
-      reply: 'Nama akun diperlukan untuk membuat akun baru.',
-    };
+async function createAccount(params: ManageAccountParams, userId: string, log: Logger) {
+  if (!params.accountName) {
+    throw new Error('Nama akun diperlukan untuk membuat akun baru.');
   }
 
   const created = await financialAccountService.create({
     userId,
-    name: response.accountName,
-    type: response.accountType ?? 'other',
-    currency: response.currency ?? 'IDR',
-    initialBalance: response.initialBalance,
+    name: params.accountName,
+    type: params.accountType ?? 'other',
+    currency: params.currency ?? 'IDR',
+    initialBalance: params.initialBalance,
   });
 
   log.info(
     { event: 'account_created', accountId: created.id, accountName: created.name },
     'financial account created',
   );
+
   return {
-    intent: 'manage_account',
-    reply: response.reply,
     account: {
       id: created.id,
       name: created.name,
@@ -62,40 +62,31 @@ async function createAccount(
   };
 }
 
-async function setDefaultAccount(
-  response: ManageAccountResponse,
-  userId: string,
-  log: Logger,
-): Promise<ChatResult> {
-  if (!response.accountName) {
+async function setDefaultAccount(params: ManageAccountParams, userId: string, log: Logger) {
+  if (!params.accountName) {
     log.warn(
       { event: 'set_default_account_failed', reason: 'Missing accountName' },
       'account name required',
     );
-    return { intent: 'manage_account', reply: 'Nama akun diperlukan.' };
+    throw new Error('Nama akun diperlukan.');
   }
 
-  const acct = await financialAccountService.getByName(response.accountName, userId);
+  const acct = await financialAccountService.getByName(params.accountName, userId);
   log.info(
-    { event: 'set_default_account', accountId: acct?.id, accountName: response.accountName },
+    { event: 'set_default_account', accountId: acct?.id, accountName: params.accountName },
     'setting default account',
   );
   if (!acct) {
-    return {
-      intent: 'manage_account',
-      reply: `Akun '${response.accountName}' tidak ditemukan.`,
-    };
+    throw new Error(`Akun '${params.accountName}' tidak ditemukan.`);
   }
 
   await financialAccountService.update(acct.id, userId, { isDefault: true });
   return {
-    intent: 'manage_account',
-    reply: response.reply,
     account: { id: acct.id, name: acct.name, isDefault: true },
   };
 }
 
-async function listAccounts(userId: string, log: Logger): Promise<ChatResult> {
+async function listAccounts(userId: string, log: Logger) {
   log.info({ event: 'list_accounts', userId }, 'listing financial accounts');
   const accounts = await financialAccountService.getByUserId(userId);
   const formatted = accounts.map(a => ({
@@ -107,22 +98,5 @@ async function listAccounts(userId: string, log: Logger): Promise<ChatResult> {
     isDefault: a.isDefault,
   }));
 
-  if (formatted.length === 0) {
-    return {
-      intent: 'manage_account',
-      reply: 'Belum ada akun keuangan. Buat akun baru dengan chat, contoh: "buat akun BCA bank".',
-      accounts: [],
-    };
-  }
-
-  const lines = formatted.map(
-    a =>
-      `- ${a.name} (${a.type}): ${a.balance.toLocaleString('id-ID')} ${a.currency}${a.isDefault ? ' ⭐ default' : ''}`,
-  );
-
-  return {
-    intent: 'manage_account',
-    reply: `Daftar akun:\n${lines.join('\n')}`,
-    accounts: formatted,
-  };
+  return { accounts: formatted };
 }

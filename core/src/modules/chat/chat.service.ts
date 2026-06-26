@@ -1,11 +1,9 @@
 import type { Pino as Logger } from 'logixlysia';
 import { env } from '../../lib/env';
-import { createOpenModelClient } from '../../lib/openmodel';
-import type { ChatResponse } from '../../lib/openmodel.types';
-import type { ChatResult } from './chat.types';
-import { handleAddTransaction } from './handlers/add-transaction.handler';
-import { handleManageAccount } from './handlers/manage-account.handler';
-import { handleQuery } from './handlers/query.handler';
+import { generateText } from 'ai';
+import { createOpenModelClient, getSystemPrompt } from '../../lib/openmodel';
+import type { ChatResult, SavedTransaction } from './chat.types';
+import { buildChatTools } from './chat.tools';
 
 const openmodel = createOpenModelClient({
   apiKey: env.OPENMODEL_API_KEY,
@@ -16,20 +14,53 @@ const openmodel = createOpenModelClient({
 export class ChatService {
   async processChat(message: string, userId: string, log: Logger): Promise<ChatResult> {
     log.info({ event: 'chat_process_started', userId }, 'processing chat message');
-    const aiResponse: ChatResponse = await openmodel.chat(message);
+    const tools = buildChatTools(userId, log);
+
+    const aiResponse = await generateText({
+      model: openmodel,
+      tools,
+      maxSteps: 3,
+      system: getSystemPrompt(),
+      prompt: message,
+    });
+
     log.info(
-      { event: 'chat_intent_identified', intent: aiResponse.intent },
-      'identified chat intent',
+      { event: 'chat_generated', steps: aiResponse.steps?.length ?? 1 },
+      'generated chat response',
     );
 
-    switch (aiResponse.intent) {
-      case 'add_transaction':
-        return handleAddTransaction(aiResponse, userId, log);
-      case 'query':
-        return handleQuery(aiResponse, userId, log);
-      case 'manage_account':
-        return handleManageAccount(aiResponse, userId, log);
+    let intent = 'unknown';
+    let transactions: SavedTransaction[] | undefined;
+    let queryResult: unknown;
+    let account: unknown;
+    let accounts: unknown[] | undefined;
+
+    if (aiResponse.toolResults && aiResponse.toolResults.length > 0) {
+      for (const res of aiResponse.toolResults) {
+        if (res.toolName === 'add_transaction') {
+          intent = 'add_transaction';
+          const data = res.result as { savedTransactions: SavedTransaction[] };
+          transactions = data.savedTransactions;
+        } else if (res.toolName === 'query_finances') {
+          intent = 'query';
+          queryResult = res.result;
+        } else if (res.toolName === 'manage_account') {
+          intent = 'manage_account';
+          const data = res.result as { account?: unknown; accounts?: unknown[] };
+          account = data.account;
+          accounts = data.accounts;
+        }
+      }
     }
+
+    return {
+      intent,
+      reply: aiResponse.text || 'Maaf, saya tidak bisa memproses permintaan Anda.',
+      transactions,
+      queryResult,
+      account,
+      accounts,
+    };
   }
 }
 
