@@ -9,6 +9,7 @@ const envSchema = z.object({
   OPENMODEL_BASE_URL: z.string().url(),
   OPENMODEL_MODEL: z.string().min(1),
   NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
+  LOG_LEVEL: z.enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace']).default('info'),
 });
 
 const parsed = envSchema.safeParse(process.env);
