@@ -1,4 +1,5 @@
 import { and, count, eq, gte, lte, sql } from 'drizzle-orm';
+import type { Pino as Logger } from 'logixlysia';
 import { financialAccounts, transactions } from '../../db/schema';
 import { db } from '../../lib/db';
 import type { Transaction } from './transaction.schema';
@@ -117,7 +118,12 @@ export class TransactionService {
       type?: 'expense' | 'income';
       accountId?: string;
     },
+    log?: Logger,
   ): Promise<FormattedTransaction> {
+    log?.info(
+      { event: 'updating_transaction_db', transactionId: id },
+      'running transaction update logic',
+    );
     const existing = await db.query.transactions.findFirst({
       where: (tx, { and, eq }) => and(eq(tx.id, id), eq(tx.userId, userId)),
     });
@@ -178,7 +184,11 @@ export class TransactionService {
     return updated;
   }
 
-  async remove(id: string, userId: string): Promise<void> {
+  async remove(id: string, userId: string, log?: Logger): Promise<void> {
+    log?.info(
+      { event: 'removing_transaction_db', transactionId: id },
+      'running transaction remove logic',
+    );
     const existing = await db.query.transactions.findFirst({
       where: (tx, { and, eq }) => and(eq(tx.id, id), eq(tx.userId, userId)),
     });

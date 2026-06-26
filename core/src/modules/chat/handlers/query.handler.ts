@@ -1,11 +1,20 @@
 import { and, count, desc, eq, gte, lte, type SQL, sum } from 'drizzle-orm';
+import type { Pino as Logger } from 'logixlysia';
 import { transactions } from '../../../db/schema';
 import { db } from '../../../lib/db';
 import type { QueryResponse } from '../../../lib/openmodel.types';
 import { financialAccountService } from '../../financial-account/financial-account.service';
 import type { ChatResult } from '../chat.types';
 
-export async function handleQuery(response: QueryResponse, userId: string): Promise<ChatResult> {
+export async function handleQuery(
+  response: QueryResponse,
+  userId: string,
+  log: Logger,
+): Promise<ChatResult> {
+  log.info(
+    { event: 'handle_query', queryType: response.query.queryType, filters: response.query.filters },
+    'processing chat query',
+  );
   const { queryType, filters } = response.query;
   const conditions = [eq(transactions.userId, userId)];
 

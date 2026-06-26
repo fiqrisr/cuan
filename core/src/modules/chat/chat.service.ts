@@ -1,3 +1,4 @@
+import type { Pino as Logger } from 'logixlysia';
 import { env } from '../../lib/env';
 import { createOpenModelClient } from '../../lib/openmodel';
 import type { ChatResponse } from '../../lib/openmodel.types';
@@ -13,16 +14,21 @@ const openmodel = createOpenModelClient({
 });
 
 export class ChatService {
-  async processChat(message: string, userId: string): Promise<ChatResult> {
+  async processChat(message: string, userId: string, log: Logger): Promise<ChatResult> {
+    log.info({ event: 'chat_process_started', userId }, 'processing chat message');
     const aiResponse: ChatResponse = await openmodel.chat(message);
+    log.info(
+      { event: 'chat_intent_identified', intent: aiResponse.intent },
+      'identified chat intent',
+    );
 
     switch (aiResponse.intent) {
       case 'add_transaction':
-        return handleAddTransaction(aiResponse, userId);
+        return handleAddTransaction(aiResponse, userId, log);
       case 'query':
-        return handleQuery(aiResponse, userId);
+        return handleQuery(aiResponse, userId, log);
       case 'manage_account':
-        return handleManageAccount(aiResponse, userId);
+        return handleManageAccount(aiResponse, userId, log);
     }
   }
 }

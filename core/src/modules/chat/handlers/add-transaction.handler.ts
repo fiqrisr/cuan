@@ -1,3 +1,4 @@
+import type { Pino as Logger } from 'logixlysia';
 import { transactions } from '../../../db/schema';
 import { db } from '../../../lib/db';
 import type { AddTransactionResponse } from '../../../lib/openmodel.types';
@@ -7,12 +8,21 @@ import type { ChatResult, SavedTransaction } from '../chat.types';
 export async function handleAddTransaction(
   response: AddTransactionResponse,
   userId: string,
+  log: Logger,
 ): Promise<ChatResult> {
+  log.info(
+    { event: 'handle_add_transaction', transactionCount: response.transactions.length },
+    'adding transactions from chat',
+  );
   const saved: SavedTransaction[] = [];
 
   for (const tx of response.transactions) {
-    const result = await processSingleTransaction(tx, userId);
+    const result = await processSingleTransaction(tx, userId, log);
     if ('error' in result) {
+      log.warn(
+        { event: 'add_transaction_failed', reason: result.error, transaction: tx },
+        'failed to process single transaction',
+      );
       return {
         intent: 'add_transaction',
         reply: result.error,
@@ -31,6 +41,7 @@ export async function handleAddTransaction(
 async function processSingleTransaction(
   tx: AddTransactionResponse['transactions'][0],
   userId: string,
+  log: Logger,
 ): Promise<{ error: string } | { saved: SavedTransaction }> {
   let accountId: string | null = null;
   if (tx.accountName) {
@@ -46,6 +57,7 @@ async function processSingleTransaction(
     where: (c, { eq }) => eq(c.name, tx.category),
   });
   if (!cat) {
+    log.warn({ event: 'category_not_found', category: tx.category }, 'category not found');
     return { error: `Kategori '${tx.category}' tidak ditemukan.` };
   }
 
@@ -63,6 +75,10 @@ async function processSingleTransaction(
     })
     .returning();
 
+  log.info(
+    { event: 'transaction_created', transactionId: row.id, amount: tx.amount },
+    'transaction created successfully',
+  );
   if (accountId) {
     const delta = tx.type === 'expense' ? -tx.amount : tx.amount;
     await financialAccountService.adjustBalance(accountId, delta);
