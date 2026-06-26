@@ -42,4 +42,6 @@ tasks:
 
   'db-push':
     command: 'drizzle-kit push'
+  seed:
+    command: 'bun run scripts/seed.ts'
     preset: server

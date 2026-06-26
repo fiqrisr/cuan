@@ -1,5 +1,4 @@
 import type { Pino as Logger } from 'logixlysia';
-import type { z } from 'zod';
 import { categoryService } from '../../category/category.service';
 
 export type ManageCategoryParams = {
@@ -80,7 +79,7 @@ async function renameCategory(params: ManageCategoryParams, userId: string, log:
   return { category: updated };
 }
 
-async function listCategories(userId: string, log: Logger) {
+async function listCategories(userId: string, _log: Logger) {
   const categories = await categoryService.getUserCategories(userId);
   return { categories };
 }

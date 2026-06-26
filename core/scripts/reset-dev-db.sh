@@ -13,3 +13,6 @@ bun run scripts/reset-dev-db.ts
 
 echo "Running migrations..."
 bunx drizzle-kit migrate
+
+echo "Seeding default categories..."
+bun run scripts/seed.ts

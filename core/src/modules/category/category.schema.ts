@@ -13,9 +13,7 @@ export const categories = pgTable(
   },
   table => [
     index('categories_name_idx').on(table.name),
-    uniqueIndex('categories_global_name_idx')
-      .on(table.name)
-      .where(sql`user_id IS NULL`),
+    uniqueIndex('categories_global_name_idx').on(table.name).where(sql`user_id IS NULL`),
     uniqueIndex('categories_user_name_idx')
       .on(table.userId, table.name)
       .where(sql`user_id IS NOT NULL`),

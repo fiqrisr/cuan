@@ -60,9 +60,7 @@ async function clearDatabase(): Promise<void> {
   await db.delete(categories);
 
   const cats = [
-    { name: 'groceries', label: 'Groceries' },
-    { name: 'coffee', label: 'Coffee' },
-    { name: 'dining-out', label: 'Dining Out' },
+    { name: 'food-beverage', label: 'Makanan & Minuman' },
   ];
   for (const c of cats) {
     await db.insert(categories).values(c);
@@ -119,7 +117,7 @@ describe('POST /api/chat', () => {
             type: 'expense',
             amount: 125000,
             currency: 'IDR',
-            category: 'groceries',
+            category: 'food-beverage',
             description: 'Weekly groceries',
             date: '2026-06-24T08:00:00.000Z',
           },
@@ -138,7 +136,7 @@ describe('POST /api/chat', () => {
     expect(body.intent).toBe('add_transaction');
     expect(body.transactions?.length).toBe(1);
     expect(body.transactions?.[0].amount).toBe(125000);
-    expect(body.transactions?.[0].category).toBe('groceries');
+    expect(body.transactions?.[0].category).toBe('food-beverage');
   });
 
   it('saves multiple transactions from one chat message', async () => {
@@ -150,7 +148,7 @@ describe('POST /api/chat', () => {
             type: 'expense',
             amount: 15000,
             currency: 'IDR',
-            category: 'coffee',
+            category: 'food-beverage',
             description: 'Coffee',
             date: '2026-06-25T08:00:00.000Z',
           },
@@ -158,7 +156,7 @@ describe('POST /api/chat', () => {
             type: 'expense',
             amount: 30000,
             currency: 'IDR',
-            category: 'dining-out',
+            category: 'food-beverage',
             description: 'Lunch',
             date: '2026-06-25T12:00:00.000Z',
           },
@@ -192,7 +190,7 @@ describe('POST /api/chat', () => {
             type: 'expense',
             amount: 20000,
             currency: 'IDR',
-            category: 'coffee',
+            category: 'food-beverage',
             description: 'Coffee',
             date: '2026-06-25T08:00:00.000Z',
           },
@@ -244,7 +242,7 @@ describe('POST /api/chat', () => {
 
     // Insert transaction directly
     const cat = await db.query.categories.findFirst({
-      where: (c, { eq }) => eq(c.name, 'coffee'),
+      where: (c, { eq }) => eq(c.name, 'food-beverage'),
     });
     const sessionRes = await auth.handler(
       new Request('http://localhost/api/get-session', {

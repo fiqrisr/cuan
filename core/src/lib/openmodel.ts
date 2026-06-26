@@ -5,7 +5,7 @@ import type { FetchLike, OpenModelClientOptions } from './openmodel.types';
 
 export type OpenModelClient = LanguageModel;
 
-export function getSystemPrompt(categoriesInfo: string = ""): string {
+export function getSystemPrompt(categoriesInfo: string = ''): string {
   const now = new Date().toISOString();
   return `You are a personal finance assistant that understands Bahasa Indonesia and English.
 Analyze the user's message and determine the intent.
@@ -42,6 +42,14 @@ Examples: "buat akun BCA bank", "set default GoPay", "list accounts"
 - action "create_account": extract name, type, currency, initialBalance.
 - action "set_default": extract accountName.
 - action "list_accounts": no extra fields needed.
+
+### intent: "manage_category"
+The user wants to manage custom transaction categories.
+Examples: "buat kategori Liburan", "ganti nama kategori liburan jadi Trip", "lihat kategori"
+- action "create_category": extract name.
+- action "rename_category": extract name (old) and newName (new label).
+- action "list_categories": no extra fields needed.
+NOTE: Default/global categories cannot be renamed. Only user-created categories can be modified.
 
 Always respond with reply in Bahasa Indonesia.
 
