@@ -15,7 +15,7 @@ We use a Vercel AI SDK Tool Calling architecture. The AI acts as a parser and co
   - `manage-account.handler.ts`
   - `query.handler.ts`
 
-## 3-Intent Tool System
+## 4-Intent Tool System
 
 The LLM uses predefined tools (`chat.tools.ts`) to fulfill user intents.
 
@@ -41,6 +41,13 @@ Used for account management operations via chat.
   - The LLM extracts the action (`create_account`, `set_default`, `list_accounts`) and parameters.
   - Executes the requested action securely in the database.
   - The LLM receives the result and generates a confirmation reply.
+### 4. `manage_category`
+Used for custom category management operations via chat.
+- **Behavior:**
+  - The LLM extracts the action (`create_category`, `rename_category`, `list_categories`) and category names.
+  - Executes the requested action securely in the database, tying custom categories to the user's ID.
+  - The LLM receives the result and generates a confirmation reply.
+
 ## OpenModel Client
 The interaction with the LLM is abstracted via `openmodel.ts`. It acts as an OpenAI-compatible client, configured via environment variables (`OPENMODEL_API_KEY`, `OPENMODEL_BASE_URL`, `OPENMODEL_MODEL`), meaning it can swap between OpenAI, DeepInfra, Groq, Anthropic (via Vercel AI SDK), or local models seamlessly.
 

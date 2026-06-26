@@ -13,7 +13,7 @@ We store all monetary amounts as exact `numeric(12,2)` rather than integer cents
 - `type`: string (`expense` | `income`)
 - `amount`: numeric(12,2)
 - `currency`: string
-- `category`: string (Foreign Key/Enum to categories)
+- `category_id`: int (Foreign Key to `categories` table)
 - `description`: string
 - `date`: Timestamp
 - `created_at` / `updated_at`: Timestamps
@@ -47,5 +47,6 @@ The `GET /api/transactions` endpoint supports:
 
 ## Known Gotchas
 
+- **Dynamic Categories:** Transactions map to `category_id`, which references the `categories` table. Categories can be global (default) or user-specific (custom).
 - **Nullable `account_id`:** `account_id` is nullable in the database for backward compatibility with v1 data (which had no financial accounts). New inserts from the application layer always require an `account_id` or fallback to the user's default account.
 - **Currency Parsing:** Postgres `numeric` values are often returned as strings by the `pg` driver to prevent float truncation in JS. Ensure the API/Client expects strings or handles conversions properly if math is needed on the frontend.
