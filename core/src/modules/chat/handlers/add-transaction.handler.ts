@@ -49,7 +49,8 @@ async function processSingleTransaction(
   }
 
   const cat = await db.query.categories.findFirst({
-    where: (c, { eq }) => eq(c.name, tx.category),
+    where: (c, { eq, and, or, isNull }) =>
+      and(eq(c.name, tx.category), or(eq(c.userId, userId), isNull(c.userId))),
   });
   if (!cat) {
     log.warn({ event: 'category_not_found', category: tx.category }, 'category not found');

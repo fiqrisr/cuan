@@ -35,7 +35,8 @@ export async function handleQuery(
   const categoryName = filters.category;
   if (categoryName) {
     const cat = await db.query.categories.findFirst({
-      where: (c, { eq }) => eq(c.name, categoryName),
+      where: (c, { eq, and, or, isNull }) =>
+        and(eq(c.name, categoryName), or(eq(c.userId, userId), isNull(c.userId))),
     });
     if (cat) conditions.push(eq(transactions.categoryId, cat.id));
   }

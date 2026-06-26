@@ -5,6 +5,7 @@ export type ChatResult = {
   queryResult?: unknown;
   account?: unknown;
   accounts?: unknown[];
+  categories?: unknown;
 };
 
 export type SavedTransaction = {

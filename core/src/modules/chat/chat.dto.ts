@@ -13,6 +13,7 @@ export const CreateChatResponseDto = t.Object({
   queryResult: t.Optional(t.Any()),
   account: t.Optional(t.Any()),
   accounts: t.Optional(t.Array(t.Any())),
+  categories: t.Optional(t.Any()),
 });
 
 export type CreateChatResponse = typeof CreateChatResponseDto.static;

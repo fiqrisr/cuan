@@ -9,6 +9,7 @@ import {
 } from '../../lib/openmodel.schema';
 import { handleAddTransaction } from './handlers/add-transaction.handler';
 import { handleManageAccount } from './handlers/manage-account.handler';
+import { handleManageCategory } from './handlers/manage-category.handler';
 import { handleQuery } from './handlers/query.handler';
 
 const addTransactionParams = z.object({
@@ -39,6 +40,12 @@ const manageAccountParams = z.object({
   initialBalance: z.number().optional(),
 });
 
+const manageCategoryParams = z.object({
+  action: z.enum(['create_category', 'rename_category', 'list_categories']),
+  name: z.string().optional().describe('Original name of the category'),
+  newName: z.string().optional().describe('New name for the category (if renaming)'),
+});
+
 export const buildChatTools = (userId: string, log: Logger) => ({
   add_transaction: tool({
     description: 'Record one or more transactions (expenses or income).',
@@ -60,5 +67,12 @@ export const buildChatTools = (userId: string, log: Logger) => ({
     // @ts-expect-error Vercel AI SDK fails to infer execute args when Zod schema has transforms
     execute: async (args: z.infer<typeof manageAccountParams>) =>
       handleManageAccount(args, userId, log),
+  }),
+  manage_category: tool({
+    description: 'Manage custom transaction categories (create, rename, list).',
+    parameters: manageCategoryParams,
+    // @ts-expect-error Vercel AI SDK fails to infer execute args when Zod schema has transforms
+    execute: async (args: z.infer<typeof manageCategoryParams>) =>
+      handleManageCategory(args, userId, log),
   }),
 });

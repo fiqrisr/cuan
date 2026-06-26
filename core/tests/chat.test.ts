@@ -57,6 +57,7 @@ async function clearDatabase(): Promise<void> {
   await db.delete(account);
   await db.delete(verification);
   await db.delete(user);
+  await db.delete(categories);
 
   const cats = [
     { name: 'groceries', label: 'Groceries' },
@@ -64,7 +65,7 @@ async function clearDatabase(): Promise<void> {
     { name: 'dining-out', label: 'Dining Out' },
   ];
   for (const c of cats) {
-    await db.insert(categories).values(c).onConflictDoNothing({ target: categories.name });
+    await db.insert(categories).values(c);
   }
 }
 

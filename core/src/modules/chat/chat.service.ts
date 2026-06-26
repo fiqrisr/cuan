@@ -2,6 +2,7 @@ import { generateText, stepCountIs } from 'ai';
 import type { Pino as Logger } from 'logixlysia';
 import { env } from '../../lib/env';
 import { createOpenModelClient, getSystemPrompt } from '../../lib/openmodel';
+import { categoryService } from '../category/category.service';
 import { buildChatTools } from './chat.tools';
 import type { ChatResult, SavedTransaction } from './chat.types';
 
@@ -16,11 +17,14 @@ export class ChatService {
     log.info({ event: 'chat_process_started', userId }, 'processing chat message');
     const tools = buildChatTools(userId, log);
 
+    const categories = await categoryService.getUserCategories(userId);
+    const categoriesInfo = categories.map(c => `- ${c.name} (${c.label})`).join('\n');
+
     const aiResponse = await generateText({
       model: openmodel,
       tools,
       stopWhen: stepCountIs(3),
-      system: getSystemPrompt(),
+      system: getSystemPrompt(categoriesInfo),
       prompt: message,
     });
 
@@ -34,6 +38,7 @@ export class ChatService {
     let queryResult: unknown;
     let account: unknown;
     let accounts: unknown[] | undefined;
+    let categoriesData: unknown;
 
     if (aiResponse.toolResults && aiResponse.toolResults.length > 0) {
       for (const res of aiResponse.toolResults) {
@@ -49,6 +54,9 @@ export class ChatService {
           const data = res.output as { account?: unknown; accounts?: unknown[] };
           account = data.account;
           accounts = data.accounts;
+        } else if (res.toolName === 'manage_category') {
+          intent = 'manage_category';
+          categoriesData = res.output;
         }
       }
     }
@@ -60,6 +68,7 @@ export class ChatService {
       queryResult,
       account,
       accounts,
+      categories: categoriesData,
     };
   }
 }
