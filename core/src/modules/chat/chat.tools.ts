@@ -5,7 +5,7 @@ import {
   extractedTransactionSchema,
   manageAccountActionSchema,
   queryFiltersSchema,
-} from '@/lib/openmodel.schema';
+} from '@/lib/openmodel';
 import { handleAddTransaction } from './handlers/add-transaction.handler';
 import { handleManageAccount } from './handlers/manage-account.handler';
 import { handleManageCategory } from './handlers/manage-category.handler';

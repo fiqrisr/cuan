@@ -1,4 +1,4 @@
-import { logger } from '@/lib/logger';
+import { logger } from '@/middleware/logger';
 import { categoryService } from '@/modules/category/category.service';
 
 export type ManageCategoryParams = {

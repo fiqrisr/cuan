@@ -1,6 +1,6 @@
 import type { z } from 'zod';
-import { logger } from '@/lib/logger';
-import type { manageAccountActionSchema } from '@/lib/openmodel.schema';
+import type { manageAccountActionSchema } from '@/lib/openmodel';
+import { logger } from '@/middleware/logger';
 import { financialAccountService } from '@/modules/financial-account/financial-account.service';
 
 type ManageAccountParams = {

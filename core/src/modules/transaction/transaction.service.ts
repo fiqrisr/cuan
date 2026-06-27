@@ -1,7 +1,6 @@
 import { and, count, eq, gte, lte, sql } from 'drizzle-orm';
-import { financialAccounts, transactions } from '@/db/schema';
-import { db } from '@/lib/db';
-import { logger } from '@/lib/logger';
+import { db, financialAccounts, transactions } from '@/db';
+import { logger } from '@/middleware/logger';
 import type { Transaction } from './transaction.schema';
 import type {
   FormattedTransaction,

@@ -1,6 +1,6 @@
 import { relations } from 'drizzle-orm';
 import { boolean, numeric, pgTable, text, timestamp, uniqueIndex, uuid } from 'drizzle-orm/pg-core';
-import { user } from '@/modules/auth/auth.schema';
+import { user } from '@/modules/auth';
 import { transactions } from '@/modules/transaction/transaction.schema';
 
 export const financialAccounts = pgTable(

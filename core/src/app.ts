@@ -1,18 +1,18 @@
 import { openapi } from '@elysia/openapi';
 import { Elysia } from 'elysia';
-import { auth, OpenAPI } from './lib/auth';
-import { logixlysiaLogger } from './lib/logger';
-import { chatController } from './modules/chat/chat.controller';
-import { financialAccountController } from './modules/financial-account/financial-account.controller';
-import { transactionController } from './modules/transaction/transaction.controller';
+import { logixlysiaLogger } from './middleware/logger';
+import { AuthOpenAPI, auth } from './modules/auth';
+import { chatController } from './modules/chat/';
+import { financialAccountController } from './modules/financial-account';
+import { transactionController } from './modules/transaction';
 
 export const app = new Elysia()
   .use(logixlysiaLogger)
   .use(
     openapi({
       documentation: {
-        components: await OpenAPI.components,
-        paths: await OpenAPI.getPaths(),
+        components: await AuthOpenAPI.components,
+        paths: await AuthOpenAPI.getPaths(),
       },
     }),
   )

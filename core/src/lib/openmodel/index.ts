@@ -75,3 +75,6 @@ export function createOpenModelClient(options: OpenModelClientOptions): OpenMode
   const { apiKey, baseUrl, model, fetch } = options;
   return getOpenModel(baseUrl, apiKey, model, fetch);
 }
+
+export * from './openmodel.schema';
+export * from './openmodel.types';

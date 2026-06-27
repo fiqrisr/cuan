@@ -1,5 +1,5 @@
 import { and, eq, isNull, or } from 'drizzle-orm';
-import { db } from '@/lib/db';
+import { db } from '@/db';
 import { categories } from './category.schema';
 
 export class CategoryService {

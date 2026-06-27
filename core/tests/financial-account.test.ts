@@ -1,8 +1,8 @@
 import { afterEach, beforeEach, describe, expect, it } from 'bun:test';
 import { app } from '@/app';
+import { db } from '@/db';
 import { account, financialAccounts, session, transactions, user, verification } from '@/db/schema';
-import { auth } from '@/lib/auth';
-import { db } from '@/lib/db';
+import { auth } from '@/modules/auth';
 
 async function clearDatabase(): Promise<void> {
   await db.delete(transactions);

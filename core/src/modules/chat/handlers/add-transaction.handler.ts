@@ -1,8 +1,8 @@
 import type { z } from 'zod';
+import { db } from '@/db';
 import { transactions } from '@/db/schema';
-import { db } from '@/lib/db';
-import { logger } from '@/lib/logger';
-import type { extractedTransactionSchema } from '@/lib/openmodel.schema';
+import type { extractedTransactionSchema } from '@/lib/openmodel';
+import { logger } from '@/middleware/logger';
 import type { SavedTransaction } from '@/modules/chat/chat.types';
 import { financialAccountService } from '@/modules/financial-account/financial-account.service';
 

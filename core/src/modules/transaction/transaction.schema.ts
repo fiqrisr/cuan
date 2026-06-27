@@ -1,6 +1,6 @@
 import { relations } from 'drizzle-orm';
 import { index, integer, numeric, pgTable, text, timestamp, uuid } from 'drizzle-orm/pg-core';
-import { user } from '@/modules/auth/auth.schema';
+import { user } from '@/modules/auth';
 import { categories } from '@/modules/category/category.schema';
 import { financialAccounts } from '@/modules/financial-account/financial-account.schema';
 

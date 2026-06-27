@@ -1,6 +1,6 @@
 import { Elysia, t } from 'elysia';
-import { authGuard } from '@/lib/auth-guard';
-import { logger } from '@/lib/logger';
+import { logger } from '@/middleware/logger';
+import { authGuard } from '@/modules/auth';
 import {
   ListTransactionsRequestDto,
   ListTransactionsResponseDto,

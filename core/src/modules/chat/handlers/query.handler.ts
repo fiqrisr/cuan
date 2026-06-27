@@ -1,9 +1,9 @@
 import { and, count, desc, eq, gte, lte, type SQL, sum } from 'drizzle-orm';
 import type { z } from 'zod';
+import { db } from '@/db';
 import { transactions } from '@/db/schema';
-import { db } from '@/lib/db';
-import { logger } from '@/lib/logger';
-import type { queryFiltersSchema } from '@/lib/openmodel.schema';
+import type { queryFiltersSchema } from '@/lib/openmodel';
+import { logger } from '@/middleware/logger';
 import { financialAccountService } from '@/modules/financial-account/financial-account.service';
 
 type QueryType =

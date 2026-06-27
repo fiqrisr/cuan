@@ -1,7 +1,7 @@
 import { app } from './app';
-import { pool } from './lib/db';
-import { env } from './lib/env';
-import { logger } from './lib/logger';
+import { pool } from './db';
+import { env } from './env';
+import { logger } from './middleware/logger';
 
 const server = app.listen(env.PORT, () => {
   logger.info(

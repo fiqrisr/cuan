@@ -1,8 +1,8 @@
 import { betterAuth } from 'better-auth';
 import { drizzleAdapter } from 'better-auth/adapters/drizzle';
 import { openAPI } from 'better-auth/plugins';
-import { db } from './db';
-import { env } from './env';
+import { db } from '@/db';
+import { env } from '@/env';
 
 export const auth = betterAuth({
   database: drizzleAdapter(db, {
@@ -25,7 +25,7 @@ const getSchema = () => {
   _schema ??= auth.api.generateOpenAPISchema() as any;
   return _schema;
 };
-export const OpenAPI = {
+export const AuthOpenAPI = {
   getPaths: (prefix = '/auth/api') =>
     getSchema().then(({ paths }) => {
       const reference: typeof paths = Object.create(null);
@@ -44,3 +44,7 @@ export const OpenAPI = {
   // biome-ignore lint/suspicious/noExplicitAny: required for elysia openapi
   components: getSchema().then(({ components }) => components) as Promise<any>,
 } as const;
+
+export * from './auth.schema';
+export * from './auth.types';
+export * from './auth-guard';

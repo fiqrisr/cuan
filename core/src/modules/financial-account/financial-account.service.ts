@@ -1,7 +1,6 @@
 import { and, eq } from 'drizzle-orm';
-import { financialAccounts } from '@/db/schema';
-import { db } from '@/lib/db';
-import { logger } from '@/lib/logger';
+import { db, financialAccounts } from '@/db';
+import { logger } from '@/middleware/logger';
 import type { FinancialAccount, NewFinancialAccount } from './financial-account.schema';
 
 export class FinancialAccountService {

@@ -1,8 +1,6 @@
 import logixlysia from 'logixlysia';
 
-export const logixlysiaLogger = logixlysia({
-  preset: 'json',
-});
+export const logixlysiaLogger = logixlysia();
 
 export const logger = logixlysiaLogger.store.pino;
 

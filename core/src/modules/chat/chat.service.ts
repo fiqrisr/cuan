@@ -1,8 +1,8 @@
 import { generateText, stepCountIs } from 'ai';
-import { env } from '@/lib/env';
-import { logger } from '@/lib/logger';
-import { createOpenModelClient, getSystemPrompt } from '@/lib/openmodel';
-import { categoryService } from '@/modules/category/category.service';
+import { env } from '@/env';
+import { createOpenModelClient, getSystemPrompt } from '../../lib/openmodel';
+import { logger } from '../../middleware/logger';
+import { categoryService } from '../category/category.service';
 import { buildChatTools } from './chat.tools';
 import type { ChatResult, SavedTransaction } from './chat.types';
 

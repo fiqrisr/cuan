@@ -37,6 +37,7 @@ mock.module('../src/lib/openmodel', () => {
 });
 
 import { app } from '@/app';
+import { db } from '@/db';
 import {
   account,
   categories,
@@ -46,8 +47,7 @@ import {
   user,
   verification,
 } from '@/db/schema';
-import { auth } from '@/lib/auth';
-import { db } from '@/lib/db';
+import { auth } from '@/modules/auth';
 import type { ChatResult } from '@/modules/chat/chat.service';
 
 async function clearDatabase(): Promise<void> {
