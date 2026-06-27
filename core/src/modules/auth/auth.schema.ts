@@ -1,7 +1,7 @@
 import { relations } from 'drizzle-orm';
 import { boolean, index, pgTable, text, timestamp } from 'drizzle-orm/pg-core';
-import { financialAccounts } from '../financial-account/financial-account.schema';
-import { transactions } from '../transaction/transaction.schema';
+import { financialAccounts } from '@/modules/financial-account/financial-account.schema';
+import { transactions } from '@/modules/transaction/transaction.schema';
 
 export const user = pgTable('user', {
   id: text('id').primaryKey(),

@@ -19,4 +19,4 @@ export const authGuard = new Elysia({ name: 'auth-guard' }).macro({
   },
 });
 
-export type { AuthContext } from '../modules/auth/auth.types';
+export type { AuthContext } from '@/modules/auth/auth.types';

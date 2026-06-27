@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it } from 'bun:test';
-import { app } from '../src/app';
+import { app } from '@/app';
 import {
   account,
   categories,
@@ -8,9 +8,9 @@ import {
   transactions,
   user,
   verification,
-} from '../src/db/schema';
-import { auth } from '../src/lib/auth';
-import { db } from '../src/lib/db';
+} from '@/db/schema';
+import { auth } from '@/lib/auth';
+import { db } from '@/lib/db';
 
 async function clearDatabase(): Promise<void> {
   await db.delete(transactions);

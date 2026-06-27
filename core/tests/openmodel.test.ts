@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'bun:test';
-import { createOpenModelClient } from '../src/lib/openmodel';
+import { createOpenModelClient } from '@/lib/openmodel';
 
 describe('createOpenModelClient', () => {
   it('returns a LanguageModelV1 instance', () => {

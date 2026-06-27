@@ -1,7 +1,7 @@
 import { relations, sql } from 'drizzle-orm';
 import { index, pgTable, serial, text, uniqueIndex } from 'drizzle-orm/pg-core';
-import { user } from '../../db/schema';
-import { transactions } from '../transaction/transaction.schema';
+import { user } from '@/db/schema';
+import { transactions } from '@/modules/transaction/transaction.schema';
 
 export const categories = pgTable(
   'categories',
