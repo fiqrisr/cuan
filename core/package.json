@@ -24,12 +24,13 @@
     "elysia": "^1.4.29",
     "logixlysia": "^6.5.1",
     "pg": "^8.22.0",
+    "pino": "^10.3.1",
     "zod": "^4.4.3"
   },
   "devDependencies": {
     "@better-auth/cli": "^1.4.21",
     "@types/pg": "^8.20.0",
     "drizzle-kit": "^0.31.10",
-    "pino": "^10.3.1"
+    "pino-pretty": "^13.1.3"
   }
 }

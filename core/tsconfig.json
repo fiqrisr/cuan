@@ -3,6 +3,10 @@
   "extends": "tsconfig-moon/tsconfig.projects.json",
   "include": ["src/**/*", "tests/**/*", "drizzle.config.ts"],
   "compilerOptions": {
-    "outDir": "../.moon/cache/types/core"
+    "outDir": "../.moon/cache/types/core",
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"]
+    }
   }
 }
