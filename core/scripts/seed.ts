@@ -1,5 +1,5 @@
 import { categories } from '../src/db/schema';
-import { db } from '../src/lib/db';
+import { db } from '../src/db';
 
 const data = [
   { name: 'food-beverage', label: 'Makanan & Minuman' },
