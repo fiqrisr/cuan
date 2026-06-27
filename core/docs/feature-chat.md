@@ -9,7 +9,7 @@ We use a Vercel AI SDK Tool Calling architecture. The AI acts as a parser and co
 
 - **Endpoint:** `POST /api/chat`
 - **Controller:** `chat.controller.ts` routes the incoming message to the `ChatService`.
-- **Service:** `chat.service.ts` calls the LLM (via `openmodel.ts`) to classify the user's **intent**.
+- **Service:** `chat.service.ts` calls the LLM (via `openmodel`) to classify the user's **intent**.
 - **Handlers:** 
   - `add-transaction.handler.ts`
   - `manage-account.handler.ts`
@@ -49,7 +49,7 @@ Used for custom category management operations via chat.
   - The LLM receives the result and generates a confirmation reply.
 
 ## OpenModel Client
-The interaction with the LLM is abstracted via `openmodel.ts`. It acts as an OpenAI-compatible client, configured via environment variables (`OPENMODEL_API_KEY`, `OPENMODEL_BASE_URL`, `OPENMODEL_MODEL`), meaning it can swap between OpenAI, DeepInfra, Groq, Anthropic (via Vercel AI SDK), or local models seamlessly.
+The interaction with the LLM is abstracted via `openmodel/index.ts`. It acts as an OpenAI-compatible client, configured via environment variables (`OPENMODEL_API_KEY`, `OPENMODEL_BASE_URL`, `OPENMODEL_MODEL`), meaning it can swap between OpenAI, DeepInfra, Groq, Anthropic (via Vercel AI SDK), or local models seamlessly.
 
 ## Known Gotchas
 

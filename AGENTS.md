@@ -7,9 +7,9 @@ Cuan is a monorepo application containing a backend (`core`) and a frontend (`we
 The monorepo uses **Moonrepo** for task orchestration and **Bun** as the primary runtime and package manager.
 - **Backend (`core`)**: A Bun-native application using **Elysia.js** for routing, **Drizzle ORM** for database interaction (PostgreSQL), and **better-auth** for session management.
   - **Feature-Module Architecture**: Domain logic is grouped vertically into feature modules (e.g., `auth`, `chat`, `transaction`, `category`). 
-  - **Data Flow**: Controllers (`Elysia.post`) extract HTTP payloads -> delegate to Services -> Services orchestrate business logic (e.g., calling AI models via `openmodel.ts`) -> interact directly with Drizzle ORM for async database operations.
-  - **State Management**: The API is completely stateless. Sessions are managed via PostgreSQL and validated using an Elysia macro (`authGuard.ts`).
-  - **AI Intent System**: Chat messages are sent to an LLM via `openmodel.ts`. The LLM classifies the intent into `add_transaction`, `query`, or `manage_account`. It returns structured JSON. It **MUST NOT** generate raw SQL or hallucinate financial numbers.
+  - **Data Flow**: Controllers (`Elysia.post`) extract HTTP payloads -> delegate to Services -> Services orchestrate business logic (e.g., calling AI models via `openmodel`) -> interact directly with Drizzle ORM for async database operations.
+  - **State Management**: The API is completely stateless. Sessions are managed via PostgreSQL and validated using an Elysia macro (`auth-guard.ts` in `modules/auth`).
+  - **AI Intent System**: Chat messages are sent to an LLM via `openmodel`. The LLM classifies the intent into `add_transaction`, `query`, or `manage_account`. It returns structured JSON. It **MUST NOT** generate raw SQL or hallucinate financial numbers.
   - **Money Storage**: Money is stored as `numeric(12,2)` in PostgreSQL for exact precision. The `pg` driver returns these as strings in JS to prevent floating-point truncation; be aware of this when doing math.
 
 - **Frontend (`web-app`)**: Currently an empty scaffold planned to be a React SPA built with Vite and TanStack Router.
@@ -19,13 +19,14 @@ The monorepo uses **Moonrepo** for task orchestration and **Bun** as the primary
 - **Atomic Balances**: `financial_accounts` maintain a running `balance`. Any service modifying `transactions` MUST recalculate the linked account's balance within the same `db.transaction()` block to prevent data corruption.
 - **Default Account**: Users can have one default `financial_account`. Transactions from chat without a specified account fallback to the default. When toggling `is_default` for an account, all other accounts for that user must be set to `false`.
 - **Backward Compatibility**: `transactions.account_id` is nullable to support legacy rows from before financial accounts existed.
-- **Auth Guard Headers**: Elysia relies on Web Standard Requests. When using Better Auth in `authGuard.ts`, you MUST manually extract headers: `auth.api.getSession({ headers: request.headers })`.
+- **Auth Guard Headers**: Elysia relies on Web Standard Requests. When using Better Auth in `auth-guard.ts`, you MUST manually extract headers: `auth.api.getSession({ headers: request.headers })`.
 - **Auth Schema**: Do not manually modify tables like `user` or `session` in `schema.ts`. Use `@better-auth/cli generate` if auth configuration changes.
 
 ## Key Directories
-- `core/src/lib/`: Core cross-cutting concerns (DB connection, environment validation via Zod, custom AI client wrappers `openmodel.ts`).
-- `core/src/modules/<feature>/`: Feature-sliced modules (e.g., `chat`, `financial-account`, `transaction`, `auth`). Each contains its own `.controller.ts`, `.service.ts`, `.schema.ts`, `.dto.ts`, and `.types.ts`.
-- `core/src/db/`: Centralized database configurations.
+- `core/src/env.ts`: Environment validation via Zod.
+- `core/src/lib/`: Core cross-cutting libraries (e.g., custom AI client wrappers `openmodel/`).
+- `core/src/modules/<feature>/`: Feature-sliced modules (e.g., `chat`, `financial-account`, `transaction`, `auth`, `category`). Each contains its own `.controller.ts`, `.service.ts`, `.schema.ts`, `.dto.ts`, `.types.ts` and barrel `index.ts`.
+- `core/src/db/`: Centralized database configurations and schema.
 - `core/tests/`: Integration tests for the backend.
 - `web-app/`: React frontend workspace.
 - `.moon/`: Moonrepo toolchains, inherited tasks, and workspace configurations.
@@ -52,9 +53,9 @@ The monorepo uses **Moonrepo** for task orchestration and **Bun** as the primary
 ## Important Files
 - `core/src/app.ts`: Elysia app definition, global error handling, and route mounting.
 - `core/src/db/schema.ts`: Central barrel file aggregating Drizzle schemas from individual modules.
-- `core/src/lib/db.ts`: Database singleton setup utilizing `pg` Pool and Drizzle.
-- `core/src/lib/auth-guard.ts`: Elysia authentication macro protecting private routes using `better-auth`.
-- `core/src/lib/openmodel.ts`: Custom AI SDK wrapper that connects to LLMs based on model strings.
+- `core/src/db/index.ts`: Database singleton setup utilizing `pg` Pool and Drizzle.
+- `core/src/modules/auth/auth-guard.ts`: Elysia authentication macro protecting private routes using `better-auth`.
+- `core/src/lib/openmodel/index.ts`: Custom AI SDK wrapper that connects to LLMs based on model strings.
 - `biome.json`: Monorepo formatting and linting rules.
 - `.moon/workspace.yml` & `.moon/toolchains.yml`: Key Moon configurations mapping toolchains and shared tasks.
 

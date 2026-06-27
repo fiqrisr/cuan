@@ -14,7 +14,7 @@ Sessions are cookie-based rather than JWTs, allowing for easier session invalida
 
 ## Key Components
 
-### 1. Configuration (`lib/auth.ts`)
+### 1. Configuration (`modules/auth/index.ts`)
 The `betterAuth` instance is configured here. It hooks into the Drizzle database singleton and uses environment variables (`BETTER_AUTH_SECRET`, `BETTER_AUTH_URL`) for security and routing.
 
 ### 2. Elysia Mount
@@ -24,7 +24,7 @@ app.mount('/api/auth', auth.handler)
 ```
 This automatically handles routes like `/api/auth/sign-in`, `/api/auth/sign-up`, `/api/auth/sign-out`, and `/api/auth/get-session`.
 
-### 3. Auth Guard (`lib/auth-guard.ts`)
+### 3. Auth Guard (`modules/auth/auth-guard.ts`)
 To protect private routes, an Elysia macro/plugin (`authGuard`) is used.
 - It intercepts requests and reads the session cookie/headers.
 - It calls `auth.api.getSession({ headers: request.headers })`.
