@@ -1,5 +1,5 @@
-import type { Pino as Logger } from 'logixlysia';
-import { categoryService } from '../../category/category.service';
+import { logger } from '@/lib/logger';
+import { categoryService } from '@/modules/category/category.service';
 
 export type ManageCategoryParams = {
   action: 'create_category' | 'rename_category' | 'list_categories';
@@ -7,29 +7,25 @@ export type ManageCategoryParams = {
   newName?: string;
 };
 
-export async function handleManageCategory(
-  params: ManageCategoryParams,
-  userId: string,
-  log: Logger,
-) {
-  log.info(
+export async function handleManageCategory(params: ManageCategoryParams, userId: string) {
+  logger.info(
     { event: 'handle_manage_category', action: params.action, categoryName: params.name },
     'processing manage category intent',
   );
 
   switch (params.action) {
     case 'create_category':
-      return createCategory(params, userId, log);
+      return createCategory(params, userId);
     case 'rename_category':
-      return renameCategory(params, userId, log);
+      return renameCategory(params, userId);
     case 'list_categories':
-      return listCategories(userId, log);
+      return listCategories(userId);
     default:
       throw new Error('Aksi tidak dikenali.');
   }
 }
 
-async function createCategory(params: ManageCategoryParams, userId: string, log: Logger) {
+async function createCategory(params: ManageCategoryParams, userId: string) {
   if (!params.name) {
     throw new Error('Nama kategori diperlukan untuk membuat kategori baru.');
   }
@@ -47,12 +43,12 @@ async function createCategory(params: ManageCategoryParams, userId: string, log:
     label,
   });
 
-  log.info({ event: 'category_created', categoryId: created.id }, 'custom category created');
+  logger.info({ event: 'category_created', categoryId: created.id }, 'custom category created');
 
   return { category: created };
 }
 
-async function renameCategory(params: ManageCategoryParams, userId: string, log: Logger) {
+async function renameCategory(params: ManageCategoryParams, userId: string) {
   if (!params.name || !params.newName) {
     throw new Error('Nama lama dan nama baru diperlukan untuk mengubah kategori.');
   }
@@ -74,12 +70,12 @@ async function renameCategory(params: ManageCategoryParams, userId: string, log:
     label,
   });
 
-  log.info({ event: 'category_renamed', categoryId: updated.id }, 'custom category renamed');
+  logger.info({ event: 'category_renamed', categoryId: updated.id }, 'custom category renamed');
 
   return { category: updated };
 }
 
-async function listCategories(userId: string, _log: Logger) {
+async function listCategories(userId: string) {
   const categories = await categoryService.getUserCategories(userId);
   return { categories };
 }

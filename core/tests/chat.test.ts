@@ -36,7 +36,7 @@ mock.module('../src/lib/openmodel', () => {
   };
 });
 
-import { app } from '../src/app';
+import { app } from '@/app';
 import {
   account,
   categories,
@@ -45,10 +45,10 @@ import {
   transactions,
   user,
   verification,
-} from '../src/db/schema';
-import { auth } from '../src/lib/auth';
-import { db } from '../src/lib/db';
-import type { ChatResult } from '../src/modules/chat/chat.service';
+} from '@/db/schema';
+import { auth } from '@/lib/auth';
+import { db } from '@/lib/db';
+import type { ChatResult } from '@/modules/chat/chat.service';
 
 async function clearDatabase(): Promise<void> {
   await db.delete(transactions);
@@ -59,9 +59,7 @@ async function clearDatabase(): Promise<void> {
   await db.delete(user);
   await db.delete(categories);
 
-  const cats = [
-    { name: 'food-beverage', label: 'Makanan & Minuman' },
-  ];
+  const cats = [{ name: 'food-beverage', label: 'Makanan & Minuman' }];
   for (const c of cats) {
     await db.insert(categories).values(c);
   }

@@ -1,6 +1,6 @@
 import { Elysia, t } from 'elysia';
-import { authGuard } from '../../lib/auth-guard';
-import { loggerMiddleware } from '../../lib/logger-middleware';
+import { authGuard } from '@/lib/auth-guard';
+import { logger } from '@/lib/logger';
 import {
   CreateFinancialAccountRequestDto,
   FinancialAccountResponseDto,
@@ -11,7 +11,6 @@ import { AccountError, financialAccountService } from './financial-account.servi
 import type { FormattedAccount } from './financial-account.types';
 
 export const financialAccountController = new Elysia({ prefix: '/api/financial-accounts' })
-  .use(loggerMiddleware)
   .use(authGuard)
   .onError(({ error, set }) => {
     if (error instanceof AccountError) {
@@ -22,9 +21,8 @@ export const financialAccountController = new Elysia({ prefix: '/api/financial-a
   })
   .get(
     '/',
-    async ({ user, store }) => {
-      const pinoLogger = (store as unknown as { pino: import('logixlysia').Pino }).pino;
-      pinoLogger?.info({ event: 'get_financial_accounts' }, 'fetching user financial accounts');
+    async ({ user }) => {
+      logger.info({ event: 'get_financial_accounts' }, 'fetching user financial accounts');
       const accounts = await financialAccountService.getByUserId(user.id);
       return { data: accounts.map(formatAccount) };
     },
@@ -35,9 +33,8 @@ export const financialAccountController = new Elysia({ prefix: '/api/financial-a
   )
   .post(
     '/',
-    async ({ body, user, set, store }) => {
-      const pinoLogger = (store as unknown as { pino: import('logixlysia').Pino }).pino;
-      pinoLogger?.info(
+    async ({ body, user, set }) => {
+      logger.info(
         { event: 'create_financial_account', accountName: body.name },
         'creating financial account',
       );
@@ -61,13 +58,12 @@ export const financialAccountController = new Elysia({ prefix: '/api/financial-a
   )
   .patch(
     '/:id',
-    async ({ params, body, user, store }) => {
-      const pinoLogger = (store as unknown as { pino: import('logixlysia').Pino }).pino;
-      pinoLogger?.info(
+    async ({ params, body, user }) => {
+      logger.info(
         { event: 'update_financial_account', accountId: params.id, updates: body },
         'updating financial account',
       );
-      const updated = await financialAccountService.update(params.id, user.id, body, pinoLogger);
+      const updated = await financialAccountService.update(params.id, user.id, body);
       return { data: formatAccount(updated) };
     },
     {
@@ -79,13 +75,12 @@ export const financialAccountController = new Elysia({ prefix: '/api/financial-a
   )
   .delete(
     '/:id',
-    async ({ params, user, set, store }) => {
-      const pinoLogger = (store as unknown as { pino: import('logixlysia').Pino }).pino;
-      pinoLogger?.info(
+    async ({ params, user, set }) => {
+      logger.info(
         { event: 'delete_financial_account', accountId: params.id },
         'deleting financial account',
       );
-      await financialAccountService.remove(params.id, user.id, pinoLogger);
+      await financialAccountService.remove(params.id, user.id);
       set.status = 204;
     },
     {

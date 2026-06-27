@@ -1,8 +1,8 @@
 import { generateText, stepCountIs } from 'ai';
-import type { Pino as Logger } from 'logixlysia';
-import { env } from '../../lib/env';
-import { createOpenModelClient, getSystemPrompt } from '../../lib/openmodel';
-import { categoryService } from '../category/category.service';
+import { env } from '@/lib/env';
+import { logger } from '@/lib/logger';
+import { createOpenModelClient, getSystemPrompt } from '@/lib/openmodel';
+import { categoryService } from '@/modules/category/category.service';
 import { buildChatTools } from './chat.tools';
 import type { ChatResult, SavedTransaction } from './chat.types';
 
@@ -13,9 +13,9 @@ const openmodel = createOpenModelClient({
 });
 
 export class ChatService {
-  async processChat(message: string, userId: string, log: Logger): Promise<ChatResult> {
-    log.info({ event: 'chat_process_started', userId }, 'processing chat message');
-    const tools = buildChatTools(userId, log);
+  async processChat(message: string, userId: string): Promise<ChatResult> {
+    logger.info({ event: 'chat_process_started', userId }, 'processing chat message');
+    const tools = buildChatTools(userId);
 
     const categories = await categoryService.getUserCategories(userId);
     const categoriesInfo = categories.map(c => `- ${c.name} (${c.label})`).join('\n');
@@ -28,7 +28,7 @@ export class ChatService {
       prompt: message,
     });
 
-    log.info(
+    logger.info(
       { event: 'chat_generated', steps: aiResponse.steps?.length ?? 1 },
       'generated chat response',
     );

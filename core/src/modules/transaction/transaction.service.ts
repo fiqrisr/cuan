@@ -1,7 +1,7 @@
 import { and, count, eq, gte, lte, sql } from 'drizzle-orm';
-import type { Pino as Logger } from 'logixlysia';
-import { financialAccounts, transactions } from '../../db/schema';
-import { db } from '../../lib/db';
+import { financialAccounts, transactions } from '@/db/schema';
+import { db } from '@/lib/db';
+import { logger } from '@/lib/logger';
 import type { Transaction } from './transaction.schema';
 import type {
   FormattedTransaction,
@@ -118,9 +118,8 @@ export class TransactionService {
       type?: 'expense' | 'income';
       accountId?: string;
     },
-    log?: Logger,
   ): Promise<FormattedTransaction> {
-    log?.info(
+    logger.info(
       { event: 'updating_transaction_db', transactionId: id },
       'running transaction update logic',
     );
@@ -184,8 +183,8 @@ export class TransactionService {
     return updated;
   }
 
-  async remove(id: string, userId: string, log?: Logger): Promise<void> {
-    log?.info(
+  async remove(id: string, userId: string): Promise<void> {
+    logger.info(
       { event: 'removing_transaction_db', transactionId: id },
       'running transaction remove logic',
     );

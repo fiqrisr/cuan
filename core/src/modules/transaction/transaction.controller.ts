@@ -1,6 +1,6 @@
 import { Elysia, t } from 'elysia';
-import { authGuard } from '../../lib/auth-guard';
-import { loggerMiddleware } from '../../lib/logger-middleware';
+import { authGuard } from '@/lib/auth-guard';
+import { logger } from '@/lib/logger';
 import {
   ListTransactionsRequestDto,
   ListTransactionsResponseDto,
@@ -10,7 +10,6 @@ import {
 import { TransactionError, transactionService } from './transaction.service';
 
 export const transactionController = new Elysia({ prefix: '/api/transactions' })
-  .use(loggerMiddleware)
   .use(authGuard)
   .onError(({ error, set }) => {
     if (error instanceof TransactionError) {
@@ -21,9 +20,8 @@ export const transactionController = new Elysia({ prefix: '/api/transactions' })
   })
   .get(
     '/',
-    async ({ query, user, store }) => {
-      const pinoLogger = (store as unknown as { pino: import('logixlysia').Pino }).pino;
-      pinoLogger?.info({ event: 'list_transactions', query }, 'listing transactions');
+    async ({ query, user }) => {
+      logger.info({ event: 'list_transactions', query }, 'listing transactions');
       return transactionService.list({
         userId: user.id,
         type: query.type as 'expense' | 'income' | undefined,
@@ -45,15 +43,14 @@ export const transactionController = new Elysia({ prefix: '/api/transactions' })
   )
   .get(
     '/:id',
-    async ({ params, user, set, store }) => {
-      const pinoLogger = (store as unknown as { pino: import('logixlysia').Pino }).pino;
-      pinoLogger?.info(
+    async ({ params, user, set }) => {
+      logger.info(
         { event: 'get_transaction', transactionId: params.id },
         'fetching transaction details',
       );
       const tx = await transactionService.getById(params.id, user.id);
       if (!tx) {
-        pinoLogger?.warn(
+        logger.warn(
           { event: 'transaction_not_found', transactionId: params.id },
           'transaction not found',
         );
@@ -73,13 +70,12 @@ export const transactionController = new Elysia({ prefix: '/api/transactions' })
   )
   .patch(
     '/:id',
-    async ({ params, body, user, store }) => {
-      const pinoLogger = (store as unknown as { pino: import('logixlysia').Pino }).pino;
-      pinoLogger?.info(
+    async ({ params, body, user }) => {
+      logger.info(
         { event: 'update_transaction', transactionId: params.id, updates: body },
         'updating transaction',
       );
-      const updated = await transactionService.update(params.id, user.id, body, pinoLogger);
+      const updated = await transactionService.update(params.id, user.id, body);
       return { data: updated };
     },
     {
@@ -91,13 +87,12 @@ export const transactionController = new Elysia({ prefix: '/api/transactions' })
   )
   .delete(
     '/:id',
-    async ({ params, user, set, store }) => {
-      const pinoLogger = (store as unknown as { pino: import('logixlysia').Pino }).pino;
-      pinoLogger?.info(
+    async ({ params, user, set }) => {
+      logger.info(
         { event: 'delete_transaction', transactionId: params.id },
         'deleting transaction',
       );
-      await transactionService.remove(params.id, user.id, pinoLogger);
+      await transactionService.remove(params.id, user.id);
       set.status = 204;
     },
     {

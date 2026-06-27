@@ -1,7 +1,7 @@
-import type { Pino as Logger } from 'logixlysia';
 import type { z } from 'zod';
-import type { manageAccountActionSchema } from '../../../lib/openmodel.schema';
-import { financialAccountService } from '../../financial-account/financial-account.service';
+import { logger } from '@/lib/logger';
+import type { manageAccountActionSchema } from '@/lib/openmodel.schema';
+import { financialAccountService } from '@/modules/financial-account/financial-account.service';
 
 type ManageAccountParams = {
   action: z.infer<typeof manageAccountActionSchema>;
@@ -11,28 +11,24 @@ type ManageAccountParams = {
   initialBalance?: number;
 };
 
-export async function handleManageAccount(
-  params: ManageAccountParams,
-  userId: string,
-  log: Logger,
-) {
-  log.info(
+export async function handleManageAccount(params: ManageAccountParams, userId: string) {
+  logger.info(
     { event: 'handle_manage_account', action: params.action, accountName: params.accountName },
     'processing manage account intent',
   );
   switch (params.action) {
     case 'create_account':
-      return createAccount(params, userId, log);
+      return createAccount(params, userId);
     case 'set_default':
-      return setDefaultAccount(params, userId, log);
+      return setDefaultAccount(params, userId);
     case 'list_accounts':
-      return listAccounts(userId, log);
+      return listAccounts(userId);
     default:
       throw new Error('Aksi tidak dikenali.');
   }
 }
 
-async function createAccount(params: ManageAccountParams, userId: string, log: Logger) {
+async function createAccount(params: ManageAccountParams, userId: string) {
   if (!params.accountName) {
     throw new Error('Nama akun diperlukan untuk membuat akun baru.');
   }
@@ -45,7 +41,7 @@ async function createAccount(params: ManageAccountParams, userId: string, log: L
     initialBalance: params.initialBalance,
   });
 
-  log.info(
+  logger.info(
     { event: 'account_created', accountId: created.id, accountName: created.name },
     'financial account created',
   );
@@ -62,9 +58,9 @@ async function createAccount(params: ManageAccountParams, userId: string, log: L
   };
 }
 
-async function setDefaultAccount(params: ManageAccountParams, userId: string, log: Logger) {
+async function setDefaultAccount(params: ManageAccountParams, userId: string) {
   if (!params.accountName) {
-    log.warn(
+    logger.warn(
       { event: 'set_default_account_failed', reason: 'Missing accountName' },
       'account name required',
     );
@@ -72,7 +68,7 @@ async function setDefaultAccount(params: ManageAccountParams, userId: string, lo
   }
 
   const acct = await financialAccountService.getByName(params.accountName, userId);
-  log.info(
+  logger.info(
     { event: 'set_default_account', accountId: acct?.id, accountName: params.accountName },
     'setting default account',
   );
@@ -86,8 +82,8 @@ async function setDefaultAccount(params: ManageAccountParams, userId: string, lo
   };
 }
 
-async function listAccounts(userId: string, log: Logger) {
-  log.info({ event: 'list_accounts', userId }, 'listing financial accounts');
+async function listAccounts(userId: string) {
+  logger.info({ event: 'list_accounts', userId }, 'listing financial accounts');
   const accounts = await financialAccountService.getByUserId(userId);
   const formatted = accounts.map(a => ({
     id: a.id,

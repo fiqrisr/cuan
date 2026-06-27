@@ -1,10 +1,10 @@
 import { and, count, desc, eq, gte, lte, type SQL, sum } from 'drizzle-orm';
-import type { Pino as Logger } from 'logixlysia';
 import type { z } from 'zod';
-import { transactions } from '../../../db/schema';
-import { db } from '../../../lib/db';
-import type { queryFiltersSchema } from '../../../lib/openmodel.schema';
-import { financialAccountService } from '../../financial-account/financial-account.service';
+import { transactions } from '@/db/schema';
+import { db } from '@/lib/db';
+import { logger } from '@/lib/logger';
+import type { queryFiltersSchema } from '@/lib/openmodel.schema';
+import { financialAccountService } from '@/modules/financial-account/financial-account.service';
 
 type QueryType =
   | 'biggest_expense'
@@ -19,9 +19,8 @@ export async function handleQuery(
   queryType: QueryType,
   filters: z.infer<typeof queryFiltersSchema>,
   userId: string,
-  log: Logger,
 ) {
-  log.info({ event: 'handle_query', queryType, filters }, 'processing chat query');
+  logger.info({ event: 'handle_query', queryType, filters }, 'processing chat query');
   const conditions = [eq(transactions.userId, userId)];
 
   if (filters.type) {

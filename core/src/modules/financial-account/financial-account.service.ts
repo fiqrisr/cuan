@@ -1,7 +1,7 @@
 import { and, eq } from 'drizzle-orm';
-import type { Pino as Logger } from 'logixlysia';
-import { financialAccounts } from '../../db/schema';
-import { db } from '../../lib/db';
+import { financialAccounts } from '@/db/schema';
+import { db } from '@/lib/db';
+import { logger } from '@/lib/logger';
 import type { FinancialAccount, NewFinancialAccount } from './financial-account.schema';
 
 export class FinancialAccountService {
@@ -64,9 +64,8 @@ export class FinancialAccountService {
     id: string,
     userId: string,
     data: { name?: string; type?: string; isDefault?: boolean },
-    log?: Logger,
   ): Promise<FinancialAccount> {
-    log?.info(
+    logger.info(
       { event: 'updating_account_db', accountId: id, updates: data },
       'running account update logic',
     );
@@ -98,8 +97,8 @@ export class FinancialAccountService {
     return updated;
   }
 
-  async remove(id: string, userId: string, log?: Logger): Promise<void> {
-    log?.info({ event: 'removing_account_db', accountId: id }, 'running account remove logic');
+  async remove(id: string, userId: string): Promise<void> {
+    logger.info({ event: 'removing_account_db', accountId: id }, 'running account remove logic');
     const existing = await this.getById(id, userId);
     if (!existing) {
       throw new AccountError('Account not found', 404);

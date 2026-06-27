@@ -1,26 +1,25 @@
-import type { Pino as Logger } from 'logixlysia';
 import type { z } from 'zod';
-import { transactions } from '../../../db/schema';
-import { db } from '../../../lib/db';
-import type { extractedTransactionSchema } from '../../../lib/openmodel.schema';
-import { financialAccountService } from '../../financial-account/financial-account.service';
-import type { SavedTransaction } from '../chat.types';
+import { transactions } from '@/db/schema';
+import { db } from '@/lib/db';
+import { logger } from '@/lib/logger';
+import type { extractedTransactionSchema } from '@/lib/openmodel.schema';
+import type { SavedTransaction } from '@/modules/chat/chat.types';
+import { financialAccountService } from '@/modules/financial-account/financial-account.service';
 
 export async function handleAddTransaction(
   transactionsParams: z.infer<typeof extractedTransactionSchema>[],
   userId: string,
-  log: Logger,
 ) {
-  log.info(
+  logger.info(
     { event: 'handle_add_transaction', transactionCount: transactionsParams.length },
     'adding transactions from chat',
   );
   const saved: SavedTransaction[] = [];
 
   for (const tx of transactionsParams) {
-    const result = await processSingleTransaction(tx, userId, log);
+    const result = await processSingleTransaction(tx, userId);
     if ('error' in result) {
-      log.warn(
+      logger.warn(
         { event: 'add_transaction_failed', reason: result.error, transaction: tx },
         'failed to process single transaction',
       );
@@ -36,7 +35,6 @@ export async function handleAddTransaction(
 async function processSingleTransaction(
   tx: z.infer<typeof extractedTransactionSchema>,
   userId: string,
-  log: Logger,
 ): Promise<{ error: string } | { saved: SavedTransaction }> {
   let accountId: string | null = null;
   if (tx.accountName) {
@@ -53,7 +51,7 @@ async function processSingleTransaction(
       and(eq(c.name, tx.category), or(eq(c.userId, userId), isNull(c.userId))),
   });
   if (!cat) {
-    log.warn({ event: 'category_not_found', category: tx.category }, 'category not found');
+    logger.warn({ event: 'category_not_found', category: tx.category }, 'category not found');
     return { error: `Kategori '${tx.category}' tidak ditemukan.` };
   }
 
@@ -71,7 +69,7 @@ async function processSingleTransaction(
     })
     .returning();
 
-  log.info(
+  logger.info(
     { event: 'transaction_created', transactionId: row.id, amount: tx.amount },
     'transaction created successfully',
   );
