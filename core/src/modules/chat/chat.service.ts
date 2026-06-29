@@ -1,6 +1,6 @@
 import { createAnthropic } from '@ai-sdk/anthropic';
 import { createOpenAI } from '@ai-sdk/openai';
-import { generateText, type LanguageModel, stepCountIs } from 'ai';
+import { generateText, streamText, type LanguageModel, stepCountIs } from 'ai';
 import { env } from '@/env';
 import { logger } from '../../middleware/logger';
 import { categoryService } from '../category/category.service';
@@ -82,6 +82,22 @@ export class ChatService {
       accounts,
       categories: categoriesData,
     };
+  }
+
+  async streamChat(message: string, userId: string) {
+    logger.info({ event: 'chat_stream_started', userId }, 'streaming chat message');
+    const tools = buildChatTools(userId);
+
+    const categories = await categoryService.getUserCategories(userId);
+    const categoriesInfo = categories.map(c => `- ${c.name} (${c.label})`).join('\n');
+
+    return streamText({
+      model: openmodel,
+      tools,
+      maxSteps: 3,
+      system: getSystemPrompt(categoriesInfo),
+      prompt: message,
+    });
   }
 }
 
