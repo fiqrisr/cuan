@@ -2,11 +2,13 @@ import { afterEach, beforeEach, describe, expect, it } from 'bun:test';
 import { Elysia } from 'elysia';
 import { z } from 'zod';
 import { db } from '@/db';
-import { account, session, transactions, user, verification } from '@/db/schema';
+import { account, categories, session, transactions, user, verification } from '@/db/schema';
+import { errorHandler } from '@/middleware/error-handler';
 import { auth } from '@/modules/auth';
 import { authGuard } from '@/modules/auth/auth-guard';
 
 const testApp = new Elysia()
+  .use(errorHandler)
   .use(authGuard)
   .get('/whoami', ({ user }) => ({ id: user.id, email: user.email }), {
     auth: true,
@@ -14,6 +16,7 @@ const testApp = new Elysia()
 
 async function clearDatabase(): Promise<void> {
   await db.delete(transactions);
+  await db.delete(categories);
   await db.delete(session);
   await db.delete(account);
   await db.delete(verification);
@@ -40,7 +43,6 @@ describe('authGuard', () => {
 
   it('returns 401 when no session cookie is provided', async () => {
     const response = await testApp.handle(new Request('http://localhost/whoami'));
-
     expect(response.status).toBe(401);
   });
 
