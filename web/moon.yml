@@ -1,0 +1,45 @@
+$schema: 'https://moonrepo.dev/schemas/project.json'
+
+language: 'typescript'
+layer: 'application'
+stack: 'frontend'
+
+project:
+  name: 'web'
+  description: 'Cuan frontend SPA'
+
+dependsOn:
+  - 'ui'
+  - 'core'
+
+tasks:
+  dev:
+    command: 'bun run dev'
+    preset: server
+
+  build:
+    command: 'bun run build'
+    deps:
+      - 'ui:build'
+    inputs:
+      - 'src/**/*'
+      - 'public/**/*'
+      - 'index.html'
+      - 'vite.config.ts'
+      - 'package.json'
+      - 'tsconfig.*.json'
+    outputs:
+      - 'dist'
+
+  lint:
+    command: 'bun run lint'
+    inputs:
+      - 'src/**/*'
+      - 'package.json'
+      - '.oxlintrc.json'
+      - 'tsconfig.app.json'
+      - 'tsconfig.node.json'
+
+  preview:
+    command: 'bun run preview'
+    preset: server

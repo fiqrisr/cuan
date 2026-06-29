@@ -1,0 +1,26 @@
+{
+  "files": [],
+  "references": [
+    {
+      "path": "./tsconfig.app.json"
+    },
+    {
+      "path": "./tsconfig.node.json"
+    },
+    {
+      "path": "../core"
+    },
+    {
+      "path": "../packages/ui"
+    }
+  ],
+  "compilerOptions": {
+    "outDir": "../.moon/cache/types/web",
+    "paths": {
+      "@cuan/core": ["../core/src/index.ts"],
+      "@cuan/core/*": ["../core/src/*"],
+      "@cuan/ui": ["../packages/ui/src/index.ts"],
+      "@cuan/ui/*": ["../packages/ui/src/*"]
+    }
+  }
+}
