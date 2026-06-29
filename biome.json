@@ -27,6 +27,14 @@
     "lineWidth": 100,
     "lineEnding": "lf"
   },
+  "css": {
+    "parser": {
+      "cssModules": true
+    },
+    "formatter": {
+      "enabled": false
+    }
+  },
   "linter": {
     "enabled": true,
     "rules": {
