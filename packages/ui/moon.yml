@@ -1,0 +1,30 @@
+$schema: 'https://moonrepo.dev/schemas/project.json'
+
+language: 'typescript'
+layer: 'library'
+stack: 'frontend'
+
+project:
+  name: 'ui'
+  description: 'Cuan UI components library'
+
+tasks:
+  dev:
+    command: 'bun run dev'
+    preset: server
+
+  build:
+    command: 'bun run build'
+    inputs:
+      - 'src/**/*'
+      - 'tsconfig.json'
+      - 'tsup.config.ts'
+      - 'package.json'
+    outputs:
+      - 'dist'
+
+  lint:
+    command: 'bun run lint'
+    inputs:
+      - 'src/**/*'
+      - 'tsconfig.json'

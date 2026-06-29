@@ -1,0 +1,88 @@
+@import "tailwindcss";
+
+@theme {
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+
+  --radius-lg: var(--radius);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-sm: calc(var(--radius) - 4px);
+  
+  /* Custom Cuan Theme Colors */
+  --color-surface-muted: var(--surface-muted);
+  --color-body-strong: var(--body-strong);
+  --color-success: var(--success);
+}
+
+@layer base {
+  :root {
+    /* Soft Minimalistic Pastel Theme */
+    --background: #fdfbf7;       /* Off-white warm */
+    --foreground: #4a4a4a;       /* Soft dark gray */
+
+    --card: #ffffff;
+    --card-foreground: #4a4a4a;
+
+    --popover: #ffffff;
+    --popover-foreground: #4a4a4a;
+
+    --primary: #c2d8b9;          /* Soft sage green */
+    --primary-foreground: #2d3f25;
+
+    --secondary: #f4e8d3;        /* Dusty beige/peach */
+    --secondary-foreground: #5a4b38;
+
+    --muted: #f2efe9;
+    --muted-foreground: #8a8883;
+
+    --accent: #e5d9f2;           /* Soft lavender */
+    --accent-foreground: #3d2f4f;
+
+    --destructive: #ffb3b3;      /* Soft red/pink */
+    --destructive-foreground: #5c1f1f;
+
+    --border: #e8e3d9;
+    --input: #e8e3d9;
+    --ring: #c2d8b9;
+
+    --radius: 1rem;              /* Extra rounded (soft UI) */
+
+    --surface-muted: #f7f4ed;
+    --body-strong: #333333;
+    --success: #8db580;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+}
