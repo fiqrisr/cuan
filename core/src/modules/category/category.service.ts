@@ -32,6 +32,23 @@ export class CategoryService {
       .returning();
     return updated;
   }
+
+  async getById(id: number, userId: string) {
+    return db.query.categories.findFirst({
+      where: and(
+        eq(categories.id, id),
+        or(eq(categories.userId, userId), isNull(categories.userId)),
+      ),
+    });
+  }
+
+  async delete(id: number, userId: string) {
+    const [deleted] = await db
+      .delete(categories)
+      .where(and(eq(categories.id, id), eq(categories.userId, userId)))
+      .returning();
+    return deleted;
+  }
 }
 
 export const categoryService = new CategoryService();
