@@ -1,3 +1,4 @@
+import { cors } from '@elysiajs/cors';
 import { openapi } from '@elysia/openapi';
 import { Elysia } from 'elysia';
 import { errorHandler } from './middleware/error-handler';
@@ -9,6 +10,11 @@ import { financialAccountController } from './modules/financial-account';
 import { transactionController } from './modules/transaction';
 
 export const app = new Elysia()
+  .use(cors({
+    origin: true, // Allow all origins (or specify 'http://localhost:5173' for strict dev)
+    credentials: true,
+    allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
+  }))
   .use(logixlysiaLogger)
   .use(errorHandler)
   .use(
@@ -25,3 +31,5 @@ export const app = new Elysia()
   .use(financialAccountController)
   .use(categoryController)
   .use(transactionController);
+
+export type App = typeof app;

@@ -11,6 +11,8 @@ export const auth = betterAuth({
   basePath: '/api',
   baseURL: env.BETTER_AUTH_URL,
   secret: env.BETTER_AUTH_SECRET,
+  trustedOrigins:
+    env.NODE_ENV === 'development' ? ['http://localhost:5173', 'http://127.0.0.1:5173'] : [],
   emailAndPassword: {
     enabled: true,
     autoSignIn: true,
