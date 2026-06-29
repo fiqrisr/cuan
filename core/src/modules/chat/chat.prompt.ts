@@ -1,10 +1,3 @@
-import { createAnthropic } from '@ai-sdk/anthropic';
-import { createOpenAI } from '@ai-sdk/openai';
-import type { LanguageModel } from 'ai';
-import type { FetchLike, OpenModelClientOptions } from './openmodel.types';
-
-export type OpenModelClient = LanguageModel;
-
 export function getSystemPrompt(categoriesInfo: string = ''): string {
   const now = new Date().toISOString();
   return `You are a personal finance assistant that understands Bahasa Indonesia and English.
@@ -56,25 +49,3 @@ Always respond with reply in English.
 ## Available Categories
 ${categoriesInfo}`;
 }
-
-function getOpenModel(baseUrl: string, apiKey: string, modelId: string, fetchParam?: FetchLike) {
-  const omAnthropic = createAnthropic({
-    baseURL: baseUrl,
-    apiKey,
-    fetch: fetchParam as typeof fetch,
-  });
-  const omOpenAI = createOpenAI({ baseURL: baseUrl, apiKey, fetch: fetchParam as typeof fetch });
-
-  if (modelId.includes('deepseek') || modelId.includes('claude')) {
-    return omAnthropic(modelId);
-  }
-  return omOpenAI(modelId);
-}
-
-export function createOpenModelClient(options: OpenModelClientOptions): OpenModelClient {
-  const { apiKey, baseUrl, model, fetch } = options;
-  return getOpenModel(baseUrl, apiKey, model, fetch);
-}
-
-export * from './openmodel.schema';
-export * from './openmodel.types';

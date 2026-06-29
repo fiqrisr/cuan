@@ -1,8 +1,8 @@
 import type { z } from 'zod';
 import { BadRequestError } from '@/lib/error';
-import type { manageAccountActionSchema } from '@/lib/openmodel';
 import { logger } from '@/middleware/logger';
 import { financialAccountService } from '@/modules/financial-account/financial-account.service';
+import type { manageAccountActionSchema } from '../chat.ai-schema';
 
 type ManageAccountParams = {
   action: z.infer<typeof manageAccountActionSchema>;

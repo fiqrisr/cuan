@@ -29,13 +29,6 @@ mock.module('ai', () => ({
   tool: (c: unknown) => c,
 }));
 
-mock.module('../src/lib/openmodel', () => {
-  return {
-    createOpenModelClient: () => ({}),
-    getSystemPrompt: () => 'prompt',
-  };
-});
-
 import { app } from '@/app';
 import { db } from '@/db';
 import {

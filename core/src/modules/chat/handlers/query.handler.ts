@@ -3,9 +3,9 @@ import type { z } from 'zod';
 import { db } from '@/db';
 import { transactions } from '@/db/schema';
 import { BadRequestError } from '@/lib/error';
-import type { queryFiltersSchema } from '@/lib/openmodel';
 import { logger } from '@/middleware/logger';
 import { financialAccountService } from '@/modules/financial-account/financial-account.service';
+import type { queryFiltersSchema } from '../chat.ai-schema';
 
 type QueryType =
   | 'biggest_expense'

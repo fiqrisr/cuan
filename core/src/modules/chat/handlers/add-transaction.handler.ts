@@ -2,10 +2,10 @@ import type { z } from 'zod';
 import { db } from '@/db';
 import { transactions } from '@/db/schema';
 import { BadRequestError } from '@/lib/error';
-import type { extractedTransactionSchema } from '@/lib/openmodel';
 import { logger } from '@/middleware/logger';
 import type { SavedTransaction } from '@/modules/chat/chat.types';
 import { financialAccountService } from '@/modules/financial-account/financial-account.service';
+import type { extractedTransactionSchema } from '../chat.ai-schema';
 
 export async function handleAddTransaction(
   transactionsParams: z.infer<typeof extractedTransactionSchema>[],

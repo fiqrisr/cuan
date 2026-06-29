@@ -1,11 +1,10 @@
 import { tool } from 'ai';
 import { z } from 'zod';
-// We inline or re-import the Zod schemas from openmodel.schema.ts
 import {
   extractedTransactionSchema,
   manageAccountActionSchema,
   queryFiltersSchema,
-} from '@/lib/openmodel';
+} from './chat.ai-schema';
 import { handleAddTransaction } from './handlers/add-transaction.handler';
 import { handleManageAccount } from './handlers/manage-account.handler';
 import { handleManageCategory } from './handlers/manage-category.handler';
