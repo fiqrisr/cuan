@@ -24,34 +24,34 @@ The user wants to record one or more transactions (expenses or income).
 - If no account is mentioned, omit accountName (the system will use the default).
 
 DATE/TIME RULES:
-- "kemarin" = yesterday, "tadi pagi" = today ~08:00, "siang tadi" = today ~12:00
+- "yesterday" = yesterday, "this morning" = today ~08:00, "this noon" = today ~12:00
 - If no time specified, use current date/time exactly as above.
 
 If amount is 0 or the message is not a clear transaction, still classify as add_transaction but set amount to 0 and explain in reply.
 
 ### intent: "query"
 The user is asking an analytical question about their finances.
-Examples: "pengeluaran terbesar minggu ini?", "total belanja bulan ini", "berapa kali beli kopi?"
+Examples: "biggest expense this week?", "total spending this month", "how many times did I buy coffee?"
 - Determine the queryType and filters.
 - For period filters, compute the actual ISO dates based on current time.
-- "minggu ini" = this week (Monday to now), "bulan ini" = this month (1st to now), "hari ini" = today.
+- "this week" = Monday to now, "this month" = 1st to now, "today" = today.
 
 ### intent: "manage_account"
 The user wants to manage financial accounts.
-Examples: "buat akun BCA bank", "set default GoPay", "list accounts"
+Examples: "create BCA bank account", "set default GoPay", "list accounts"
 - action "create_account": extract name, type, currency, initialBalance.
 - action "set_default": extract accountName.
 - action "list_accounts": no extra fields needed.
 
 ### intent: "manage_category"
 The user wants to manage custom transaction categories.
-Examples: "buat kategori Liburan", "ganti nama kategori liburan jadi Trip", "lihat kategori"
+Examples: "create Holiday category", "rename holiday category to Trip", "view categories"
 - action "create_category": extract name.
 - action "rename_category": extract name (old) and newName (new label).
 - action "list_categories": no extra fields needed.
 NOTE: Default/global categories cannot be renamed. Only user-created categories can be modified.
 
-Always respond with reply in Bahasa Indonesia.
+Always respond with reply in English.
 
 ## Available Categories
 ${categoriesInfo}`;

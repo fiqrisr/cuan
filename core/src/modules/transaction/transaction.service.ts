@@ -1,5 +1,6 @@
 import { and, count, eq, gte, lte, sql } from 'drizzle-orm';
 import { db, financialAccounts, transactions } from '@/db';
+import { InternalServerError, NotFoundError } from '@/lib/error';
 import { logger } from '@/middleware/logger';
 import type { Transaction } from './transaction.schema';
 import type {
@@ -126,7 +127,7 @@ export class TransactionService {
       where: (tx, { and, eq }) => and(eq(tx.id, id), eq(tx.userId, userId)),
     });
     if (!existing) {
-      throw new TransactionError('Transaction not found', 404);
+      throw new NotFoundError('Transaction not found');
     }
 
     // Calculate balance adjustments if amount or type changed
@@ -178,7 +179,7 @@ export class TransactionService {
     });
 
     const updated = await this.getById(id, userId);
-    if (!updated) throw new TransactionError('Failed to retrieve updated transaction', 500);
+    if (!updated) throw new InternalServerError('Failed to retrieve updated transaction');
     return updated;
   }
 
@@ -191,7 +192,7 @@ export class TransactionService {
       where: (tx, { and, eq }) => and(eq(tx.id, id), eq(tx.userId, userId)),
     });
     if (!existing) {
-      throw new TransactionError('Transaction not found', 404);
+      throw new NotFoundError('Transaction not found');
     }
 
     await db.transaction(async tx => {
@@ -212,16 +213,6 @@ export class TransactionService {
         .delete(transactions)
         .where(and(eq(transactions.id, id), eq(transactions.userId, userId)));
     });
-  }
-}
-
-export class TransactionError extends Error {
-  constructor(
-    message: string,
-    public statusCode: number = 400,
-  ) {
-    super(message);
-    this.name = 'TransactionError';
   }
 }
 

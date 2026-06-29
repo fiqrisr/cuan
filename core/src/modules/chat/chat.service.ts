@@ -63,7 +63,7 @@ export class ChatService {
 
     return {
       intent,
-      reply: aiResponse.text || 'Maaf, saya tidak bisa memproses permintaan Anda.',
+      reply: aiResponse.text || 'Sorry, I could not process your request.',
       transactions,
       queryResult,
       account,

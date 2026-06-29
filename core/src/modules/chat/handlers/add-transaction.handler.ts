@@ -1,6 +1,7 @@
 import type { z } from 'zod';
 import { db } from '@/db';
 import { transactions } from '@/db/schema';
+import { BadRequestError } from '@/lib/error';
 import type { extractedTransactionSchema } from '@/lib/openmodel';
 import { logger } from '@/middleware/logger';
 import type { SavedTransaction } from '@/modules/chat/chat.types';
@@ -24,7 +25,7 @@ export async function handleAddTransaction(
         'failed to process single transaction',
       );
       // If one fails, we throw so the LLM knows it failed
-      throw new Error(result.error);
+      throw new BadRequestError(result.error);
     }
     saved.push(result.saved);
   }
@@ -52,7 +53,7 @@ async function processSingleTransaction(
   });
   if (!cat) {
     logger.warn({ event: 'category_not_found', category: tx.category }, 'category not found');
-    return { error: `Kategori '${tx.category}' tidak ditemukan.` };
+    return { error: `Category '${tx.category}' not found.` };
   }
 
   const [row] = await db

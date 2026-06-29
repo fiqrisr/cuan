@@ -1,4 +1,5 @@
 import type { z } from 'zod';
+import { BadRequestError } from '@/lib/error';
 import type { manageAccountActionSchema } from '@/lib/openmodel';
 import { logger } from '@/middleware/logger';
 import { financialAccountService } from '@/modules/financial-account/financial-account.service';
@@ -24,13 +25,13 @@ export async function handleManageAccount(params: ManageAccountParams, userId: s
     case 'list_accounts':
       return listAccounts(userId);
     default:
-      throw new Error('Aksi tidak dikenali.');
+      throw new BadRequestError('Action not recognized.');
   }
 }
 
 async function createAccount(params: ManageAccountParams, userId: string) {
   if (!params.accountName) {
-    throw new Error('Nama akun diperlukan untuk membuat akun baru.');
+    throw new BadRequestError('Account name is required to create a new account.');
   }
 
   const created = await financialAccountService.create({
@@ -64,7 +65,7 @@ async function setDefaultAccount(params: ManageAccountParams, userId: string) {
       { event: 'set_default_account_failed', reason: 'Missing accountName' },
       'account name required',
     );
-    throw new Error('Nama akun diperlukan.');
+    throw new BadRequestError('Account name is required.');
   }
 
   const acct = await financialAccountService.getByName(params.accountName, userId);
@@ -73,7 +74,7 @@ async function setDefaultAccount(params: ManageAccountParams, userId: string) {
     'setting default account',
   );
   if (!acct) {
-    throw new Error(`Akun '${params.accountName}' tidak ditemukan.`);
+    throw new BadRequestError(`Account '${params.accountName}' not found.`);
   }
 
   await financialAccountService.update(acct.id, userId, { isDefault: true });

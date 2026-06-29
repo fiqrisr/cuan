@@ -1,5 +1,6 @@
 import { openapi } from '@elysia/openapi';
 import { Elysia } from 'elysia';
+import { errorHandler } from './middleware/error-handler';
 import { logixlysiaLogger } from './middleware/logger';
 import { AuthOpenAPI, auth } from './modules/auth';
 import { chatController } from './modules/chat/';
@@ -8,6 +9,7 @@ import { transactionController } from './modules/transaction';
 
 export const app = new Elysia()
   .use(logixlysiaLogger)
+  .use(errorHandler)
   .use(
     openapi({
       documentation: {

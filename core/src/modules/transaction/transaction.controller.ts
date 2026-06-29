@@ -1,4 +1,5 @@
 import { Elysia, t } from 'elysia';
+import { NotFoundError } from '@/lib/error';
 import { logger } from '@/middleware/logger';
 import { authGuard } from '@/modules/auth';
 import {
@@ -7,17 +8,10 @@ import {
   TransactionResponseDto,
   UpdateTransactionRequestDto,
 } from './transaction.dto';
-import { TransactionError, transactionService } from './transaction.service';
+import { transactionService } from './transaction.service';
 
 export const transactionController = new Elysia({ prefix: '/api/transactions' })
   .use(authGuard)
-  .onError(({ error, set }) => {
-    if (error instanceof TransactionError) {
-      set.status = error.statusCode;
-      return { error: error.message };
-    }
-    return undefined;
-  })
   .get(
     '/',
     async ({ query, user }) => {
@@ -43,7 +37,7 @@ export const transactionController = new Elysia({ prefix: '/api/transactions' })
   )
   .get(
     '/:id',
-    async ({ params, user, set }) => {
+    async ({ params, user }) => {
       logger.info(
         { event: 'get_transaction', transactionId: params.id },
         'fetching transaction details',
@@ -54,8 +48,7 @@ export const transactionController = new Elysia({ prefix: '/api/transactions' })
           { event: 'transaction_not_found', transactionId: params.id },
           'transaction not found',
         );
-        set.status = 404;
-        return { error: 'Transaction not found' };
+        throw new NotFoundError('Transaction not found');
       }
       return { data: tx };
     },
@@ -64,7 +57,6 @@ export const transactionController = new Elysia({ prefix: '/api/transactions' })
       params: t.Object({ id: t.String({ format: 'uuid' }) }),
       response: {
         200: TransactionResponseDto,
-        404: t.Object({ error: t.String() }),
       },
     },
   )

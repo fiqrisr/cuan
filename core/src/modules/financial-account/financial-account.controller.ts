@@ -7,18 +7,11 @@ import {
   GetFinancialAccountsResponseDto,
   UpdateFinancialAccountRequestDto,
 } from './financial-account.dto';
-import { AccountError, financialAccountService } from './financial-account.service';
+import { financialAccountService } from './financial-account.service';
 import type { FormattedAccount } from './financial-account.types';
 
 export const financialAccountController = new Elysia({ prefix: '/api/financial-accounts' })
   .use(authGuard)
-  .onError(({ error, set }) => {
-    if (error instanceof AccountError) {
-      set.status = error.statusCode;
-      return { error: error.message };
-    }
-    return undefined;
-  })
   .get(
     '/',
     async ({ user }) => {

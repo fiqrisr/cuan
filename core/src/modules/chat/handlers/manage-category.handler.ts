@@ -1,3 +1,4 @@
+import { BadRequestError } from '@/lib/error';
 import { logger } from '@/middleware/logger';
 import { categoryService } from '@/modules/category/category.service';
 
@@ -21,19 +22,19 @@ export async function handleManageCategory(params: ManageCategoryParams, userId:
     case 'list_categories':
       return listCategories(userId);
     default:
-      throw new Error('Aksi tidak dikenali.');
+      throw new BadRequestError('Action not recognized.');
   }
 }
 
 async function createCategory(params: ManageCategoryParams, userId: string) {
   if (!params.name) {
-    throw new Error('Nama kategori diperlukan untuk membuat kategori baru.');
+    throw new BadRequestError('Category name is required to create a new category.');
   }
 
   // Check if it already exists
   const existing = await categoryService.getByName(params.name, userId);
   if (existing) {
-    throw new Error(`Kategori '${params.name}' sudah ada.`);
+    throw new BadRequestError(`Category '${params.name}' already exists.`);
   }
 
   const label = params.name.charAt(0).toUpperCase() + params.name.slice(1);
@@ -50,16 +51,16 @@ async function createCategory(params: ManageCategoryParams, userId: string) {
 
 async function renameCategory(params: ManageCategoryParams, userId: string) {
   if (!params.name || !params.newName) {
-    throw new Error('Nama lama dan nama baru diperlukan untuk mengubah kategori.');
+    throw new BadRequestError('Old name and new name are required to rename a category.');
   }
 
   const existing = await categoryService.getByName(params.name, userId);
   if (!existing) {
-    throw new Error(`Kategori '${params.name}' tidak ditemukan.`);
+    throw new BadRequestError(`Category '${params.name}' not found.`);
   }
 
   if (existing.userId === null) {
-    throw new Error('Kategori default bawaan sistem tidak dapat diubah.');
+    throw new BadRequestError('System default categories cannot be modified.');
   }
 
   const label = params.newName.charAt(0).toUpperCase() + params.newName.slice(1);

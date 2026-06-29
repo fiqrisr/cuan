@@ -1,14 +1,14 @@
 import { Elysia } from 'elysia';
+import { UnauthorizedError } from '@/lib/error';
 import { auth } from '.';
 
 export const authGuard = new Elysia({ name: 'auth-guard' }).macro({
   auth: {
-    async resolve({ request, set }) {
+    async resolve({ request }) {
       const session = await auth.api.getSession({ headers: request.headers });
 
       if (!session) {
-        set.status = 401;
-        throw new Error('Unauthorized');
+        throw new UnauthorizedError('Unauthorized');
       }
 
       return {

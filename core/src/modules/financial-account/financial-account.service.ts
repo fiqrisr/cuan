@@ -1,5 +1,6 @@
 import { and, eq } from 'drizzle-orm';
 import { db, financialAccounts } from '@/db';
+import { BadRequestError, InternalServerError, NotFoundError } from '@/lib/error';
 import { logger } from '@/middleware/logger';
 import type { FinancialAccount, NewFinancialAccount } from './financial-account.schema';
 
@@ -40,7 +41,7 @@ export class FinancialAccountService {
 
     const existing = await this.getByName(rest.name, rest.userId);
     if (existing) {
-      throw new AccountError(`Account '${rest.name}' already exists`);
+      throw new BadRequestError(`Account '${rest.name}' already exists`);
     }
 
     const hasAccounts = await db.query.financialAccounts.findFirst({
@@ -70,7 +71,7 @@ export class FinancialAccountService {
     );
     const existing = await this.getById(id, userId);
     if (!existing) {
-      throw new AccountError('Account not found', 404);
+      throw new NotFoundError('Account not found');
     }
 
     if (data.isDefault) {
@@ -92,7 +93,7 @@ export class FinancialAccountService {
     }
 
     const updated = await this.getById(id, userId);
-    if (!updated) throw new AccountError('Failed to retrieve updated account', 500);
+    if (!updated) throw new InternalServerError('Failed to retrieve updated account');
     return updated;
   }
 
@@ -100,10 +101,10 @@ export class FinancialAccountService {
     logger.info({ event: 'removing_account_db', accountId: id }, 'running account remove logic');
     const existing = await this.getById(id, userId);
     if (!existing) {
-      throw new AccountError('Account not found', 404);
+      throw new NotFoundError('Account not found');
     }
     if (existing.isDefault) {
-      throw new AccountError(
+      throw new BadRequestError(
         'Cannot delete the default account. Set another account as default first.',
       );
     }
@@ -113,7 +114,7 @@ export class FinancialAccountService {
       columns: { id: true },
     });
     if (hasTx) {
-      throw new AccountError('Cannot delete an account with transactions. Reassign them first.');
+      throw new BadRequestError('Cannot delete an account with transactions. Reassign them first.');
     }
 
     await db
@@ -132,16 +133,6 @@ export class FinancialAccountService {
       .update(financialAccounts)
       .set({ balance: newBalance.toString(), updatedAt: new Date() })
       .where(eq(financialAccounts.id, accountId));
-  }
-}
-
-export class AccountError extends Error {
-  constructor(
-    message: string,
-    public statusCode: number = 400,
-  ) {
-    super(message);
-    this.name = 'AccountError';
   }
 }
 
