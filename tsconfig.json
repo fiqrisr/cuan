@@ -7,6 +7,12 @@
       "path": "./core"
     },
     {
+      "path": "./packages/ui"
+    },
+    {
+      "path": "./web"
+    },
+    {
       "path": "./web-app"
     }
   ]

@@ -9,7 +9,8 @@ versionConstraint: '>=2.0.0'
 # conventional apps/* layout.
 projects:
   core: 'core'
-  web-app: 'web-app'
+  web: 'web'
+  ui: 'packages/ui'
 
 vcs:
   client: 'git'
