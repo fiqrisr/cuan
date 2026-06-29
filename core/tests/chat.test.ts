@@ -46,11 +46,11 @@ import type { ChatResult } from '@/modules/chat/chat.service';
 async function clearDatabase(): Promise<void> {
   await db.delete(transactions);
   await db.delete(financialAccounts);
+  await db.delete(categories);
   await db.delete(session);
   await db.delete(account);
   await db.delete(verification);
   await db.delete(user);
-  await db.delete(categories);
 
   const cats = [{ name: 'food-beverage', label: 'Makanan & Minuman' }];
   for (const c of cats) {

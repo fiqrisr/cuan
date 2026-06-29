@@ -9,7 +9,7 @@ export const categories = pgTable(
     id: serial('id').primaryKey(),
     name: text('name').notNull(),
     label: text('label').notNull(),
-    userId: text('user_id').references(() => user.id),
+    userId: text('user_id').references(() => user.id, { onDelete: 'cascade' }),
   },
   table => [
     index('categories_name_idx').on(table.name),

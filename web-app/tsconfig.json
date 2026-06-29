@@ -6,5 +6,5 @@
     "jsx": "react-jsx",
     "outDir": "../.moon/cache/types/web-app"
   },
-  "include": []
+  "include": ["**/*"]
 }
