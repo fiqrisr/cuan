@@ -133,6 +133,10 @@ export function useChatStream(): UseChatStreamReturn {
           };
         }
 
+        if (event.type === 'finish' || event.type === 'error') {
+          return { ...m, isStreaming: false };
+        }
+
         return m;
       }),
     );
@@ -153,7 +157,13 @@ export function useChatStream(): UseChatStreamReturn {
 
     const userMsg: ChatMessage = { id: `u-${Date.now()}`, role: 'user', content: text };
     const aiMsgId = `a-${Date.now()}`;
-    const aiMsg: ChatMessage = { id: aiMsgId, role: 'assistant', content: '', toolCalls: [] };
+    const aiMsg: ChatMessage = {
+      id: aiMsgId,
+      role: 'assistant',
+      content: '',
+      toolCalls: [],
+      isStreaming: true,
+    };
 
     setMessages(prev => [...prev, userMsg, aiMsg]);
     setInput('');
@@ -169,6 +179,7 @@ export function useChatStream(): UseChatStreamReturn {
       setMessages(prev => prev.filter(m => m.id !== aiMsgId));
     } finally {
       setIsLoading(false);
+      setMessages(prev => prev.map(m => (m.id === aiMsgId ? { ...m, isStreaming: false } : m)));
     }
   };
 

@@ -6,4 +6,5 @@ export type ChatMessage = {
   reasoning?: string;
   reasoningId?: string;
   toolCalls?: { id: string; name: string; status: 'running' | 'done' }[];
+  isStreaming?: boolean;
 };

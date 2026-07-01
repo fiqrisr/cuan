@@ -16,10 +16,10 @@ type ChatMessageItemProps = {
 
 export function ChatMessageItem({ message }: ChatMessageItemProps) {
   const side = message.role === 'user' ? 'right' : 'left';
-  const hasRunningTools = message.toolCalls?.some(t => t.status === 'running');
   const hasReasoning = message.reasoning !== undefined && message.reasoning.length > 0;
+  const isStreaming = message.isStreaming ?? false;
 
-  const showBubble = message.content || (!hasRunningTools && message.role === 'assistant');
+  const showBubble = message.content || (isStreaming && message.role === 'assistant');
 
   const toolNameMapping: Record<string, string> = {
     add_transaction: 'Recording transaction...',
@@ -52,10 +52,10 @@ export function ChatMessageItem({ message }: ChatMessageItemProps) {
         )}
 
         {hasReasoning && (
-          <details className="group mb-1 max-w-md" open={!message.content}>
+          <details className="group mb-1 max-w-md" open={isStreaming || !message.content}>
             <summary className="flex items-center gap-1 list-none cursor-pointer text-xs text-muted-foreground hover:text-foreground transition-colors">
               <ChevronDown size={14} className="transition-transform group-open:rotate-180" />
-              <span>Thinking</span>
+              <span>{isStreaming ? 'Thinking' : 'Thought process'}</span>
             </summary>
             <div className="mt-1.5 p-3 rounded-lg bg-muted/50 text-muted-foreground text-xs leading-relaxed whitespace-pre-wrap">
               {message.reasoning}
