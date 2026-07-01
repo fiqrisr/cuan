@@ -13,7 +13,7 @@ import { TransactionRow } from '../components/transaction-row';
 export function TransactionsPage() {
   const { data, isLoading, isError, error } = useGetTransactionListQuery();
 
-  const transactions = data?.transactions ?? [];
+  const transactions = data?.data ?? [];
 
   return (
     <div className='flex flex-col flex-1 min-h-0 overflow-y-auto'>

@@ -12,8 +12,10 @@ export type Transaction = {
 };
 
 export type TransactionListResponse = {
-  transactions: Transaction[];
-  total: number;
-  page: number;
-  limit: number;
+  data: Transaction[];
+  meta: {
+    total: number;
+    page: number;
+    limit: number;
+  };
 };

@@ -6,3 +6,7 @@ export type FinancialAccount = {
   currency: string;
   createdAt: string;
 };
+
+export type FinancialAccountListResponse = {
+  data: FinancialAccount[];
+};

@@ -6,7 +6,7 @@ import { AccountEmptyState } from '../components/account-empty-state';
 export function AccountsPage() {
   const { data, isLoading, isError, error } = useGetAccountListQuery();
 
-  const accounts = Array.isArray(data) ? data : [];
+  const accounts = data?.data ?? [];
 
   return (
     <div className='flex flex-col flex-1 min-h-0 overflow-y-auto'>
