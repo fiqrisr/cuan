@@ -26,6 +26,32 @@ mock.module('ai', () => ({
       steps: [],
     };
   },
+  streamText: () => ({
+    toUIMessageStreamResponse: () => {
+      const encoder = new TextEncoder();
+      return new Response(
+        new ReadableStream({
+          start(controller) {
+            const events = [
+              { type: 'start' },
+              { type: 'start-step' },
+              { type: 'reasoning-start', id: 'r1' },
+              { type: 'reasoning-delta', id: 'r1', delta: 'Thinking about the answer.' },
+              { type: 'reasoning-end', id: 'r1' },
+              { type: 'text-delta', id: 't1', delta: 'Hello!' },
+              { type: 'finish' },
+            ];
+            for (const event of events) {
+              controller.enqueue(encoder.encode(`data: ${JSON.stringify(event)}\n\n`));
+            }
+            controller.enqueue(encoder.encode('data: [DONE]\n\n'));
+            controller.close();
+          },
+        }),
+        { headers: { 'Content-Type': 'text/event-stream' } },
+      );
+    },
+  }),
   tool: (c: unknown) => c,
 }));
 
@@ -85,6 +111,16 @@ async function createAccount(cookies: string, name: string): Promise<{ id: strin
 async function chat(cookies: string, message: string): Promise<Response> {
   return app.handle(
     new Request('http://localhost/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Cookie: cookies },
+      body: JSON.stringify({ message }),
+    }),
+  );
+}
+
+async function chatStream(cookies: string, message: string): Promise<Response> {
+  return app.handle(
+    new Request('http://localhost/api/chat/stream', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', Cookie: cookies },
       body: JSON.stringify({ message }),
@@ -282,6 +318,41 @@ describe('POST /api/chat', () => {
   it('returns 401 without auth', async () => {
     const response = await app.handle(
       new Request('http://localhost/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: 'test' }),
+      }),
+    );
+    expect(response.status).toBe(401);
+  });
+});
+
+describe('POST /api/chat/stream', () => {
+  beforeEach(() => {
+    currentMockResponse = null;
+    return clearDatabase();
+  });
+  afterEach(clearDatabase);
+
+  it('returns SSE stream with reasoning and text deltas', async () => {
+    const cookies = await signUpAndGetCookies(`chat-stream-${Date.now()}@example.com`);
+
+    const response = await chatStream(cookies, 'hello');
+
+    expect(response.status).toBe(200);
+    expect(response.headers.get('content-type')).toContain('text/event-stream');
+
+    const body = await response.text();
+    expect(body).toContain('data: {"type":"start"}');
+    expect(body).toContain('"type":"reasoning-start"');
+    expect(body).toContain('"type":"reasoning-delta"');
+    expect(body).toContain('"type":"text-delta"');
+    expect(body).toContain('data: [DONE]');
+  });
+
+  it('returns 401 without auth', async () => {
+    const response = await app.handle(
+      new Request('http://localhost/api/chat/stream', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ message: 'test' }),
