@@ -84,7 +84,7 @@ export class ChatService {
     };
   }
 
-  async streamChat(message: string, userId: string) {
+  async streamChat(message: string, userId: string): Promise<any> {
     logger.info({ event: 'chat_stream_started', userId }, 'streaming chat message');
     const tools = buildChatTools(userId);
 
@@ -94,7 +94,6 @@ export class ChatService {
     return streamText({
       model: openmodel,
       tools,
-      maxSteps: 3,
       system: getSystemPrompt(categoriesInfo),
       prompt: message,
     });

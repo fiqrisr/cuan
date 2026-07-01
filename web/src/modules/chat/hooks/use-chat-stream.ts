@@ -10,6 +10,9 @@ function parseStreamLine(line: string): string | null {
       return null;
     }
   }
+  if (line.startsWith('text:')) {
+    return line.slice(5);
+  }
   return null;
 }
 
@@ -32,28 +35,44 @@ async function streamChat(
   const reader = res.body.getReader();
   const decoder = new TextDecoder();
   let buffer = '';
+  let isRawText = true; // Assume raw text unless we see protocol markers
+
   while (true) {
     const { value, done } = await reader.read();
     if (done) break;
-    buffer += decoder.decode(value, { stream: true });
-    const newlineIdx = buffer.lastIndexOf('\n');
-    if (newlineIdx === -1) continue;
-    const completeChunk = buffer.slice(0, newlineIdx);
-    buffer = buffer.slice(newlineIdx + 1);
-    for (const line of completeChunk.split('\n')) {
-      const trimmed = line.trim();
-      if (!trimmed) continue;
-      const delta = parseStreamLine(trimmed);
-      if (delta) onDelta(delta);
+    const chunk = decoder.decode(value, { stream: true });
+    
+    // Check if we are receiving the Vercel AI SDK Data Stream protocol
+    if (chunk.startsWith('0:"') || chunk.startsWith('e:{')) {
+      isRawText = false;
+    }
+
+    if (isRawText) {
+      onDelta(chunk);
+    } else {
+      buffer += chunk;
+      const newlineIdx = buffer.lastIndexOf('\n');
+      if (newlineIdx === -1) continue;
+      const completeChunk = buffer.slice(0, newlineIdx);
+      buffer = buffer.slice(newlineIdx + 1);
+      for (const line of completeChunk.split('\n')) {
+        const trimmed = line.trim();
+        if (!trimmed) continue;
+        const delta = parseStreamLine(trimmed);
+        if (delta) onDelta(delta);
+      }
     }
   }
-  const remaining = buffer.trim();
-  if (remaining) {
-    for (const line of remaining.split('\n')) {
-      const trimmed = line.trim();
-      if (!trimmed) continue;
-      const delta = parseStreamLine(trimmed);
-      if (delta) onDelta(delta);
+
+  if (!isRawText) {
+    const remaining = buffer.trim();
+    if (remaining) {
+      for (const line of remaining.split('\n')) {
+        const trimmed = line.trim();
+        if (!trimmed) continue;
+        const delta = parseStreamLine(trimmed);
+        if (delta) onDelta(delta);
+      }
     }
   }
 }
