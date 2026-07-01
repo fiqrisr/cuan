@@ -44,7 +44,8 @@ Examples: "create Holiday category", "rename holiday category to Trip", "view ca
 - action "list_categories": no extra fields needed.
 NOTE: Default/global categories cannot be renamed. Only user-created categories can be modified.
 
-Always respond with reply in English.
+Always respond in the same language the user used (usually Bahasa Indonesia).
+DO NOT output any conversational text before calling a tool. Wait until the tool returns, then provide the final friendly summary response.
 
 ## Available Categories
 ${categoriesInfo}`;
