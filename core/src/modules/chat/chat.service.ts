@@ -1,6 +1,6 @@
 import { createAnthropic } from '@ai-sdk/anthropic';
 import { createOpenAI } from '@ai-sdk/openai';
-import { generateText, streamText, type LanguageModel, stepCountIs } from 'ai';
+import { generateText, type LanguageModel, stepCountIs, streamText } from 'ai';
 import { env } from '@/env';
 import { logger } from '../../middleware/logger';
 import { categoryService } from '../category/category.service';
@@ -84,7 +84,7 @@ export class ChatService {
     };
   }
 
-  async streamChat(message: string, userId: string): Promise<any> {
+  async streamChat(message: string, userId: string): Promise<Response> {
     logger.info({ event: 'chat_stream_started', userId }, 'streaming chat message');
     const tools = buildChatTools(userId);
 
@@ -97,7 +97,7 @@ export class ChatService {
       stopWhen: stepCountIs(3),
       system: getSystemPrompt(categoriesInfo),
       prompt: message,
-    });
+    }).toUIMessageStreamResponse();
   }
 }
 

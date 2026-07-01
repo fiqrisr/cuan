@@ -21,14 +21,7 @@ export const chatController = new Elysia({ prefix: '/api/chat' })
       },
     },
   )
-  .post(
-    '/stream',
-    async ({ body, user }) => {
-      const result = await chatService.streamChat(body.message, user.id);
-      return result.toTextStreamResponse();
-    },
-    {
-      auth: true,
-      body: CreateChatRequestDto,
-    },
-  );
+  .post('/stream', async ({ body, user }) => chatService.streamChat(body.message, user.id), {
+    auth: true,
+    body: CreateChatRequestDto,
+  });
