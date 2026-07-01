@@ -94,6 +94,7 @@ export class ChatService {
     return streamText({
       model: openmodel,
       tools,
+      stopWhen: stepCountIs(3),
       system: getSystemPrompt(categoriesInfo),
       prompt: message,
     });
