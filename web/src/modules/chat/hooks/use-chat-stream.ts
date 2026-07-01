@@ -2,23 +2,29 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import type React from 'react';
 import type { ChatMessage } from '../types';
 
-function parseStreamLine(line: string): string | null {
-  if (line.startsWith('0:')) {
+export type ChatStreamEvent = 
+  | { type: 'text-delta'; delta: string }
+  | { type: 'tool-call'; toolCallId: string; toolName: string }
+  | { type: 'tool-result'; toolCallId: string }
+  | { type: 'tool-output-available'; toolCallId: string }
+  | { type: 'error'; errorText: string };
+
+function parseSSELine(line: string): ChatStreamEvent | null {
+  if (line.startsWith('data: ')) {
+    const data = line.slice(6);
+    if (data === '[DONE]') return null;
     try {
-      return JSON.parse(line.slice(2)) as string;
+      return JSON.parse(data) as ChatStreamEvent;
     } catch {
       return null;
     }
-  }
-  if (line.startsWith('text:')) {
-    return line.slice(5);
   }
   return null;
 }
 
 async function streamChat(
   message: string,
-  onDelta: (text: string) => void,
+  onEvent: (event: ChatStreamEvent) => void,
   signal: AbortSignal,
 ): Promise<void> {
   const res = await fetch('/api/chat/stream', {
@@ -32,46 +38,38 @@ async function streamChat(
     throw new Error(`Chat request failed (${res.status})${body ? `: ${body}` : ''}`);
   }
   if (!res.body) throw new Error('No response body from server');
+  
   const reader = res.body.getReader();
   const decoder = new TextDecoder();
   let buffer = '';
-  let isRawText = true; // Assume raw text unless we see protocol markers
 
   while (true) {
     const { value, done } = await reader.read();
     if (done) break;
-    const chunk = decoder.decode(value, { stream: true });
+    buffer += decoder.decode(value, { stream: true });
     
-    // Check if we are receiving the Vercel AI SDK Data Stream protocol
-    if (chunk.startsWith('0:"') || chunk.startsWith('e:{')) {
-      isRawText = false;
-    }
-
-    if (isRawText) {
-      onDelta(chunk);
-    } else {
-      buffer += chunk;
-      const newlineIdx = buffer.lastIndexOf('\n');
-      if (newlineIdx === -1) continue;
-      const completeChunk = buffer.slice(0, newlineIdx);
-      buffer = buffer.slice(newlineIdx + 1);
-      for (const line of completeChunk.split('\n')) {
-        const trimmed = line.trim();
-        if (!trimmed) continue;
-        const delta = parseStreamLine(trimmed);
-        if (delta) onDelta(delta);
+    const newlineIdx = buffer.lastIndexOf('\n\n');
+    if (newlineIdx === -1) continue;
+    
+    const completeChunk = buffer.slice(0, newlineIdx);
+    buffer = buffer.slice(newlineIdx + 2);
+    
+    for (const chunk of completeChunk.split('\n\n')) {
+      const lines = chunk.split('\n');
+      for (const line of lines) {
+        const event = parseSSELine(line.trim());
+        if (event) onEvent(event);
       }
     }
   }
 
-  if (!isRawText) {
-    const remaining = buffer.trim();
-    if (remaining) {
-      for (const line of remaining.split('\n')) {
-        const trimmed = line.trim();
-        if (!trimmed) continue;
-        const delta = parseStreamLine(trimmed);
-        if (delta) onDelta(delta);
+  const remaining = buffer.trim();
+  if (remaining) {
+    for (const chunk of remaining.split('\n\n')) {
+      const lines = chunk.split('\n');
+      for (const line of lines) {
+        const event = parseSSELine(line.trim());
+        if (event) onEvent(event);
       }
     }
   }
@@ -93,9 +91,37 @@ export function useChatStream(): UseChatStreamReturn {
   const [error, setError] = useState<string | null>(null);
   const abortRef = useRef<AbortController | null>(null);
 
-  const applyDelta = useCallback((id: string, delta: string) => {
+  const applyEvent = useCallback((id: string, event: ChatStreamEvent) => {
     setMessages((prev) =>
-      prev.map((m) => (m.id === id ? { ...m, content: m.content + delta } : m)),
+      prev.map((m) => {
+        if (m.id !== id) return m;
+        
+        if (event.type === 'text-delta') {
+          return { ...m, content: m.content + event.delta };
+        }
+        
+        if (event.type === 'tool-call') {
+          const calls = m.toolCalls || [];
+          return { 
+            ...m, 
+            toolCalls: [...calls, { id: event.toolCallId, name: event.toolName, status: 'running' }] 
+          };
+        }
+        
+        if (event.type === 'tool-result' || event.type === 'tool-output-available') {
+          const calls = m.toolCalls || [];
+          return {
+            ...m,
+            toolCalls: calls.map(c => c.id === event.toolCallId ? { ...c, status: 'done' } : c)
+          };
+        }
+        
+        if (event.type === 'error') {
+          setError(event.errorText);
+        }
+        
+        return m;
+      }),
     );
   }, []);
 
@@ -110,7 +136,7 @@ export function useChatStream(): UseChatStreamReturn {
 
     const userMsg: ChatMessage = { id: `u-${Date.now()}`, role: 'user', content: text };
     const aiMsgId = `a-${Date.now()}`;
-    const aiMsg: ChatMessage = { id: aiMsgId, role: 'assistant', content: '' };
+    const aiMsg: ChatMessage = { id: aiMsgId, role: 'assistant', content: '', toolCalls: [] };
 
     setMessages((prev) => [...prev, userMsg, aiMsg]);
     setInput('');
@@ -118,9 +144,9 @@ export function useChatStream(): UseChatStreamReturn {
     setIsLoading(true);
 
     try {
-      await streamChat(text, (delta) => applyDelta(aiMsgId, delta), controller.signal);
+      await streamChat(text, (evt) => applyEvent(aiMsgId, evt), controller.signal);
     } catch (err) {
-      if ((err as Error).name === 'AbortError') return;
+      if (err instanceof Error && err.name === 'AbortError') return;
       const msg = err instanceof Error ? err.message : 'Something went wrong';
       setError(msg);
       setMessages((prev) => prev.filter((m) => m.id !== aiMsgId));
