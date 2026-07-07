@@ -137,7 +137,14 @@ export function useChatStream(): UseChatStreamReturn {
         }
 
         if (event.type === 'finish' || event.type === 'error') {
-          return { ...m, isStreaming: false };
+          const calls = m.toolCalls || [];
+          return {
+            ...m,
+            isStreaming: false,
+            toolCalls: calls.map(c =>
+              c.status === 'running' ? { ...c, status: 'done' as const } : c,
+            ),
+          };
         }
 
         return m;
@@ -182,7 +189,19 @@ export function useChatStream(): UseChatStreamReturn {
       setMessages(prev => prev.filter(m => m.id !== aiMsgId));
     } finally {
       setIsLoading(false);
-      setMessages(prev => prev.map(m => (m.id === aiMsgId ? { ...m, isStreaming: false } : m)));
+      setMessages(prev =>
+        prev.map(m =>
+          m.id === aiMsgId
+            ? {
+                ...m,
+                isStreaming: false,
+                toolCalls: (m.toolCalls || []).map(c =>
+                  c.status === 'running' ? { ...c, status: 'done' as const } : c,
+                ),
+              }
+            : m,
+        ),
+      );
     }
   };
 
