@@ -1,4 +1,18 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@cuan/ui';
+import { useState } from 'react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, Button } from '@cuan/ui';
+import { BarChart3, LineChart } from 'lucide-react';
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  AreaChart,
+  Area,
+  ReferenceLine
+} from 'recharts';
 
 type DailyItem = {
   date: string;
@@ -10,10 +24,18 @@ type Props = {
   daily: DailyItem[];
 };
 
+const formatCurrency = (val: number) => {
+  return new Intl.NumberFormat('id-ID', {
+    style: 'currency',
+    currency: 'IDR',
+    minimumFractionDigits: 0,
+  }).format(val);
+};
+
 const formatCompact = (val: number) => {
   return new Intl.NumberFormat('id-ID', {
     notation: 'compact',
-    compactDisplay: 'short',
+    maximumFractionDigits: 1,
   }).format(val);
 };
 
@@ -27,177 +49,155 @@ const formatDateLabel = (dateStr: string) => {
 };
 
 export function SpendingTrend({ daily }: Props) {
-  // SVG Dimensions
-  const svgWidth = 600;
-  const svgHeight = 240;
-  const padding = { top: 15, right: 15, bottom: 30, left: 55 };
+  const [activeTab, setActiveTab] = useState<'bars' | 'net'>('bars');
 
-  const chartWidth = svgWidth - padding.left - padding.right;
-  const chartHeight = svgHeight - padding.top - padding.bottom;
+  if (daily.length === 0) {
+    return (
+      <Card className="flex flex-col h-full min-h-[350px]">
+        <CardHeader>
+          <CardTitle className="text-base font-semibold">Spending & Cash Flow</CardTitle>
+          <CardDescription>Daily comparison of income vs expenses</CardDescription>
+        </CardHeader>
+        <CardContent className="flex-1 flex flex-col items-center justify-center text-muted-foreground py-12 text-sm">
+          No data available for the selected period
+        </CardContent>
+      </Card>
+    );
+  }
 
-  // Calculate max value for Y-axis scaling
-  const maxVal = Math.max(
-    ...daily.map(d => Math.max(d.income, d.expense)),
-    10000, // default minimum to avoid division by zero or tiny charts
-  );
+  const data = daily.map(d => ({
+    ...d,
+    net: d.income - d.expense,
+  }));
 
-  // Y-axis gridlines
-  const yLinesCount = 4;
-  const yGridLines = Array.from({ length: yLinesCount }).map((_, idx) => {
-    const val = (maxVal / (yLinesCount - 1)) * idx;
-    const y = chartHeight + padding.top - (val / maxVal) * chartHeight;
-    return { val, y };
-  });
-
-  // X-axis calculations
-  const barWidth = daily.length > 0 ? (chartWidth / daily.length) * 0.35 : 0;
-  const gap = daily.length > 0 ? (chartWidth / daily.length) * 0.15 : 0;
-
-  // Decimate X-axis labels to avoid overlap
-  // target ~6 labels
-  const labelInterval = Math.max(1, Math.ceil(daily.length / 6));
+  // Tooltip component
+  const CustomTooltip = ({ active, payload, label }: any) => {
+    if (active && payload && payload.length) {
+      return (
+        <div className="bg-popover border border-border/10 p-3 rounded-lg shadow-xl text-sm min-w-[200px]">
+          <p className="font-semibold text-foreground mb-3">{formatDateLabel(label)}</p>
+          <div className="flex flex-col gap-2">
+            {payload.map((entry: any, index: number) => (
+              <div key={index} className="flex justify-between items-center gap-4">
+                <div className="flex items-center gap-1.5">
+                  <div 
+                    className="w-2.5 h-2.5 rounded-full" 
+                    style={{ backgroundColor: entry.color || entry.fill }}
+                  />
+                  <span className="text-muted-foreground capitalize">
+                    {entry.name === 'net' ? 'Net Cash Flow' : entry.name}
+                  </span>
+                </div>
+                <span className="font-mono font-medium text-foreground">
+                  {formatCurrency(entry.value)}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      );
+    }
+    return null;
+  };
 
   return (
-    <Card className="flex flex-col h-full">
-      <CardHeader>
-        <CardTitle className="text-base font-semibold">Spending Trend</CardTitle>
-        <CardDescription>Daily comparison of income vs expenses</CardDescription>
+    <Card className="flex flex-col h-full min-h-[380px] relative">
+      <CardHeader className="flex flex-col sm:flex-row sm:items-center justify-between pb-2 gap-4">
+        <div>
+          <CardTitle className="text-base font-semibold">Spending & Cash Flow</CardTitle>
+          <CardDescription>Daily comparison of income, expenses, and cash flow</CardDescription>
+        </div>
+        <div className="flex bg-muted/40 p-0.5 rounded-lg border border-border/10 shrink-0">
+          <Button
+            variant={activeTab === 'bars' ? 'secondary' : 'ghost'}
+            size="sm"
+            onClick={() => setActiveTab('bars')}
+            className={`h-7 px-2.5 text-xs font-medium rounded-md transition-all gap-1.5 ${
+              activeTab === 'bars' ? 'shadow-sm bg-background border border-border/5' : 'text-muted-foreground'
+            }`}
+          >
+            <BarChart3 className="h-3.5 w-3.5" />
+            Income/Expense
+          </Button>
+          <Button
+            variant={activeTab === 'net' ? 'secondary' : 'ghost'}
+            size="sm"
+            onClick={() => setActiveTab('net')}
+            className={`h-7 px-2.5 text-xs font-medium rounded-md transition-all gap-1.5 ${
+              activeTab === 'net' ? 'shadow-sm bg-background border border-border/5' : 'text-muted-foreground'
+            }`}
+          >
+            <LineChart className="h-3.5 w-3.5" />
+            Net Cash Flow
+          </Button>
+        </div>
       </CardHeader>
-      <CardContent className="flex-1 flex flex-col justify-center min-h-[250px] p-4 pt-0">
-        {daily.length === 0 ? (
-          <div className="flex-1 flex flex-col items-center justify-center text-muted-foreground py-8 text-sm">
-            No data available
-          </div>
-        ) : (
-          <div className="w-full overflow-x-auto">
-            <div className="min-w-[500px]">
-              <svg
-                viewBox={`0 0 ${svgWidth} ${svgHeight}`}
-                className="w-full h-auto select-none overflow-visible"
-              >
-                <title>Spending Trend Chart</title>
-                {/* Y-Axis Gridlines & Labels */}
-                {yGridLines.map(line => (
-                  <g key={line.val}>
-                    <line
-                      x1={padding.left}
-                      y1={line.y}
-                      x2={svgWidth - padding.right}
-                      y2={line.y}
-                      stroke="currentColor"
-                      className="text-border/30"
-                      strokeDasharray="4 4"
-                    />
-                    <text
-                      x={padding.left - 8}
-                      y={line.y + 4}
-                      textAnchor="end"
-                      className="fill-muted-foreground text-[10px] data-mono"
-                    >
-                      {formatCompact(line.val)}
-                    </text>
-                  </g>
-                ))}
-
-                {/* Bars & X-Axis labels */}
-                {daily.map((day, idx) => {
-                  const stepWidth = chartWidth / daily.length;
-                  const groupX = padding.left + idx * stepWidth + stepWidth / 2;
-
-                  // Coordinate calculation
-                  const incomeHeight = (day.income / maxVal) * chartHeight;
-                  const expenseHeight = (day.expense / maxVal) * chartHeight;
-
-                  const incomeY = chartHeight + padding.top - incomeHeight;
-                  const expenseY = chartHeight + padding.top - expenseHeight;
-
-                  const incomeX = groupX - barWidth - gap / 2;
-                  const expenseX = groupX + gap / 2;
-
-                  const isLabelVisible = idx % labelInterval === 0 || idx === daily.length - 1;
-
-                  return (
-                    <g key={day.date}>
-                      {/* Income Bar (Green) */}
-                      {day.income > 0 && (
-                        <rect
-                          x={incomeX}
-                          y={incomeY}
-                          width={barWidth}
-                          height={incomeHeight}
-                          className="fill-success/90 hover:fill-success transition-colors"
-                          rx={Math.min(2, barWidth / 2)}
-                        >
-                          <title>{`Income: ${new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(day.income)}`}</title>
-                        </rect>
-                      )}
-
-                      {/* Expense Bar (Red) */}
-                      {day.expense > 0 && (
-                        <rect
-                          x={expenseX}
-                          y={expenseY}
-                          width={barWidth}
-                          height={expenseHeight}
-                          className="fill-destructive/90 hover:fill-destructive transition-colors"
-                          rx={Math.min(2, barWidth / 2)}
-                        >
-                          <title>{`Expense: ${new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(day.expense)}`}</title>
-                        </rect>
-                      )}
-
-                      {/* X-axis label */}
-                      {isLabelVisible && (
-                        <g>
-                          <line
-                            x1={groupX}
-                            y1={chartHeight + padding.top}
-                            x2={groupX}
-                            y2={chartHeight + padding.top + 4}
-                            stroke="currentColor"
-                            className="text-border"
-                          />
-                          <text
-                            x={groupX}
-                            y={chartHeight + padding.top + 16}
-                            textAnchor="middle"
-                            className="fill-muted-foreground text-[9px] data-mono"
-                          >
-                            {formatDateLabel(day.date)}
-                          </text>
-                        </g>
-                      )}
-                    </g>
-                  );
-                })}
-
-                {/* X-Axis base line */}
-                <line
-                  x1={padding.left}
-                  y1={chartHeight + padding.top}
-                  x2={svgWidth - padding.right}
-                  y2={chartHeight + padding.top}
-                  stroke="currentColor"
-                  className="text-border"
+      
+      <CardContent className="flex-1 flex flex-col justify-between p-4 pt-4">
+        <div className="w-full h-[280px]">
+          <ResponsiveContainer width="100%" height="100%">
+            {activeTab === 'bars' ? (
+              <BarChart data={data} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border)" />
+                <XAxis 
+                  dataKey="date" 
+                  tickFormatter={formatDateLabel} 
+                  axisLine={false}
+                  tickLine={false}
+                  tick={{ fill: 'var(--muted-foreground)', fontSize: 12 }}
+                  dy={10}
+                  minTickGap={30}
                 />
-              </svg>
-            </div>
-          </div>
-        )}
-
-        {/* Legend */}
-        {daily.length > 0 && (
-          <div className="flex justify-center items-center gap-4 mt-3 text-xs">
-            <div className="flex items-center gap-1.5">
-              <span className="w-3 h-1.5 rounded bg-success/90" />
-              <span className="text-muted-foreground">Income</span>
-            </div>
-            <div className="flex items-center gap-1.5">
-              <span className="w-3 h-1.5 rounded bg-destructive/90" />
-              <span className="text-muted-foreground">Expense</span>
-            </div>
-          </div>
-        )}
+                <YAxis 
+                  tickFormatter={formatCompact}
+                  axisLine={false}
+                  tickLine={false}
+                  tick={{ fill: 'var(--muted-foreground)', fontSize: 12 }}
+                />
+                <Tooltip content={<CustomTooltip />} cursor={{ fill: 'var(--muted)' }} />
+                
+                <Bar dataKey="income" name="Income" fill="var(--primary)" radius={[2, 2, 0, 0]} maxBarSize={40} animationDuration={1000} />
+                <Bar dataKey="expense" name="Expense" fill="var(--destructive)" radius={[2, 2, 0, 0]} maxBarSize={40} animationDuration={1000} />
+              </BarChart>
+            ) : (
+              <AreaChart data={data} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                <defs>
+                  <linearGradient id="colorNet" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="var(--primary)" stopOpacity={0.3}/>
+                    <stop offset="95%" stopColor="var(--primary)" stopOpacity={0}/>
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border)" />
+                <XAxis 
+                  dataKey="date" 
+                  tickFormatter={formatDateLabel} 
+                  axisLine={false}
+                  tickLine={false}
+                  tick={{ fill: 'var(--muted-foreground)', fontSize: 12 }}
+                  dy={10}
+                  minTickGap={30}
+                />
+                <YAxis 
+                  tickFormatter={formatCompact}
+                  axisLine={false}
+                  tickLine={false}
+                  tick={{ fill: 'var(--muted-foreground)', fontSize: 12 }}
+                />
+                <Tooltip content={<CustomTooltip />} />
+                <ReferenceLine y={0} stroke="var(--border)" strokeDasharray="3 3" />
+                <Area 
+                  type="monotone" 
+                  dataKey="net" 
+                  name="net" 
+                  stroke="var(--primary)"
+                  fill="url(#colorNet)" 
+                  strokeWidth={2}
+                  animationDuration={1000}
+                />
+              </AreaChart>
+            )}
+          </ResponsiveContainer>
+        </div>
       </CardContent>
     </Card>
   );
