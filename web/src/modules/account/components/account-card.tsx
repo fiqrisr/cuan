@@ -18,16 +18,16 @@ export function AccountCard({ account }: AccountCardProps) {
       <CardHeader className="pb-2">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="p-2 bg-primary/10 rounded-full text-primary">
-              <Wallet size={20} />
+            <div className="p-2 glass-panel border-primary/20 rounded-full text-primary">
+              <Wallet size={16} />
             </div>
-            <span className="text-base font-semibold">{account.name}</span>
+            <span className="text-sm font-semibold text-foreground">{account.name}</span>
           </div>
           {account.isDefault && <Badge variant="success">Default</Badge>}
         </div>
       </CardHeader>
       <CardContent>
-        <div className="text-3xl font-bold text-body-strong">{formatted}</div>
+        <div className="headline-sm text-foreground font-semibold mt-2 data-mono">{formatted}</div>
       </CardContent>
     </Card>
   );
