@@ -10,9 +10,17 @@ type AuthFormFieldProps = {
   required?: boolean;
 };
 
-export function AuthFormField({ id, label, type, placeholder, value, onChange, required }: AuthFormFieldProps) {
+export function AuthFormField({
+  id,
+  label,
+  type,
+  placeholder,
+  value,
+  onChange,
+  required,
+}: AuthFormFieldProps) {
   return (
-    <div className='grid gap-2'>
+    <div className="grid gap-2">
       <label htmlFor={id}>{label}</label>
       <Input
         id={id}

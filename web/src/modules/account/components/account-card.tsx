@@ -1,4 +1,4 @@
-import { Card, CardHeader, CardContent, Badge } from '@cuan/ui';
+import { Badge, Card, CardContent, CardHeader } from '@cuan/ui';
 import { Wallet } from 'lucide-react';
 import type { FinancialAccount } from '../types';
 
@@ -15,19 +15,19 @@ export function AccountCard({ account }: AccountCardProps) {
 
   return (
     <Card className={account.isDefault ? 'ring-1 ring-primary/30' : ''}>
-      <CardHeader className='pb-2'>
-        <div className='flex items-center justify-between'>
-          <div className='flex items-center gap-2'>
-            <div className='p-2 bg-primary/10 rounded-full text-primary'>
+      <CardHeader className="pb-2">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <div className="p-2 bg-primary/10 rounded-full text-primary">
               <Wallet size={20} />
             </div>
-            <span className='text-base font-semibold'>{account.name}</span>
+            <span className="text-base font-semibold">{account.name}</span>
           </div>
-          {account.isDefault && <Badge variant='success'>Default</Badge>}
+          {account.isDefault && <Badge variant="success">Default</Badge>}
         </div>
       </CardHeader>
       <CardContent>
-        <div className='text-3xl font-bold text-body-strong'>{formatted}</div>
+        <div className="text-3xl font-bold text-body-strong">{formatted}</div>
       </CardContent>
     </Card>
   );

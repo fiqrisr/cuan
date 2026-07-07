@@ -1,6 +1,6 @@
 import { useMutation } from '@tanstack/react-query';
-import { authClient } from '@/core/auth';
 import { useRouter } from '@tanstack/react-router';
+import { authClient } from '@/core/auth';
 
 export function useLogoutMutation() {
   const router = useRouter();

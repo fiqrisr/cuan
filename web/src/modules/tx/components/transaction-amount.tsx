@@ -15,11 +15,11 @@ type Props = {
 export function TransactionAmount({ amount, type }: Props) {
   const isIncome = type === 'income';
   return (
-    <div className='flex items-center justify-end gap-1'>
+    <div className="flex items-center justify-end gap-1">
       {isIncome ? (
-        <ArrowUpIcon size={14} className='text-success' />
+        <ArrowUpIcon size={14} className="text-success" />
       ) : (
-        <ArrowDownIcon size={14} className='text-destructive' />
+        <ArrowDownIcon size={14} className="text-destructive" />
       )}
       <span className={isIncome ? 'text-success font-semibold' : 'text-body-strong font-semibold'}>
         {formatter.format(Number(amount))}
