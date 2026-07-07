@@ -36,7 +36,7 @@ export function RecentTransactions({ transactions }: Props) {
             <TableBody>
               {recent.map(tx => (
                 <TableRow key={tx.id}>
-                  <TableCell className="text-muted-foreground text-xs w-[65px] shrink-0">
+                  <TableCell className="text-muted-foreground text-xs w-[75px] shrink-0 data-mono">
                     {new Date(tx.date).toLocaleDateString('id-ID', {
                       day: 'numeric',
                       month: 'short',

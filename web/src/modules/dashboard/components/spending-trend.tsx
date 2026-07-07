@@ -92,7 +92,7 @@ export function SpendingTrend({ daily }: Props) {
                       x={padding.left - 8}
                       y={line.y + 4}
                       textAnchor="end"
-                      className="fill-muted-foreground text-[10px]"
+                      className="fill-muted-foreground text-[10px] data-mono"
                     >
                       {formatCompact(line.val)}
                     </text>
@@ -161,7 +161,7 @@ export function SpendingTrend({ daily }: Props) {
                             x={groupX}
                             y={chartHeight + padding.top + 16}
                             textAnchor="middle"
-                            className="fill-muted-foreground text-[9px]"
+                            className="fill-muted-foreground text-[9px] data-mono"
                           >
                             {formatDateLabel(day.date)}
                           </text>

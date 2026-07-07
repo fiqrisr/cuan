@@ -76,24 +76,26 @@ export function DashboardPage() {
 
   return (
     <div className="flex flex-col flex-1 min-h-0 overflow-y-auto">
-      <div className="p-4 lg:p-8 max-w-6xl mx-auto w-full flex flex-col gap-6">
+      <div className="px-5 py-12 sm:px-16 max-w-[1440px] mx-auto w-full flex flex-col gap-8">
         {/* Header Section */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 pb-2 border-b border-border/10">
           <div>
-            <h1 className="text-2xl font-semibold tracking-tight">Dashboard</h1>
-            <p className="text-sm text-muted-foreground">Monitor and manage your finances</p>
+            <h1 className="headline-md text-foreground tracking-tight">Dashboard</h1>
+            <p className="body-md text-muted-foreground mt-1">Monitor and manage your finances</p>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-6">
             {/* Account Selector */}
             <select
               value={accountId}
               onChange={e => setAccountId(e.target.value)}
-              className="h-9 px-3 py-1 bg-background border border-border rounded-lg text-sm font-medium focus:outline-none focus:ring-1 focus:ring-primary shrink-0"
+              className="h-9 px-0 py-1 bg-transparent border-0 border-b border-tertiary/30 text-sm font-semibold focus:outline-none focus:border-primary text-foreground shrink-0 rounded-none cursor-pointer transition-colors duration-200"
             >
-              <option value="">All Accounts</option>
+              <option value="" className="bg-[#1e201f] text-foreground">
+                All Accounts
+              </option>
               {accounts.map(a => (
-                <option key={a.id} value={a.id}>
+                <option key={a.id} value={a.id} className="bg-[#1e201f] text-foreground">
                   {a.name}
                 </option>
               ))}
@@ -103,25 +105,30 @@ export function DashboardPage() {
             <select
               value={range}
               onChange={e => setRange(e.target.value)}
-              className="h-9 px-3 py-1 bg-background border border-border rounded-lg text-sm font-medium focus:outline-none focus:ring-1 focus:ring-primary shrink-0"
+              className="h-9 px-0 py-1 bg-transparent border-0 border-b border-tertiary/30 text-sm font-semibold focus:outline-none focus:border-primary text-foreground shrink-0 rounded-none cursor-pointer transition-colors duration-200"
             >
-              <option value="7d">Last 7 Days</option>
-              <option value="30d">Last 30 Days</option>
-              <option value="this-month">This Month</option>
-              <option value="this-year">This Year</option>
+              <option value="7d" className="bg-[#1e201f] text-foreground">
+                Last 7 Days
+              </option>
+              <option value="30d" className="bg-[#1e201f] text-foreground">
+                Last 30 Days
+              </option>
+              <option value="this-month" className="bg-[#1e201f] text-foreground">
+                This Month
+              </option>
+              <option value="this-year" className="bg-[#1e201f] text-foreground">
+                This Year
+              </option>
             </select>
           </div>
         </div>
 
         {isLoading ? (
           // Loading Skeletons
-          <div className="flex flex-col gap-6">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="flex flex-col gap-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
               {[1, 2, 3, 4].map(id => (
-                <div
-                  key={id}
-                  className="border border-border/50 rounded-xl p-6 bg-card flex flex-col gap-3"
-                >
+                <div key={id} className="rounded-lg glass-panel p-6 flex flex-col gap-4">
                   <Skeleton className="h-4 w-20" />
                   <Skeleton className="h-8 w-32" />
                   <Skeleton className="h-3 w-40" />
@@ -129,11 +136,11 @@ export function DashboardPage() {
               ))}
             </div>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <div className="border border-border/50 rounded-xl p-6 bg-card flex flex-col gap-4 h-[300px]">
+              <div className="rounded-lg glass-panel p-6 flex flex-col gap-4 h-[300px]">
                 <Skeleton className="h-6 w-32" />
                 <Skeleton className="flex-1 w-full" />
               </div>
-              <div className="border border-border/50 rounded-xl p-6 bg-card flex flex-col gap-4 h-[300px]">
+              <div className="rounded-lg glass-panel p-6 flex flex-col gap-4 h-[300px]">
                 <Skeleton className="h-6 w-32" />
                 <Skeleton className="flex-1 w-full" />
               </div>
