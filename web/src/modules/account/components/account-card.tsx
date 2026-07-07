@@ -39,7 +39,13 @@ export function AccountCard({ account }: AccountCardProps) {
   };
 
   return (
-    <Card className={account.isDefault ? 'ring-1 ring-primary/30 relative flex flex-col justify-between' : 'relative flex flex-col justify-between'}>
+    <Card
+      className={
+        account.isDefault
+          ? 'ring-1 ring-primary/30 relative flex flex-col justify-between'
+          : 'relative flex flex-col justify-between'
+      }
+    >
       <div>
         <CardHeader className="pb-2">
           <div className="flex items-center justify-between gap-4">
@@ -85,7 +91,9 @@ export function AccountCard({ account }: AccountCardProps) {
                 </div>
               ) : (
                 <div className="flex items-center gap-1 min-w-0 flex-1 group/title">
-                  <span className="text-sm font-semibold text-foreground truncate">{account.name}</span>
+                  <span className="text-sm font-semibold text-foreground truncate">
+                    {account.name}
+                  </span>
                   <Button
                     size="icon"
                     variant="ghost"
@@ -116,7 +124,9 @@ export function AccountCard({ account }: AccountCardProps) {
           </div>
         </CardHeader>
         <CardContent>
-          <div className="headline-sm text-foreground font-semibold mt-2 data-mono">{formatted}</div>
+          <div className="headline-sm text-foreground font-semibold mt-2 data-mono">
+            {formatted}
+          </div>
         </CardContent>
       </div>
       <CardFooter className="justify-end border-t border-border/10 pt-4 mt-2">

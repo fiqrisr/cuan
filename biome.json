@@ -18,7 +18,8 @@
       "!**/*.lockb",
       "!**/out",
       "!**/.agent",
-      "!**/*.css"
+      "!**/*.css",
+      "!**/routeTree.gen.ts"
     ]
   },
   "formatter": {

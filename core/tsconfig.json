@@ -3,7 +3,7 @@
   "extends": "tsconfig-moon/tsconfig.projects.json",
   "include": ["src/**/*", "tests/**/*", "drizzle.config.ts"],
   "compilerOptions": {
-    "ignoreDeprecations": "6.0",
+    "ignoreDeprecations": "5.0",
     "outDir": "../.moon/cache/types/core",
     "baseUrl": ".",
     "paths": {

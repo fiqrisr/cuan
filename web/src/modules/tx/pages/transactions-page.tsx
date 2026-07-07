@@ -1,11 +1,11 @@
 import { Input } from '@cuan/ui';
 import { Search } from 'lucide-react';
 import { useState } from 'react';
+import { useGetAccountListQuery } from '@/modules/account/hooks/use-get-account-list-query';
 import { TransactionEmptyState } from '../components/transaction-empty-state';
 import { TransactionListSkeleton } from '../components/transaction-list-skeleton';
 import { TransactionRow } from '../components/transaction-row';
 import { useGetTransactionListQuery } from '../hooks/use-get-transaction-list-query';
-import { useGetAccountListQuery } from '@/modules/account/hooks/use-get-account-list-query';
 import type { Transaction } from '../types';
 
 const getRelativeDateKey = (dateStr: string) => {
@@ -75,9 +75,7 @@ export function TransactionsPage({ accountId }: { accountId?: string }) {
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 pb-2 border-b border-border/10">
             <div>
               <h1 className="headline-md text-foreground tracking-tight">{title}</h1>
-              <p className="body-md text-muted-foreground mt-1">
-                {description}
-              </p>
+              <p className="body-md text-muted-foreground mt-1">{description}</p>
             </div>
           </div>
 
