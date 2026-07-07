@@ -91,7 +91,7 @@ export class TransactionService {
             where: (c, { inArray }) => inArray(c.id, categoryIds),
           })
         : [];
-    const catMap = new Map(cats.map(c => [c.id, c.name]));
+    const catMap = new Map(cats.map(c => [c.id, c.label]));
 
     const data = rows.map(r => formatTransaction(r, catMap.get(r.categoryId) ?? null));
 
@@ -104,7 +104,7 @@ export class TransactionService {
       with: { category: true },
     });
     if (!row) return null;
-    return formatTransaction(row, row.category?.name ?? null);
+    return formatTransaction(row, row.category?.label ?? null);
   }
 
   async update(

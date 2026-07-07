@@ -88,7 +88,7 @@ async function getBiggestTransaction(baseConditions: SQL<unknown>[], type: 'expe
     where: (c, { eq }) => eq(c.id, tx.categoryId),
   });
 
-  return { transaction: { ...tx, amount: Number(tx.amount), category: cat?.name } };
+  return { transaction: { ...tx, amount: Number(tx.amount), category: cat?.label } };
 }
 
 async function getTotalAmount(baseConditions: SQL<unknown>[], type: 'expense' | 'income') {
@@ -158,5 +158,5 @@ async function getCategoryMap(categoryIds: number[]): Promise<Map<number, string
     where: (c, { inArray }) => inArray(c.id, uniqueIds),
   });
 
-  return new Map(cats.map(c => [c.id, c.name]));
+  return new Map(cats.map(c => [c.id, c.label]));
 }

@@ -87,7 +87,7 @@ async function processSingleTransaction(
       type: row.type,
       amount: Number(row.amount),
       currency: row.currency,
-      category: cat.name,
+      category: cat.label,
       description: row.description,
       date: row.date.toISOString(),
       createdAt: row.createdAt.toISOString(),
