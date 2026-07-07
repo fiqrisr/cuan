@@ -1,5 +1,5 @@
-import * as React from 'react';
 import { cva, type VariantProps } from 'class-variance-authority';
+import * as React from 'react';
 import { cn } from '../lib/utils';
 
 // ---------------------------------------------------------------------------
@@ -128,7 +128,7 @@ const TypingIndicator = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HT
       className={cn('flex items-center gap-1 px-1 py-0.5', className)}
       {...props}
     >
-      {[0, 1, 2].map((i) => (
+      {[0, 1, 2].map(i => (
         <span
           key={i}
           className="h-2 w-2 rounded-full bg-muted-foreground/60 animate-bounce"
@@ -140,4 +140,4 @@ const TypingIndicator = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HT
 );
 TypingIndicator.displayName = 'TypingIndicator';
 
-export { Message, MessageContent, MessageAvatar, MessageBubble, TypingIndicator };
+export { Message, MessageAvatar, MessageBubble, MessageContent, TypingIndicator };

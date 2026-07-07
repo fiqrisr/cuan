@@ -1,5 +1,5 @@
-import * as React from 'react';
 import { cva, type VariantProps } from 'class-variance-authority';
+import * as React from 'react';
 import { cn } from '../lib/utils';
 
 const markerVariants = cva(
@@ -15,7 +15,7 @@ const markerVariants = cva(
     defaultVariants: {
       variant: 'default',
     },
-  }
+  },
 );
 
 export interface MarkerProps
@@ -26,11 +26,7 @@ export interface MarkerProps
 
 const Marker = React.forwardRef<HTMLDivElement, MarkerProps>(
   ({ className, variant, isLoading, children, ...props }, ref) => (
-    <div
-      ref={ref}
-      className={cn(markerVariants({ variant }), className)}
-      {...props}
-    >
+    <div ref={ref} className={cn(markerVariants({ variant }), className)} {...props}>
       {isLoading && (
         <span className="flex h-3 w-3 items-center justify-center">
           <span className="animate-spin rounded-full h-3 w-3 border-b-2 border-current"></span>
@@ -38,7 +34,7 @@ const Marker = React.forwardRef<HTMLDivElement, MarkerProps>(
       )}
       {children}
     </div>
-  )
+  ),
 );
 Marker.displayName = 'Marker';
 

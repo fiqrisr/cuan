@@ -23,10 +23,12 @@ export function Markdown({ children, className }: MarkdownProps) {
               <table className="w-full text-left border-collapse text-sm">{children}</table>
             </div>
           ),
-          thead: ({ children }) => <thead className="bg-muted/50 border-b border-border/50">{children}</thead>,
+          thead: ({ children }) => (
+            <thead className="bg-muted/50 border-b border-border/50">{children}</thead>
+          ),
           th: ({ children }) => <th className="p-2 font-medium">{children}</th>,
           td: ({ children }) => <td className="p-2 border-t border-border/50">{children}</td>,
-          hr: () => <hr className="my-3 border-border/50" />
+          hr: () => <hr className="my-3 border-border/50" />,
         }}
       >
         {children}

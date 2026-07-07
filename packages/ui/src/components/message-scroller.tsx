@@ -83,11 +83,7 @@ const MessageScroller = React.forwardRef<HTMLDivElement, MessageScrollerProps>(
     return (
       <MessageScrollerContext.Provider value={{ onContentChange }}>
         <div className="relative flex-1 overflow-hidden">
-          <div
-            ref={mergedRef}
-            className={cn('h-full overflow-y-auto', className)}
-            {...props}
-          >
+          <div ref={mergedRef} className={cn('h-full overflow-y-auto', className)} {...props}>
             {children}
             {/* Scroll anchor — always at the bottom */}
             <div ref={anchorRef} className="h-px shrink-0" aria-hidden="true" />
