@@ -19,16 +19,20 @@ export function Markdown({ children, className }: MarkdownProps) {
           li: ({ children }) => <li>{children}</li>,
           strong: ({ children }) => <strong className="font-semibold">{children}</strong>,
           table: ({ children }) => (
-            <div className="overflow-x-auto my-2 rounded-md border border-border/50 bg-background/50">
+            <div className="overflow-x-auto my-2 rounded-lg border border-border/25 bg-background/50">
               <table className="w-full text-left border-collapse text-sm">{children}</table>
             </div>
           ),
           thead: ({ children }) => (
-            <thead className="bg-muted/50 border-b border-border/50">{children}</thead>
+            <thead className="bg-muted/50 border-b border-border/25">{children}</thead>
           ),
-          th: ({ children }) => <th className="p-2 font-medium">{children}</th>,
-          td: ({ children }) => <td className="p-2 border-t border-border/50">{children}</td>,
-          hr: () => <hr className="my-3 border-border/50" />,
+          th: ({ children }) => (
+            <th className="p-2 font-semibold text-foreground label-caps">{children}</th>
+          ),
+          td: ({ children }) => (
+            <td className="p-2 border-t border-border/25 text-foreground/90">{children}</td>
+          ),
+          hr: () => <hr className="my-4 border-border/25" />,
         }}
       >
         {children}

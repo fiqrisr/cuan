@@ -3,13 +3,13 @@ import * as React from 'react';
 import { cn } from '../lib/utils';
 
 const markerVariants = cva(
-  'inline-flex items-center gap-1.5 px-3 py-1 text-xs font-medium rounded-md w-fit',
+  'inline-flex items-center gap-1.5 px-3 py-1 label-caps rounded-[2px] w-fit transition-all',
   {
     variants: {
       variant: {
-        default: 'bg-muted text-muted-foreground',
-        success: 'bg-success/10 text-success',
-        destructive: 'bg-destructive/10 text-destructive',
+        default: 'border-transparent bg-muted/10 text-[#8e928f]',
+        success: 'border-transparent bg-primary/10 text-primary',
+        destructive: 'border-transparent bg-destructive/10 text-destructive',
       },
     },
     defaultVariants: {

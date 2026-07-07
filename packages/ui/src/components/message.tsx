@@ -7,12 +7,12 @@ import { cn } from '../lib/utils';
 // ---------------------------------------------------------------------------
 
 const messageBubbleVariants = cva(
-  'relative max-w-[85%] rounded-2xl px-4 py-2.5 text-sm leading-relaxed break-words',
+  'relative max-w-[85%] rounded-[20px] p-5 text-sm leading-relaxed break-words border shadow-sm',
   {
     variants: {
       variant: {
-        sent: 'bg-primary text-primary-foreground rounded-tr-sm',
-        received: 'bg-muted text-foreground rounded-tl-sm',
+        sent: 'bg-accent text-accent-foreground border-primary/20 rounded-tr-sm',
+        received: 'ai-message-gradient border-border/20 text-foreground rounded-tl-sm',
       },
     },
     defaultVariants: {
@@ -47,7 +47,7 @@ const MessageAvatar = React.forwardRef<HTMLDivElement, MessageAvatarProps>(
     <div
       ref={ref}
       className={cn(
-        'flex h-8 w-8 shrink-0 select-none items-center justify-center rounded-full bg-muted text-muted-foreground',
+        'flex h-8 w-8 shrink-0 select-none items-center justify-center rounded-full glass-panel border-primary/20 text-primary font-semibold text-xs',
         className,
       )}
       aria-hidden="true"
