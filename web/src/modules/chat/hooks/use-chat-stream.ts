@@ -101,6 +101,9 @@ export function useChatStream(): UseChatStreamReturn {
     setMessages(prev =>
       prev.map(m => {
         if (m.id !== id) return m;
+        if (event.type === 'start-step') {
+          return { ...m, content: '', reasoning: '' };
+        }
 
         if (event.type === 'text-delta') {
           return { ...m, content: m.content + event.delta };
