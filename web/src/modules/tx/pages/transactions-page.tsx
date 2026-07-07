@@ -5,6 +5,7 @@ import { TransactionEmptyState } from '../components/transaction-empty-state';
 import { TransactionListSkeleton } from '../components/transaction-list-skeleton';
 import { TransactionRow } from '../components/transaction-row';
 import { useGetTransactionListQuery } from '../hooks/use-get-transaction-list-query';
+import { useGetAccountListQuery } from '@/modules/account/hooks/use-get-account-list-query';
 import type { Transaction } from '../types';
 
 const getRelativeDateKey = (dateStr: string) => {
@@ -24,8 +25,15 @@ const getRelativeDateKey = (dateStr: string) => {
   return txDate.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
 };
 
-export function TransactionsPage() {
-  const { data, isLoading, isError, error } = useGetTransactionListQuery();
+export function TransactionsPage({ accountId }: { accountId?: string }) {
+  const { data, isLoading, isError, error } = useGetTransactionListQuery({ accountId });
+  const { data: accountsData } = useGetAccountListQuery();
+
+  const account = accountsData?.data.find(a => a.id === accountId);
+  const title = account ? `${account.name} History` : 'History';
+  const description = account
+    ? `Review income and expenses for ${account.name}`
+    : 'Review all your processed income and expenses';
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
 
@@ -66,9 +74,9 @@ export function TransactionsPage() {
         <div className="flex flex-col gap-4">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 pb-2 border-b border-border/10">
             <div>
-              <h1 className="headline-md text-foreground tracking-tight">History</h1>
+              <h1 className="headline-md text-foreground tracking-tight">{title}</h1>
               <p className="body-md text-muted-foreground mt-1">
-                Review all your processed income and expenses
+                {description}
               </p>
             </div>
           </div>
