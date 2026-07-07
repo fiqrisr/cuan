@@ -1,12 +1,14 @@
 import { createRootRoute, Link, Outlet } from '@tanstack/react-router';
 import { TanStackRouterDevtools } from '@tanstack/router-devtools';
-import { Bot, History, LayoutDashboard, Leaf, User, Wallet } from 'lucide-react';
+import { Bot, History, LayoutDashboard, Leaf, Moon, Sun, User, Wallet } from 'lucide-react';
 import { authClient } from '@/core/auth';
+import { useTheme } from '@/core/theme-context';
 
 export const Route = createRootRoute({
   component: function RootComponent() {
     const { data: session } = authClient.useSession();
     const showNav = !!session;
+    const { resolvedTheme, setTheme } = useTheme();
 
     return (
       <div className="flex flex-col lg:flex-row h-dvh overflow-hidden bg-background text-foreground">
@@ -56,6 +58,19 @@ export const Route = createRootRoute({
                 Profile
               </Link>
             </nav>
+            <div className="px-6 py-4 border-t border-border/10 flex items-center justify-between mt-auto">
+              <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                Theme
+              </span>
+              <button
+                type="button"
+                onClick={() => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark')}
+                className="flex items-center justify-center p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors cursor-pointer"
+                title={`Switch to ${resolvedTheme === 'dark' ? 'light' : 'dark'} theme`}
+              >
+                {resolvedTheme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
+              </button>
+            </div>
           </aside>
         )}
 

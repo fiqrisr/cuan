@@ -69,8 +69,8 @@
     --accent: #1f4f3d;
     --accent-foreground: #8ec0a9;
 
-    --destructive: #93000a;
-    --destructive-foreground: #ffdad6;
+    --destructive: #7c3a43;
+    --destructive-foreground: #ffdcdb;
 
     --border: rgba(159, 209, 186, 0.1); /* 10% opacity Emerald for ghost borders */
     --input: rgba(159, 209, 186, 0.1);
@@ -85,6 +85,52 @@
     --surface-muted: #1a1c1b;
     --body-strong: #e2e3e0;
     --success: #9fd1ba;
+
+    --glass-bg: rgba(30, 32, 31, 0.5);
+    --glass-border: rgba(159, 209, 186, 0.1);
+    --glass-bg-hover: rgba(30, 32, 31, 0.6);
+    --glass-border-hover: rgba(159, 209, 186, 0.2);
+    --ai-message-gradient: linear-gradient(135deg, rgba(31, 79, 61, 0.15) 0%, rgba(26, 28, 27, 0.4) 100%);
+  }
+
+  .light {
+    --background: #fcfbf9;         /* Soft Luxury Parchment */
+    --foreground: #111413;         /* Deep Obsidian */
+
+    --card: #f4f2ee;               /* Subtle Layered Parchment */
+    --card-foreground: #111413;
+
+    --popover: #eae8e4;
+    --popover-foreground: #111413;
+
+    --primary: #1f4f3d;            /* Rich Jewel Emerald */
+    --primary-foreground: #fcfbf9;
+
+    --secondary: #eae8e4;
+    --secondary-foreground: #333534;
+
+    --muted: #eae8e4;
+    --muted-foreground: #707371;
+
+    --accent: #e2ede8;             /* Light Emerald Tint */
+    --accent-foreground: #1f4f3d;
+
+    --destructive: #7c3a43;        /* Deep Burgundy */
+    --destructive-foreground: #fdf2f2;
+
+    --border: rgba(31, 79, 61, 0.1);  /* Subtle Emerald Border */
+    --input: rgba(31, 79, 61, 0.1);
+    --ring: #1f4f3d;
+
+    --surface-muted: #eae8e4;
+    --body-strong: #111413;
+    --success: #1f4f3d;
+
+    --glass-bg: rgba(244, 242, 238, 0.6);
+    --glass-border: rgba(31, 79, 61, 0.08);
+    --glass-bg-hover: rgba(244, 242, 238, 0.8);
+    --glass-border-hover: rgba(31, 79, 61, 0.15);
+    --ai-message-gradient: linear-gradient(135deg, rgba(31, 79, 61, 0.06) 0%, rgba(234, 232, 228, 0.5) 100%);
   }
 }
 
@@ -169,9 +215,9 @@
 }
 
 @utility glass-panel {
-  background-color: rgba(30, 32, 31, 0.5); /* surface-container 50% opacity */
+  background-color: var(--glass-bg);
   backdrop-filter: blur(20px);
-  border: 1px solid rgba(159, 209, 186, 0.1);
+  border: 1px solid var(--glass-border);
 }
 
 @utility glass-panel-interactive {
@@ -179,11 +225,11 @@
 
   &:hover {
     backdrop-filter: blur(30px);
-    border-color: rgba(159, 209, 186, 0.2);
-    background-color: rgba(30, 32, 31, 0.6);
+    border-color: var(--glass-border-hover);
+    background-color: var(--glass-bg-hover);
   }
 }
 
 @utility ai-message-gradient {
-  background: linear-gradient(135deg, rgba(31, 79, 61, 0.15) 0%, rgba(26, 28, 27, 0.4) 100%);
+  background: var(--ai-message-gradient);
 }

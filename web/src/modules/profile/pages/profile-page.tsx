@@ -1,11 +1,13 @@
 import { Button, Card, CardContent, CardHeader, CardTitle, Skeleton } from '@cuan/ui';
-import { LogOut, User } from 'lucide-react';
+import { LogOut, Monitor, Moon, Sun, User } from 'lucide-react';
 import { authClient } from '@/core/auth';
+import { useTheme } from '@/core/theme-context';
 import { useLogoutMutation } from '../hooks/use-logout-mutation';
 
 export function ProfilePage() {
   const { data, isPending } = authClient.useSession();
   const { mutateAsync: logout, isPending: isLoggingOut } = useLogoutMutation();
+  const { theme, resolvedTheme, setTheme } = useTheme();
 
   const user = data?.user;
 
@@ -55,6 +57,51 @@ export function ProfilePage() {
               >
                 <LogOut size={14} />
                 {isLoggingOut ? 'Logging out...' : 'Log Out'}
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="max-w-2xl mt-4">
+          <CardHeader>
+            <CardTitle className="label-caps text-muted-foreground">Theme Settings</CardTitle>
+          </CardHeader>
+          <CardContent className="flex flex-col gap-6">
+            <div>
+              <p className="font-semibold text-base text-foreground">Visual Theme</p>
+              <p className="text-sm text-muted-foreground mt-1">
+                Customize how Cuan looks on your device. Persisted to local storage.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-3 gap-3">
+              <Button
+                variant={theme === 'light' ? 'default' : 'outline'}
+                className="flex flex-col items-center gap-2 py-6 h-auto"
+                onClick={() => setTheme('light')}
+              >
+                <Sun size={20} />
+                <span className="text-xs font-semibold">Light</span>
+              </Button>
+
+              <Button
+                variant={theme === 'dark' ? 'default' : 'outline'}
+                className="flex flex-col items-center gap-2 py-6 h-auto"
+                onClick={() => setTheme('dark')}
+              >
+                <Moon size={20} />
+                <span className="text-xs font-semibold">Dark</span>
+              </Button>
+
+              <Button
+                variant={theme === 'system' ? 'default' : 'outline'}
+                className="flex flex-col items-center gap-2 py-6 h-auto"
+                onClick={() => setTheme('system')}
+              >
+                <Monitor size={20} />
+                <span className="text-xs font-semibold">
+                  System {theme === 'system' && `(${resolvedTheme === 'dark' ? 'Dark' : 'Light'})`}
+                </span>
               </Button>
             </div>
           </CardContent>
