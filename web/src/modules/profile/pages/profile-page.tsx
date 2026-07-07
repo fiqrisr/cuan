@@ -16,10 +16,11 @@ export function ProfilePage() {
 
   const [isCreating, setIsCreating] = useState(false);
   const [newLabel, setNewLabel] = useState('');
+  const [createError, setCreateError] = useState<string | null>(null);
 
   const [editingId, setEditingId] = useState<number | null>(null);
   const [editingLabel, setEditingLabel] = useState('');
-
+  const [updateError, setUpdateError] = useState<string | null>(null);
   const { data: categoriesData, isLoading: categoriesLoading } = useGetCategoriesQuery();
   const { mutateAsync: createCategory, isPending: isCreatingCat } = useCreateCategoryMutation();
   const { mutateAsync: updateCategory, isPending: isUpdatingCat } = useUpdateCategoryMutation();
@@ -35,6 +36,7 @@ export function ProfilePage() {
       .replace(/[^a-z0-9]+/g, '-')
       .replace(/(^-|-$)/g, '');
     try {
+      setCreateError(null);
       await createCategory({
         label,
         name,
@@ -43,6 +45,7 @@ export function ProfilePage() {
       setNewLabel('');
     } catch (err) {
       console.error(err);
+      setCreateError(err instanceof Error ? err.message : 'Failed to create category');
     }
   };
 
@@ -54,6 +57,7 @@ export function ProfilePage() {
       .replace(/[^a-z0-9]+/g, '-')
       .replace(/(^-|-$)/g, '');
     try {
+      setUpdateError(null);
       await updateCategory({
         id,
         label,
@@ -63,6 +67,7 @@ export function ProfilePage() {
       setEditingLabel('');
     } catch (err) {
       console.error(err);
+      setUpdateError(err instanceof Error ? err.message : 'Failed to update category');
     }
   };
 
@@ -159,6 +164,9 @@ export function ProfilePage() {
                     className="h-8 text-sm"
                   />
                 </div>
+                {createError && (
+                  <p className="text-xs text-destructive font-semibold">{createError}</p>
+                )}
                 <div className="flex justify-end gap-2 mt-1">
                   <Button
                     size="sm"
@@ -166,6 +174,7 @@ export function ProfilePage() {
                     onClick={() => {
                       setIsCreating(false);
                       setNewLabel('');
+                      setCreateError(null);
                     }}
                     className="h-7 text-xs min-w-0 px-3"
                   >
@@ -199,37 +208,48 @@ export function ProfilePage() {
                     className="flex items-center justify-between py-3 first:pt-0 last:pb-0 gap-4"
                   >
                     {editingId === category.id ? (
-                      <div className="flex items-center gap-2 flex-1 min-w-0">
-                        <Input
-                          value={editingLabel}
-                          onChange={e => setEditingLabel(e.target.value)}
-                          className="h-8 text-xs py-0.5 flex-1"
-                          placeholder="Category Label"
-                          autoFocus
-                          onKeyDown={e => {
-                            if (e.key === 'Enter') handleUpdate(category.id);
-                            if (e.key === 'Escape') setEditingId(null);
-                          }}
-                        />
-                        <div className="flex gap-1 shrink-0">
-                          <Button
-                            size="icon"
-                            variant="ghost"
-                            onClick={() => handleUpdate(category.id)}
-                            disabled={isUpdatingCat}
-                            className="h-8 w-8 text-success"
-                          >
-                            <Check size={14} />
-                          </Button>
-                          <Button
-                            size="icon"
-                            variant="ghost"
-                            onClick={() => setEditingId(null)}
-                            className="h-8 w-8 text-destructive"
-                          >
-                            <X size={14} />
-                          </Button>
+                      <div className="flex flex-col gap-1.5 flex-1 w-full">
+                        <div className="flex items-center gap-2 w-full">
+                          <Input
+                            value={editingLabel}
+                            onChange={e => setEditingLabel(e.target.value)}
+                            className="h-8 text-xs py-0.5 flex-1"
+                            placeholder="Category Label"
+                            autoFocus
+                            onKeyDown={e => {
+                              if (e.key === 'Enter') handleUpdate(category.id);
+                              if (e.key === 'Escape') {
+                                setEditingId(null);
+                                setUpdateError(null);
+                              }
+                            }}
+                          />
+                          <div className="flex gap-1 shrink-0">
+                            <Button
+                              size="icon"
+                              variant="ghost"
+                              onClick={() => handleUpdate(category.id)}
+                              disabled={isUpdatingCat}
+                              className="h-8 w-8 text-success"
+                            >
+                              <Check size={14} />
+                            </Button>
+                            <Button
+                              size="icon"
+                              variant="ghost"
+                              onClick={() => {
+                                setEditingId(null);
+                                setUpdateError(null);
+                              }}
+                              className="h-8 w-8 text-destructive"
+                            >
+                              <X size={14} />
+                            </Button>
+                          </div>
                         </div>
+                        {updateError && (
+                          <p className="text-xs text-destructive font-semibold">{updateError}</p>
+                        )}
                       </div>
                     ) : (
                       <>
@@ -257,6 +277,7 @@ export function ProfilePage() {
                                 onClick={() => {
                                   setEditingId(category.id);
                                   setEditingLabel(category.label);
+                                  setUpdateError(null);
                                 }}
                                 className="h-7 w-7 text-muted-foreground hover:text-foreground shrink-0"
                                 title="Edit category"
