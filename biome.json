@@ -17,7 +17,8 @@
       "!**/*.min.js",
       "!**/*.lockb",
       "!**/out",
-      "!**/.agent"
+      "!**/.agent",
+      "!**/*.css"
     ]
   },
   "formatter": {
@@ -32,6 +33,9 @@
       "cssModules": true
     },
     "formatter": {
+      "enabled": false
+    },
+    "linter": {
       "enabled": false
     }
   },

@@ -28,52 +28,63 @@
   --color-card: var(--card);
   --color-card-foreground: var(--card-foreground);
 
-  --radius-lg: var(--radius);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-sm: calc(var(--radius) - 4px);
+  --radius-lg: var(--radius-lg-val);
+  --radius-md: var(--radius-md-val);
+  --radius-sm: var(--radius-sm-val);
+  --radius-xl: var(--radius-xl-val);
+  --radius: var(--radius-val);
   
   /* Custom Cuan Theme Colors */
   --color-surface-muted: var(--surface-muted);
   --color-body-strong: var(--body-strong);
   --color-success: var(--success);
+
+  /* Custom Fonts */
+  --font-sans: "Manrope", sans-serif;
+  --font-serif: "Playfair Display", serif;
+  --font-mono: "Manrope", monospace;
 }
 
 @layer base {
   :root {
-    /* Soft Minimalistic Pastel Theme */
-    --background: #fdfbf7;       /* Off-white warm */
-    --foreground: #4a4a4a;       /* Soft dark gray */
+    /* Obsidian & Emerald Dark Theme */
+    --background: #111413;
+    --foreground: #e2e3e0;
 
-    --card: #ffffff;
-    --card-foreground: #4a4a4a;
+    --card: #1e201f;
+    --card-foreground: #e2e3e0;
 
-    --popover: #ffffff;
-    --popover-foreground: #4a4a4a;
+    --popover: #1a1c1b;
+    --popover-foreground: #e2e3e0;
 
-    --primary: #c2d8b9;          /* Soft sage green */
-    --primary-foreground: #2d3f25;
+    --primary: #9fd1ba;          /* Refined Emerald */
+    --primary-foreground: #023828;
 
-    --secondary: #f4e8d3;        /* Dusty beige/peach */
-    --secondary-foreground: #5a4b38;
+    --secondary: #1a1c1b;
+    --secondary-foreground: #c4c7c4;
 
-    --muted: #f2efe9;
-    --muted-foreground: #8a8883;
+    --muted: #1a1c1b;
+    --muted-foreground: #8e928f;
 
-    --accent: #e5d9f2;           /* Soft lavender */
-    --accent-foreground: #3d2f4f;
+    --accent: #1f4f3d;
+    --accent-foreground: #8ec0a9;
 
-    --destructive: #ffb3b3;      /* Soft red/pink */
-    --destructive-foreground: #5c1f1f;
+    --destructive: #93000a;
+    --destructive-foreground: #ffdad6;
 
-    --border: #e8e3d9;
-    --input: #e8e3d9;
-    --ring: #c2d8b9;
+    --border: rgba(159, 209, 186, 0.1); /* 10% opacity Emerald for ghost borders */
+    --input: rgba(159, 209, 186, 0.1);
+    --ring: #9fd1ba;
 
-    --radius: 1rem;              /* Extra rounded (soft UI) */
+    --radius-sm-val: 0.125rem;
+    --radius-val: 0.25rem;
+    --radius-md-val: 0.375rem;
+    --radius-lg-val: 0.5rem;
+    --radius-xl-val: 0.75rem;
 
-    --surface-muted: #f7f4ed;
-    --body-strong: #333333;
-    --success: #8db580;
+    --surface-muted: #1a1c1b;
+    --body-strong: #e2e3e0;
+    --success: #9fd1ba;
   }
 }
 
@@ -82,7 +93,97 @@
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground font-sans antialiased;
     font-feature-settings: "rlig" 1, "calt" 1;
   }
+}
+
+@utility display-lg {
+  font-family: var(--font-serif);
+  font-size: 48px;
+  font-weight: 600;
+  line-height: 56px;
+  letter-spacing: -0.02em;
+}
+
+@utility display-lg-mobile {
+  font-family: var(--font-serif);
+  font-size: 32px;
+  font-weight: 600;
+  line-height: 40px;
+  letter-spacing: -0.01em;
+}
+
+@utility headline-md {
+  font-family: var(--font-serif);
+  font-size: 32px;
+  font-weight: 500;
+  line-height: 40px;
+}
+
+@utility headline-sm {
+  font-family: var(--font-serif);
+  font-size: 24px;
+  font-weight: 500;
+  line-height: 32px;
+}
+
+@utility title-lg {
+  font-family: var(--font-sans);
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 24px;
+  letter-spacing: 0.05em;
+}
+
+@utility body-lg {
+  font-family: var(--font-sans);
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 26px;
+}
+
+@utility body-md {
+  font-family: var(--font-sans);
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 22px;
+}
+
+@utility label-caps {
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 16px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+@utility data-mono {
+  font-family: var(--font-mono);
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 20px;
+  letter-spacing: -0.01em;
+  font-variant-numeric: tabular-nums;
+}
+
+@utility glass-panel {
+  background-color: rgba(30, 32, 31, 0.5); /* surface-container 50% opacity */
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(159, 209, 186, 0.1);
+}
+
+@utility glass-panel-interactive {
+  transition: all 0.3s ease;
+
+  &:hover {
+    backdrop-filter: blur(30px);
+    border-color: rgba(159, 209, 186, 0.2);
+    background-color: rgba(30, 32, 31, 0.6);
+  }
+}
+
+@utility ai-message-gradient {
+  background: linear-gradient(135deg, rgba(31, 79, 61, 0.15) 0%, rgba(26, 28, 27, 0.4) 100%);
 }
