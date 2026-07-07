@@ -16,11 +16,9 @@ export function ProfilePage() {
 
   const [isCreating, setIsCreating] = useState(false);
   const [newLabel, setNewLabel] = useState('');
-  const [newName, setNewName] = useState('');
 
   const [editingId, setEditingId] = useState<number | null>(null);
   const [editingLabel, setEditingLabel] = useState('');
-  const [editingName, setEditingName] = useState('');
 
   const { data: categoriesData, isLoading: categoriesLoading } = useGetCategoriesQuery();
   const { mutateAsync: createCategory, isPending: isCreatingCat } = useCreateCategoryMutation();
@@ -30,31 +28,39 @@ export function ProfilePage() {
   const categories = categoriesData?.data ?? [];
 
   const handleCreate = async () => {
-    if (!newLabel.trim() || !newName.trim()) return;
+    const label = newLabel.trim();
+    if (!label) return;
+    const name = label
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/(^-|-$)/g, '');
     try {
       await createCategory({
-        label: newLabel.trim(),
-        name: newName.trim().toLowerCase().replace(/\s+/g, '-'),
+        label,
+        name,
       });
       setIsCreating(false);
       setNewLabel('');
-      setNewName('');
     } catch (err) {
       console.error(err);
     }
   };
 
   const handleUpdate = async (id: number) => {
-    if (!editingLabel.trim() || !editingName.trim()) return;
+    const label = editingLabel.trim();
+    if (!label) return;
+    const name = label
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/(^-|-$)/g, '');
     try {
       await updateCategory({
         id,
-        label: editingLabel.trim(),
-        name: editingName.trim().toLowerCase().replace(/\s+/g, '-'),
+        label,
+        name,
       });
       setEditingId(null);
       setEditingLabel('');
-      setEditingName('');
     } catch (err) {
       console.error(err);
     }
@@ -138,45 +144,20 @@ export function ProfilePage() {
           <CardContent className="flex flex-col gap-4">
             {isCreating && (
               <div className="border border-border/20 rounded p-4 flex flex-col gap-3 bg-muted/10">
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="flex flex-col gap-1">
-                    <label
-                      htmlFor="new-category-label"
-                      className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider"
-                    >
-                      Category Label
-                    </label>
-                    <Input
-                      id="new-category-label"
-                      placeholder="e.g. Subscriptions"
-                      value={newLabel}
-                      onChange={e => {
-                        setNewLabel(e.target.value);
-                        if (
-                          !newName ||
-                          newName === e.target.value.toLowerCase().replace(/\s+/g, '-')
-                        ) {
-                          setNewName(e.target.value.toLowerCase().replace(/\s+/g, '-'));
-                        }
-                      }}
-                      className="h-8 text-sm"
-                    />
-                  </div>
-                  <div className="flex flex-col gap-1">
-                    <label
-                      htmlFor="new-category-name"
-                      className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider"
-                    >
-                      Technical Name
-                    </label>
-                    <Input
-                      id="new-category-name"
-                      placeholder="e.g. subscriptions"
-                      value={newName}
-                      onChange={e => setNewName(e.target.value)}
-                      className="h-8 text-sm"
-                    />
-                  </div>
+                <div className="flex flex-col gap-1">
+                  <label
+                    htmlFor="new-category-label"
+                    className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider"
+                  >
+                    Category Label
+                  </label>
+                  <Input
+                    id="new-category-label"
+                    placeholder="e.g. Subscriptions"
+                    value={newLabel}
+                    onChange={e => setNewLabel(e.target.value)}
+                    className="h-8 text-sm"
+                  />
                 </div>
                 <div className="flex justify-end gap-2 mt-1">
                   <Button
@@ -185,7 +166,6 @@ export function ProfilePage() {
                     onClick={() => {
                       setIsCreating(false);
                       setNewLabel('');
-                      setNewName('');
                     }}
                     className="h-7 text-xs min-w-0 px-3"
                   >
@@ -220,20 +200,17 @@ export function ProfilePage() {
                   >
                     {editingId === category.id ? (
                       <div className="flex items-center gap-2 flex-1 min-w-0">
-                        <div className="grid grid-cols-2 gap-2 flex-1">
-                          <Input
-                            value={editingLabel}
-                            onChange={e => setEditingLabel(e.target.value)}
-                            className="h-8 text-xs py-0.5"
-                            placeholder="Label"
-                          />
-                          <Input
-                            value={editingName}
-                            onChange={e => setEditingName(e.target.value)}
-                            className="h-8 text-xs py-0.5"
-                            placeholder="Name"
-                          />
-                        </div>
+                        <Input
+                          value={editingLabel}
+                          onChange={e => setEditingLabel(e.target.value)}
+                          className="h-8 text-xs py-0.5 flex-1"
+                          placeholder="Category Label"
+                          autoFocus
+                          onKeyDown={e => {
+                            if (e.key === 'Enter') handleUpdate(category.id);
+                            if (e.key === 'Escape') setEditingId(null);
+                          }}
+                        />
                         <div className="flex gap-1 shrink-0">
                           <Button
                             size="icon"
@@ -280,7 +257,6 @@ export function ProfilePage() {
                                 onClick={() => {
                                   setEditingId(category.id);
                                   setEditingLabel(category.label);
-                                  setEditingName(category.name);
                                 }}
                                 className="h-7 w-7 text-muted-foreground hover:text-foreground shrink-0"
                                 title="Edit category"
