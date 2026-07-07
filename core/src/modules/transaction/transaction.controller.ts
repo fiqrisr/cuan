@@ -1,7 +1,7 @@
 import { Elysia, t } from 'elysia';
 import { NotFoundError } from '@/lib/error';
 import { logger } from '@/middleware/logger';
-import { authGuard } from '@/modules/auth';
+import { authGuard } from '@/modules/auth/auth-guard';
 import {
   GetTransactionStatsRequestDto,
   GetTransactionStatsResponseDto,

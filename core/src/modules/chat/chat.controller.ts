@@ -1,5 +1,5 @@
 import { Elysia } from 'elysia';
-import { authGuard } from '@/modules/auth';
+import { authGuard } from '@/modules/auth/auth-guard';
 import { CreateChatRequestDto, CreateChatResponseDto } from './chat.dto';
 import { chatService } from './chat.service';
 

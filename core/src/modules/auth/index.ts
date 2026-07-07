@@ -49,4 +49,3 @@ export const AuthOpenAPI = {
 
 export * from './auth.schema';
 export * from './auth.types';
-export * from './auth-guard';

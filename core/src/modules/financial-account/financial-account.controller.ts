@@ -1,6 +1,6 @@
 import { Elysia, t } from 'elysia';
 import { logger } from '@/middleware/logger';
-import { authGuard } from '@/modules/auth';
+import { authGuard } from '@/modules/auth/auth-guard';
 import {
   CreateFinancialAccountRequestDto,
   FinancialAccountResponseDto,
