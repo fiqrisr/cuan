@@ -364,11 +364,11 @@ describe('POST /api/chat', () => {
     const body = (await response.json()) as ChatResponse;
     expect(body.data.intent).toBe('transfer_funds');
     expect(body.data.transfer).toBeDefined();
-    expect(body.data.transfer.amount).toBe(30000);
-    expect(body.data.transfer.sourceAccount.name).toBe('Wallet');
-    expect(body.data.transfer.sourceAccount.balance).toBe(70000);
-    expect(body.data.transfer.destinationAccount.name).toBe('Bank');
-    expect(body.data.transfer.destinationAccount.balance).toBe(30000);
+    expect(body.data.transfer!.amount).toBe(30000);
+    expect(body.data.transfer!.sourceAccount.name).toBe('Wallet');
+    expect(body.data.transfer!.sourceAccount.balance).toBe(70000);
+    expect(body.data.transfer!.destinationAccount.name).toBe('Bank');
+    expect(body.data.transfer!.destinationAccount.balance).toBe(30000);
     expect(body.data.transactions?.length).toBe(2);
 
     // Verify DB states
