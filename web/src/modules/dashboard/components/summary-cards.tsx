@@ -1,4 +1,4 @@
-import { Card, CardContent, CardHeader, CardTitle, Badge } from '@cuan/ui';
+import { Badge, Card, CardContent, CardHeader, CardTitle } from '@cuan/ui';
 import { ArrowDownRight, ArrowUpRight, PiggyBank, Wallet } from 'lucide-react';
 
 type Props = {
@@ -42,7 +42,7 @@ export function SummaryCards({
       <Card>
         <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
           <CardTitle className="label-caps text-muted-foreground">Income</CardTitle>
-          <ArrowUpRight className="h-4 w-4 text-primary" />
+          <ArrowDownRight className="h-4 w-4 text-primary" />
         </CardHeader>
         <CardContent>
           <div className="headline-sm text-primary tracking-tight font-semibold mt-2">
@@ -55,7 +55,7 @@ export function SummaryCards({
       <Card>
         <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
           <CardTitle className="label-caps text-muted-foreground">Expenses</CardTitle>
-          <ArrowDownRight className="h-4 w-4 text-destructive" />
+          <ArrowUpRight className="h-4 w-4 text-destructive" />
         </CardHeader>
         <CardContent>
           <div className="headline-sm text-destructive tracking-tight font-semibold mt-2">

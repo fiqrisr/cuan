@@ -17,9 +17,9 @@ export function TransactionAmount({ amount, type }: Props) {
   return (
     <div className="flex items-center justify-end gap-1">
       {isIncome ? (
-        <ArrowUpIcon size={14} className="text-success" />
+        <ArrowDownIcon size={14} className="text-success" />
       ) : (
-        <ArrowDownIcon size={14} className="text-destructive" />
+        <ArrowUpIcon size={14} className="text-destructive" />
       )}
       <span
         className={

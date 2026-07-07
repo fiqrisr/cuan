@@ -1,10 +1,11 @@
 export type FinancialAccount = {
   id: string;
   name: string;
-  balance: string; // pg numeric returns string
+  balance: number;
   isDefault: boolean;
   currency: string;
   createdAt: string;
+  updatedAt: string;
 };
 
 export type FinancialAccountListResponse = {
