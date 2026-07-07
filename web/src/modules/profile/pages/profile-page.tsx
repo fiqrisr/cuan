@@ -1,13 +1,73 @@
-import { Button, Card, CardContent, CardHeader, CardTitle, Skeleton } from '@cuan/ui';
-import { LogOut, Monitor, Moon, Sun, User } from 'lucide-react';
+import { Badge, Button, Card, CardContent, CardHeader, CardTitle, Input, Skeleton } from '@cuan/ui';
+import { Check, LogOut, Monitor, Moon, Pencil, Sun, Trash2, User, X } from 'lucide-react';
+import { useState } from 'react';
 import { authClient } from '@/core/auth';
 import { useTheme } from '@/core/theme-context';
+import { useCreateCategoryMutation } from '../hooks/use-create-category-mutation';
+import { useDeleteCategoryMutation } from '../hooks/use-delete-category-mutation';
+import { useGetCategoriesQuery } from '../hooks/use-get-categories-query';
 import { useLogoutMutation } from '../hooks/use-logout-mutation';
+import { useUpdateCategoryMutation } from '../hooks/use-update-category-mutation';
 
 export function ProfilePage() {
   const { data, isPending } = authClient.useSession();
   const { mutateAsync: logout, isPending: isLoggingOut } = useLogoutMutation();
   const { theme, resolvedTheme, setTheme } = useTheme();
+
+  const [isCreating, setIsCreating] = useState(false);
+  const [newLabel, setNewLabel] = useState('');
+  const [newName, setNewName] = useState('');
+
+  const [editingId, setEditingId] = useState<number | null>(null);
+  const [editingLabel, setEditingLabel] = useState('');
+  const [editingName, setEditingName] = useState('');
+
+  const { data: categoriesData, isLoading: categoriesLoading } = useGetCategoriesQuery();
+  const { mutateAsync: createCategory, isPending: isCreatingCat } = useCreateCategoryMutation();
+  const { mutateAsync: updateCategory, isPending: isUpdatingCat } = useUpdateCategoryMutation();
+  const { mutateAsync: deleteCategory, isPending: isDeletingCat } = useDeleteCategoryMutation();
+
+  const categories = categoriesData?.data ?? [];
+
+  const handleCreate = async () => {
+    if (!newLabel.trim() || !newName.trim()) return;
+    try {
+      await createCategory({
+        label: newLabel.trim(),
+        name: newName.trim().toLowerCase().replace(/\s+/g, '-'),
+      });
+      setIsCreating(false);
+      setNewLabel('');
+      setNewName('');
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleUpdate = async (id: number) => {
+    if (!editingLabel.trim() || !editingName.trim()) return;
+    try {
+      await updateCategory({
+        id,
+        label: editingLabel.trim(),
+        name: editingName.trim().toLowerCase().replace(/\s+/g, '-'),
+      });
+      setEditingId(null);
+      setEditingLabel('');
+      setEditingName('');
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleDelete = async (id: number) => {
+    if (!confirm('Are you sure you want to delete this category?')) return;
+    try {
+      await deleteCategory(id);
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   const user = data?.user;
 
@@ -62,6 +122,192 @@ export function ProfilePage() {
           </CardContent>
         </Card>
 
+        <Card className="max-w-2xl mt-4">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
+            <CardTitle className="label-caps text-muted-foreground">Category Management</CardTitle>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => setIsCreating(true)}
+              className="h-7 px-3 text-xs min-w-0 font-medium"
+              disabled={isCreating}
+            >
+              + Add Category
+            </Button>
+          </CardHeader>
+          <CardContent className="flex flex-col gap-4">
+            {isCreating && (
+              <div className="border border-border/20 rounded p-4 flex flex-col gap-3 bg-muted/10">
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="flex flex-col gap-1">
+                    <label
+                      htmlFor="new-category-label"
+                      className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider"
+                    >
+                      Category Label
+                    </label>
+                    <Input
+                      id="new-category-label"
+                      placeholder="e.g. Subscriptions"
+                      value={newLabel}
+                      onChange={e => {
+                        setNewLabel(e.target.value);
+                        if (
+                          !newName ||
+                          newName === e.target.value.toLowerCase().replace(/\s+/g, '-')
+                        ) {
+                          setNewName(e.target.value.toLowerCase().replace(/\s+/g, '-'));
+                        }
+                      }}
+                      className="h-8 text-sm"
+                    />
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <label
+                      htmlFor="new-category-name"
+                      className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider"
+                    >
+                      Technical Name
+                    </label>
+                    <Input
+                      id="new-category-name"
+                      placeholder="e.g. subscriptions"
+                      value={newName}
+                      onChange={e => setNewName(e.target.value)}
+                      className="h-8 text-sm"
+                    />
+                  </div>
+                </div>
+                <div className="flex justify-end gap-2 mt-1">
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => {
+                      setIsCreating(false);
+                      setNewLabel('');
+                      setNewName('');
+                    }}
+                    className="h-7 text-xs min-w-0 px-3"
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    size="sm"
+                    onClick={handleCreate}
+                    disabled={isCreatingCat}
+                    className="h-7 text-xs min-w-0 px-3 font-semibold"
+                  >
+                    {isCreatingCat ? 'Saving...' : 'Save'}
+                  </Button>
+                </div>
+              </div>
+            )}
+
+            {categoriesLoading ? (
+              <div className="space-y-3">
+                <Skeleton className="h-10 w-full" />
+                <Skeleton className="h-10 w-full" />
+                <Skeleton className="h-10 w-full" />
+              </div>
+            ) : categories.length === 0 ? (
+              <p className="text-sm text-muted-foreground text-center py-4">No categories found.</p>
+            ) : (
+              <div className="flex flex-col divide-y divide-border/10 max-h-[350px] overflow-y-auto pr-1">
+                {categories.map(category => (
+                  <div
+                    key={category.id}
+                    className="flex items-center justify-between py-3 first:pt-0 last:pb-0 gap-4"
+                  >
+                    {editingId === category.id ? (
+                      <div className="flex items-center gap-2 flex-1 min-w-0">
+                        <div className="grid grid-cols-2 gap-2 flex-1">
+                          <Input
+                            value={editingLabel}
+                            onChange={e => setEditingLabel(e.target.value)}
+                            className="h-8 text-xs py-0.5"
+                            placeholder="Label"
+                          />
+                          <Input
+                            value={editingName}
+                            onChange={e => setEditingName(e.target.value)}
+                            className="h-8 text-xs py-0.5"
+                            placeholder="Name"
+                          />
+                        </div>
+                        <div className="flex gap-1 shrink-0">
+                          <Button
+                            size="icon"
+                            variant="ghost"
+                            onClick={() => handleUpdate(category.id)}
+                            disabled={isUpdatingCat}
+                            className="h-8 w-8 text-success"
+                          >
+                            <Check size={14} />
+                          </Button>
+                          <Button
+                            size="icon"
+                            variant="ghost"
+                            onClick={() => setEditingId(null)}
+                            className="h-8 w-8 text-destructive"
+                          >
+                            <X size={14} />
+                          </Button>
+                        </div>
+                      </div>
+                    ) : (
+                      <>
+                        <div className="flex flex-col min-w-0">
+                          <span className="text-sm font-semibold text-foreground truncate">
+                            {category.label}
+                          </span>
+                          <span className="text-xs text-muted-foreground font-mono">
+                            {category.name}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-2 shrink-0">
+                          {category.userId === null ? (
+                            <Badge
+                              variant="secondary"
+                              className="bg-muted/40 text-muted-foreground border-border/10 font-normal py-0.5 px-2 font-mono"
+                            >
+                              System
+                            </Badge>
+                          ) : (
+                            <div className="flex items-center gap-1">
+                              <Button
+                                size="icon"
+                                variant="ghost"
+                                onClick={() => {
+                                  setEditingId(category.id);
+                                  setEditingLabel(category.label);
+                                  setEditingName(category.name);
+                                }}
+                                className="h-7 w-7 text-muted-foreground hover:text-foreground shrink-0"
+                                title="Edit category"
+                              >
+                                <Pencil size={12} />
+                              </Button>
+                              <Button
+                                size="icon"
+                                variant="ghost"
+                                onClick={() => handleDelete(category.id)}
+                                disabled={isDeletingCat}
+                                className="h-7 w-7 text-destructive hover:text-destructive/80 shrink-0"
+                                title="Delete category"
+                              >
+                                <Trash2 size={12} />
+                              </Button>
+                            </div>
+                          )}
+                        </div>
+                      </>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
         <Card className="max-w-2xl mt-4">
           <CardHeader>
             <CardTitle className="label-caps text-muted-foreground">Theme Settings</CardTitle>
