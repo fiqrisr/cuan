@@ -4,12 +4,13 @@ import {
   extractedTransactionSchema,
   manageAccountActionSchema,
   queryFiltersSchema,
+  transferFundsSchema,
 } from './chat.ai-schema';
 import { handleAddTransaction } from './handlers/add-transaction.handler';
 import { handleManageAccount } from './handlers/manage-account.handler';
 import { handleManageCategory } from './handlers/manage-category.handler';
 import { handleQuery } from './handlers/query.handler';
-
+import { handleTransferFunds } from './handlers/transfer-funds.handler';
 const addTransactionParams = z.object({
   transactions: z
     .array(extractedTransactionSchema)
@@ -67,5 +68,10 @@ export const buildChatTools = (userId: string) => ({
     inputSchema: manageCategoryParams,
     execute: async (args: z.infer<typeof manageCategoryParams>) =>
       handleManageCategory(args, userId),
+  }),
+  transfer_funds: tool({
+    description: 'Transfer funds between two financial accounts.',
+    inputSchema: transferFundsSchema,
+    execute: async (args: z.infer<typeof transferFundsSchema>) => handleTransferFunds(args, userId),
   }),
 });

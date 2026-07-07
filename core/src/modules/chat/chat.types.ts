@@ -6,6 +6,15 @@ export type ChatResult = {
   account?: unknown;
   accounts?: unknown[];
   categories?: unknown;
+  transfer?: SavedTransfer;
+};
+
+export type SavedTransfer = {
+  sourceAccount: { id: string; name: string; balance: number };
+  destinationAccount: { id: string; name: string; balance: number };
+  amount: number;
+  date: string;
+  transactions: SavedTransaction[];
 };
 
 export type ChatResponse = {

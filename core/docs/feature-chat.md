@@ -14,8 +14,8 @@ We use a Vercel AI SDK Tool Calling architecture. The AI acts as a parser and co
   - `add-transaction.handler.ts`
   - `manage-account.handler.ts`
   - `query.handler.ts`
-
-## 4-Intent Tool System
+  - `transfer-funds.handler.ts`
+## 5-Intent Tool System
 
 The LLM uses predefined tools (`chat.tools.ts`) to fulfill user intents.
 
@@ -47,6 +47,14 @@ Used for custom category management operations via chat.
   - The LLM extracts the action (`create_category`, `rename_category`, `list_categories`) and category names.
   - Executes the requested action securely in the database, tying custom categories to the user's ID.
   - The LLM receives the result and generates a confirmation reply.
+
+### 5. `transfer_funds`
+Used when the user wants to transfer money between two of their own financial accounts.
+- **Behavior:**
+  - The LLM extracts the `sourceAccount`, `destinationAccount`, `amount`, and `date`.
+  - The backend verifies both accounts exist, retrieves the system `transfer` category, and atomically records the transfer as two transaction entries (an expense for the source account and an income for the destination account).
+  - The backend adjusts balances of both accounts atomically inside a database transaction block.
+  - The handler returns the updated account balances and recorded transactions, allowing the LLM to format a detailed confirmation response.
 
 ## OpenModel Client
 The interaction with the LLM is abstracted via `openmodel/index.ts`. It acts as an OpenAI-compatible client, configured via environment variables (`OPENMODEL_API_KEY`, `OPENMODEL_BASE_URL`, `OPENMODEL_MODEL`), meaning it can swap between OpenAI, DeepInfra, Groq, Anthropic (via Vercel AI SDK), or local models seamlessly.

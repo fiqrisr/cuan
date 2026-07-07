@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, mock } from 'bun:test';
+import { eq } from 'drizzle-orm';
 
 type MockResponse = {
   toolToCall?: string;
@@ -78,7 +79,10 @@ async function clearDatabase(): Promise<void> {
   await db.delete(verification);
   await db.delete(user);
 
-  const cats = [{ name: 'food-beverage', label: 'Makanan & Minuman' }];
+  const cats = [
+    { name: 'food-beverage', label: 'Makanan & Minuman' },
+    { name: 'transfer', label: 'Transfer' },
+  ];
   for (const c of cats) {
     await db.insert(categories).values(c);
   }
@@ -313,6 +317,69 @@ describe('POST /api/chat', () => {
     expect(body.data.intent).toBe('query');
     expect(body.data.reply).toContain('50');
     expect(body.data.queryResult).toBeDefined();
+  });
+
+  it('handles transfer_funds intent', async () => {
+    const cookies = await signUpAndGetCookies(`chat-transfer-${Date.now()}@example.com`);
+
+    // Create two accounts
+    await createAccount(cookies, 'Wallet');
+    await createAccount(cookies, 'Bank');
+
+    // Set initial balance of Wallet and Bank by updating them directly
+    const wallet = await db.query.financialAccounts.findFirst({
+      where: (fa, { eq }) => eq(fa.name, 'Wallet'),
+    });
+    if (wallet) {
+      await db
+        .update(financialAccounts)
+        .set({ balance: '100000.00' })
+        .where(eq(financialAccounts.id, wallet.id));
+    }
+    const bank = await db.query.financialAccounts.findFirst({
+      where: (fa, { eq }) => eq(fa.name, 'Bank'),
+    });
+    if (bank) {
+      await db
+        .update(financialAccounts)
+        .set({ balance: '0.00' })
+        .where(eq(financialAccounts.id, bank.id));
+    }
+
+    currentMockResponse = {
+      toolToCall: 'transfer_funds',
+      args: {
+        sourceAccount: 'Wallet',
+        destinationAccount: 'Bank',
+        amount: 30000,
+        currency: 'IDR',
+        date: '2026-06-25T08:00:00.000Z',
+      },
+      text: 'Transfer Rp30.000 dari Wallet ke Bank berhasil.',
+    };
+
+    const response = await chat(cookies, 'transfer 30k dari Wallet ke Bank');
+
+    expect(response.status).toBe(201); // 201 because transactions were created
+    const body = (await response.json()) as ChatResponse;
+    expect(body.data.intent).toBe('transfer_funds');
+    expect(body.data.transfer).toBeDefined();
+    expect(body.data.transfer.amount).toBe(30000);
+    expect(body.data.transfer.sourceAccount.name).toBe('Wallet');
+    expect(body.data.transfer.sourceAccount.balance).toBe(70000);
+    expect(body.data.transfer.destinationAccount.name).toBe('Bank');
+    expect(body.data.transfer.destinationAccount.balance).toBe(30000);
+    expect(body.data.transactions?.length).toBe(2);
+
+    // Verify DB states
+    const sourceDb = await db.query.financialAccounts.findFirst({
+      where: (fa, { eq }) => eq(fa.name, 'Wallet'),
+    });
+    const destDb = await db.query.financialAccounts.findFirst({
+      where: (fa, { eq }) => eq(fa.name, 'Bank'),
+    });
+    expect(Number(sourceDb?.balance)).toBe(70000);
+    expect(Number(destDb?.balance)).toBe(30000);
   });
 
   it('returns 401 without auth', async () => {

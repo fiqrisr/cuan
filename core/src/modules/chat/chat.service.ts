@@ -6,7 +6,7 @@ import { logger } from '../../middleware/logger';
 import { categoryService } from '../category/category.service';
 import { getSystemPrompt } from './chat.prompt';
 import { buildChatTools } from './chat.tools';
-import type { ChatResult, SavedTransaction } from './chat.types';
+import type { ChatResult, SavedTransaction, SavedTransfer } from './chat.types';
 
 function getLanguageModel(baseUrl: string, apiKey: string, modelId: string): LanguageModel {
   const anthropic = createAnthropic({ baseURL: baseUrl, apiKey });
@@ -51,6 +51,7 @@ export class ChatService {
     let account: unknown;
     let accounts: unknown[] | undefined;
     let categoriesData: unknown;
+    let transfer: SavedTransfer | undefined;
 
     if (aiResponse.toolResults && aiResponse.toolResults.length > 0) {
       for (const res of aiResponse.toolResults) {
@@ -69,6 +70,11 @@ export class ChatService {
         } else if (res.toolName === 'manage_category') {
           intent = 'manage_category';
           categoriesData = res.output;
+        } else if (res.toolName === 'transfer_funds') {
+          intent = 'transfer_funds';
+          const data = res.output as { transfer: SavedTransfer };
+          transfer = data.transfer;
+          transactions = data.transfer.transactions;
         }
       }
     }
@@ -81,6 +87,7 @@ export class ChatService {
       account,
       accounts,
       categories: categoriesData,
+      transfer,
     };
   }
 

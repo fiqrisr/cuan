@@ -37,3 +37,25 @@ export const queryFiltersSchema = z.object({
 });
 
 export const manageAccountActionSchema = z.enum(['create_account', 'set_default', 'list_accounts']);
+
+export const transferFundsSchema = z.object({
+  sourceAccount: z.string().min(1).describe('Name of the source account where money comes from'),
+  destinationAccount: z
+    .string()
+    .min(1)
+    .describe('Name of the destination account where money goes to'),
+  amount: z.union([z.number(), z.string()]).transform(value => {
+    const parsed = typeof value === 'string' ? Number(value) : value;
+    if (Number.isNaN(parsed) || parsed <= 0) {
+      throw new Error('amount must be a positive number');
+    }
+    return parsed;
+  }),
+  currency: z.string().length(3).default('IDR').describe('3-letter ISO code, default IDR'),
+  date: z
+    .string()
+    .datetime()
+    .describe(
+      'ISO 8601 string of the transfer date. Resolve relative times using the provided current time.',
+    ),
+});

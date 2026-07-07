@@ -15,6 +15,7 @@ export const CreateChatResponseDto = t.Object({
     account: t.Optional(t.Any()),
     accounts: t.Optional(t.Array(t.Any())),
     categories: t.Optional(t.Any()),
+    transfer: t.Optional(t.Any()),
   }),
 });
 
