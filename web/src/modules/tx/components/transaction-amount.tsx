@@ -21,7 +21,13 @@ export function TransactionAmount({ amount, type }: Props) {
       ) : (
         <ArrowDownIcon size={14} className="text-destructive" />
       )}
-      <span className={isIncome ? 'text-success font-semibold' : 'text-body-strong font-semibold'}>
+      <span
+        className={
+          isIncome
+            ? 'text-success font-semibold data-mono'
+            : 'text-body-strong font-semibold data-mono'
+        }
+      >
         {formatter.format(Number(amount))}
       </span>
     </div>
