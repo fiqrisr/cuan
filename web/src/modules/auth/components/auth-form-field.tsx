@@ -20,8 +20,10 @@ export function AuthFormField({
   required,
 }: AuthFormFieldProps) {
   return (
-    <div className="grid gap-2">
-      <label htmlFor={id}>{label}</label>
+    <div className="grid gap-1.5">
+      <label htmlFor={id} className="label-caps text-muted-foreground">
+        {label}
+      </label>
       <Input
         id={id}
         type={type ?? 'text'}

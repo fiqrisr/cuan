@@ -36,11 +36,17 @@ export function RegisterPage() {
       <Card className="w-full max-w-sm">
         <form onSubmit={handleRegister}>
           <CardHeader>
-            <CardTitle className="text-2xl">Create an account</CardTitle>
-            <CardDescription>Enter your details to get started.</CardDescription>
+            <CardTitle className="headline-sm text-foreground tracking-tight">
+              Create an account
+            </CardTitle>
+            <CardDescription className="label-caps text-muted-foreground mt-1">
+              Enter your details to get started.
+            </CardDescription>
           </CardHeader>
           <CardContent className="grid gap-4">
-            {error && <div className="text-sm text-destructive">{error}</div>}
+            {error && (
+              <div className="text-sm text-destructive bg-destructive/10 p-3 rounded">{error}</div>
+            )}
             <AuthFormField
               id="name"
               label="Name"

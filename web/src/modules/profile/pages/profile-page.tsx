@@ -11,12 +11,19 @@ export function ProfilePage() {
 
   return (
     <div className="flex flex-col flex-1 min-h-0 overflow-y-auto">
-      <div className="p-4 lg:p-8 max-w-2xl mx-auto w-full flex flex-col gap-6">
-        <h1 className="text-2xl font-semibold tracking-tight">Profile</h1>
+      <div className="px-5 py-12 sm:px-16 max-w-[1440px] mx-auto w-full flex flex-col gap-8">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 pb-2 border-b border-border/10">
+          <div>
+            <h1 className="headline-md text-foreground tracking-tight">Profile</h1>
+            <p className="body-md text-muted-foreground mt-1">
+              Manage your private account preferences
+            </p>
+          </div>
+        </div>
 
-        <Card>
+        <Card className="max-w-2xl">
           <CardHeader>
-            <CardTitle>Account Details</CardTitle>
+            <CardTitle className="label-caps text-muted-foreground">Account Details</CardTitle>
           </CardHeader>
           <CardContent className="flex flex-col gap-6">
             {isPending ? (
@@ -29,24 +36,24 @@ export function ProfilePage() {
               </div>
             ) : (
               <div className="flex items-center gap-4">
-                <div className="flex items-center justify-center h-12 w-12 rounded-full bg-primary/10 text-primary shrink-0">
-                  <User size={24} />
+                <div className="flex items-center justify-center h-12 w-12 rounded-full glass-panel border-primary/20 text-primary shrink-0">
+                  <User size={20} />
                 </div>
                 <div>
-                  <p className="font-medium text-body-strong">{user?.name || 'User'}</p>
+                  <p className="font-semibold text-base text-foreground">{user?.name || 'User'}</p>
                   <p className="text-sm text-muted-foreground">{user?.email}</p>
                 </div>
               </div>
             )}
 
-            <div className="pt-6 mt-2 border-t border-border/50">
+            <div className="pt-6 mt-2 border-t border-border/20">
               <Button
                 variant="destructive"
                 className="w-full sm:w-auto flex items-center gap-2"
                 onClick={() => logout()}
                 disabled={isLoggingOut}
               >
-                <LogOut size={16} />
+                <LogOut size={14} />
                 {isLoggingOut ? 'Logging out...' : 'Log Out'}
               </Button>
             </div>

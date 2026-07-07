@@ -35,11 +35,17 @@ export function LoginPage() {
       <Card className="w-full max-w-sm">
         <form onSubmit={handleLogin}>
           <CardHeader>
-            <CardTitle className="text-2xl">Login to Cuan</CardTitle>
-            <CardDescription>Enter your email below to login to your account.</CardDescription>
+            <CardTitle className="headline-sm text-foreground tracking-tight">
+              Login to Cuan
+            </CardTitle>
+            <CardDescription className="label-caps text-muted-foreground mt-1">
+              Enter your email below to login to your account.
+            </CardDescription>
           </CardHeader>
           <CardContent className="grid gap-4">
-            {error && <div className="text-sm text-destructive">{error}</div>}
+            {error && (
+              <div className="text-sm text-destructive bg-destructive/10 p-3 rounded">{error}</div>
+            )}
             <AuthFormField
               id="email"
               label="Email"
