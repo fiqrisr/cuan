@@ -7,7 +7,7 @@ import {
   MessageContent,
   TypingIndicator,
 } from '@cuan/ui';
-import { Bot, CheckCircle2, ChevronDown, User } from 'lucide-react';
+import { Bot, CheckCircle2, ChevronDown } from 'lucide-react';
 import type { ChatMessage } from '../types';
 
 type ChatMessageItemProps = {
@@ -31,8 +31,8 @@ export function ChatMessageItem({ message }: ChatMessageItemProps) {
   return (
     <Message side={side}>
       {message.role === 'assistant' && (
-        <MessageAvatar className="bg-primary/10 text-primary mt-0.5">
-          <Bot size={16} />
+        <MessageAvatar className="mt-0.5">
+          <Bot size={14} />
         </MessageAvatar>
       )}
       <MessageContent side={side}>
@@ -52,12 +52,12 @@ export function ChatMessageItem({ message }: ChatMessageItemProps) {
         )}
 
         {hasReasoning && (
-          <details className="group mb-1 max-w-md" open={isStreaming || !message.content}>
+          <details className="group mb-1 max-w-md" open={isStreaming && !message.content}>
             <summary className="flex items-center gap-1 list-none cursor-pointer text-xs text-muted-foreground hover:text-foreground transition-colors">
               <ChevronDown size={14} className="transition-transform group-open:rotate-180" />
               <span>{isStreaming ? 'Thinking' : 'Thought process'}</span>
             </summary>
-            <div className="mt-1.5 p-3 rounded-lg bg-muted/50 text-muted-foreground text-xs leading-relaxed whitespace-pre-wrap">
+            <div className="mt-1.5 p-3 rounded bg-muted/30 text-muted-foreground text-xs leading-relaxed whitespace-pre-wrap border border-border/10">
               {message.reasoning}
             </div>
           </details>
@@ -69,11 +69,6 @@ export function ChatMessageItem({ message }: ChatMessageItemProps) {
           </MessageBubble>
         )}
       </MessageContent>
-      {message.role === 'user' && (
-        <MessageAvatar className="bg-secondary text-secondary-foreground mt-0.5">
-          <User size={16} />
-        </MessageAvatar>
-      )}
     </Message>
   );
 }
