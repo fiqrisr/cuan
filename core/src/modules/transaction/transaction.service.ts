@@ -218,9 +218,9 @@ export class TransactionService {
   }
 
   async getStats(filters: TransactionStatsFilters): Promise<TransactionStats> {
-    const toDate = filters.to ? new Date(filters.to) : new Date();
+    const toDate = filters.to ? new Date(`${filters.to}T23:59:59.999Z`) : new Date();
     const fromDate = filters.from
-      ? new Date(filters.from)
+      ? new Date(`${filters.from}T00:00:00.000Z`)
       : new Date(toDate.getTime() - 30 * 24 * 60 * 60 * 1000);
 
     const conditions = [

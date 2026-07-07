@@ -36,9 +36,16 @@ export function DashboardPage() {
       from.setMonth(0, 1); // Jan 1st
     }
 
+    const formatDate = (d: Date) => {
+      const yyyy = d.getFullYear();
+      const mm = String(d.getMonth() + 1).padStart(2, '0');
+      const dd = String(d.getDate()).padStart(2, '0');
+      return `${yyyy}-${mm}-${dd}`;
+    };
+
     return {
-      from: from.toISOString().split('T')[0],
-      to: to.toISOString().split('T')[0],
+      from: formatDate(from),
+      to: formatDate(to),
     };
   };
 
@@ -164,7 +171,7 @@ export function DashboardPage() {
             </div>
 
             {/* Bottom widgets */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 gap-6">
               <RecentTransactions transactions={transactions} />
             </div>
           </>
