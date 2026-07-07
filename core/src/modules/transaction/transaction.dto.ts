@@ -55,3 +55,39 @@ export const TransactionResponseDto = t.Object({
 });
 
 export type TransactionResponse = typeof TransactionResponseDto.static;
+
+export const GetTransactionStatsRequestDto = t.Object({
+  from: t.Optional(t.String()),
+  to: t.Optional(t.String()),
+  accountId: t.Optional(t.String()),
+});
+
+export type GetTransactionStatsRequest = typeof GetTransactionStatsRequestDto.static;
+
+export const GetTransactionStatsResponseDto = t.Object({
+  data: t.Object({
+    summary: t.Object({
+      totalIncome: t.Number(),
+      totalExpense: t.Number(),
+      netSavings: t.Number(),
+      savingsRate: t.Number(),
+    }),
+    categories: t.Array(
+      t.Object({
+        id: t.Union([t.Number(), t.Null()]),
+        label: t.String(),
+        amount: t.Number(),
+        percentage: t.Number(),
+      }),
+    ),
+    daily: t.Array(
+      t.Object({
+        date: t.String(),
+        income: t.Number(),
+        expense: t.Number(),
+      }),
+    ),
+  }),
+});
+
+export type GetTransactionStatsResponse = typeof GetTransactionStatsResponseDto.static;

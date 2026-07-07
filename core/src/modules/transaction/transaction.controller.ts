@@ -3,6 +3,8 @@ import { NotFoundError } from '@/lib/error';
 import { logger } from '@/middleware/logger';
 import { authGuard } from '@/modules/auth';
 import {
+  GetTransactionStatsRequestDto,
+  GetTransactionStatsResponseDto,
   ListTransactionsRequestDto,
   ListTransactionsResponseDto,
   TransactionResponseDto,
@@ -33,6 +35,24 @@ export const transactionController = new Elysia({ prefix: '/api/transactions' })
       auth: true,
       query: ListTransactionsRequestDto,
       response: ListTransactionsResponseDto,
+    },
+  )
+  .get(
+    '/stats',
+    async ({ query, user }) => {
+      logger.info({ event: 'get_transaction_stats', query }, 'getting transaction stats');
+      const stats = await transactionService.getStats({
+        userId: user.id,
+        accountId: query.accountId,
+        from: query.from,
+        to: query.to,
+      });
+      return { data: stats };
+    },
+    {
+      auth: true,
+      query: GetTransactionStatsRequestDto,
+      response: GetTransactionStatsResponseDto,
     },
   )
   .get(

@@ -222,4 +222,75 @@ describe('Transactions API', () => {
     const response = await app.handle(new Request('http://localhost/api/transactions'));
     expect(response.status).toBe(401);
   });
+
+  it('fetches transaction stats successfully', async () => {
+    const cookies = await getAuthCookies(`tx-stats-${Date.now()}@example.com`);
+    const acct = await createAccount(cookies, 'StatsBank');
+
+    // Create 1 income and 2 expense transactions
+    await createTransaction(cookies, {
+      type: 'income',
+      amount: 150000,
+      description: 'Monthly salary',
+      accountId: acct.id,
+    });
+
+    await createTransaction(cookies, {
+      type: 'expense',
+      amount: 30000,
+      description: 'Coffee',
+      accountId: acct.id,
+    });
+
+    await createTransaction(cookies, {
+      type: 'expense',
+      amount: 20000,
+      description: 'Snacks',
+      accountId: acct.id,
+    });
+
+    const response = await app.handle(
+      new Request('http://localhost/api/transactions/stats', {
+        headers: { Cookie: cookies },
+      }),
+    );
+
+    expect(response.status).toBe(200);
+    const body = (await response.json()) as {
+      data: {
+        summary: {
+          totalIncome: number;
+          totalExpense: number;
+          netSavings: number;
+          savingsRate: number;
+        };
+        categories: Array<{
+          label: string;
+          amount: number;
+          percentage: number;
+        }>;
+        daily: Array<{
+          date: string;
+          income: number;
+          expense: number;
+        }>;
+      };
+    };
+
+    expect(body.data.summary.totalIncome).toBe(150000);
+    expect(body.data.summary.totalExpense).toBe(50000);
+    expect(body.data.summary.netSavings).toBe(100000);
+    expect(body.data.summary.savingsRate).toBe(66.67); // 100000 / 150000 * 100
+
+    expect(body.data.categories.length).toBeGreaterThan(0);
+    expect(body.data.categories[0].amount).toBe(50000);
+    expect(body.data.categories[0].percentage).toBe(100);
+
+    expect(body.data.daily.length).toBeGreaterThan(0);
+    const todayStr = new Date().toISOString().split('T')[0];
+    const todayData = body.data.daily.find(d => d.date === todayStr);
+    expect(todayData).toBeDefined();
+    expect(todayData?.income).toBe(150000);
+    expect(todayData?.expense).toBe(50000);
+  });
 });

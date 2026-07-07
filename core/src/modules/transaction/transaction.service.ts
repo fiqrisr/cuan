@@ -7,6 +7,8 @@ import type {
   FormattedTransaction,
   PaginatedResult,
   TransactionFilters,
+  TransactionStats,
+  TransactionStatsFilters,
 } from './transaction.types';
 
 function formatTransaction(tx: Transaction, categoryName: string | null): FormattedTransaction {
@@ -91,7 +93,7 @@ export class TransactionService {
             where: (c, { inArray }) => inArray(c.id, categoryIds),
           })
         : [];
-    const catMap = new Map(cats.map(c => [c.id, c.label]));
+    const catMap = new Map<number, string>(cats.map(c => [c.id, c.label]));
 
     const data = rows.map(r => formatTransaction(r, catMap.get(r.categoryId) ?? null));
 
@@ -213,6 +215,129 @@ export class TransactionService {
         .delete(transactions)
         .where(and(eq(transactions.id, id), eq(transactions.userId, userId)));
     });
+  }
+
+  async getStats(filters: TransactionStatsFilters): Promise<TransactionStats> {
+    const toDate = filters.to ? new Date(filters.to) : new Date();
+    const fromDate = filters.from
+      ? new Date(filters.from)
+      : new Date(toDate.getTime() - 30 * 24 * 60 * 60 * 1000);
+
+    const conditions = [
+      eq(transactions.userId, filters.userId),
+      gte(transactions.date, fromDate),
+      lte(transactions.date, toDate),
+    ];
+
+    if (filters.accountId) {
+      conditions.push(eq(transactions.accountId, filters.accountId));
+    }
+
+    const rows = await db
+      .select()
+      .from(transactions)
+      .where(and(...conditions))
+      .orderBy(transactions.date);
+
+    // 1. Calculate Summary Info
+    let totalIncome = 0;
+    let totalExpense = 0;
+
+    for (const row of rows) {
+      const amount = Number(row.amount);
+      if (row.type === 'income') {
+        totalIncome += amount;
+      } else if (row.type === 'expense') {
+        totalExpense += amount;
+      }
+    }
+
+    const netSavings = totalIncome - totalExpense;
+    const savingsRate = totalIncome > 0 ? (netSavings / totalIncome) * 100 : 0;
+
+    // 2. Calculate Category Breakdown for Expenses
+    const categoryAmountMap = new Map<number, number>();
+    for (const row of rows) {
+      if (row.type === 'expense') {
+        const amount = Number(row.amount);
+        const current = categoryAmountMap.get(row.categoryId) ?? 0;
+        categoryAmountMap.set(row.categoryId, current + amount);
+      }
+    }
+
+    const categoryIds = [...categoryAmountMap.keys()];
+    const cats =
+      categoryIds.length > 0
+        ? await db.query.categories.findMany({
+            where: (c, { inArray }) => inArray(c.id, categoryIds),
+          })
+        : [];
+    const catMap = new Map<number, string>(cats.map(c => [c.id, c.label]));
+
+    const categoriesBreakdown = Array.from(categoryAmountMap.entries())
+      .map(([catId, amount]) => {
+        const label = catMap.get(catId) ?? 'Uncategorized';
+        const percentage = totalExpense > 0 ? (amount / totalExpense) * 100 : 0;
+        return {
+          id: catId,
+          label,
+          amount: Math.round(amount * 100) / 100,
+          percentage: Math.round(percentage * 100) / 100,
+        };
+      })
+      .sort((a, b) => b.amount - a.amount);
+
+    // 3. Daily Stats (Time Series)
+    // We want to generate all dates from fromDate to toDate (inclusive) formatted as YYYY-MM-DD
+    const dailyMap = new Map<string, { income: number; expense: number }>();
+
+    const currentDate = new Date(fromDate);
+    // Use a safety counter to avoid infinite loops
+    let safetyCounter = 0;
+    while (currentDate <= toDate && safetyCounter < 1000) {
+      const dateStr = currentDate.toISOString().split('T')[0];
+      dailyMap.set(dateStr, { income: 0, expense: 0 });
+      currentDate.setDate(currentDate.getDate() + 1);
+      safetyCounter++;
+    }
+    // Also make sure to include the toDate itself (if not already included due to time components)
+    const toDateStr = toDate.toISOString().split('T')[0];
+    if (!dailyMap.has(toDateStr)) {
+      dailyMap.set(toDateStr, { income: 0, expense: 0 });
+    }
+
+    for (const row of rows) {
+      const dateStr = row.date.toISOString().split('T')[0];
+      const amount = Number(row.amount);
+      const dayData = dailyMap.get(dateStr) ?? { income: 0, expense: 0 };
+
+      if (row.type === 'income') {
+        dayData.income += amount;
+      } else if (row.type === 'expense') {
+        dayData.expense += amount;
+      }
+
+      dailyMap.set(dateStr, dayData);
+    }
+
+    const dailyStats = Array.from(dailyMap.entries())
+      .map(([date, data]) => ({
+        date,
+        income: Math.round(data.income * 100) / 100,
+        expense: Math.round(data.expense * 100) / 100,
+      }))
+      .sort((a, b) => a.date.localeCompare(b.date));
+
+    return {
+      summary: {
+        totalIncome: Math.round(totalIncome * 100) / 100,
+        totalExpense: Math.round(totalExpense * 100) / 100,
+        netSavings: Math.round(netSavings * 100) / 100,
+        savingsRate: Math.round(savingsRate * 100) / 100,
+      },
+      categories: categoriesBreakdown,
+      daily: dailyStats,
+    };
   }
 }
 
