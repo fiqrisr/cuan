@@ -10,7 +10,7 @@ export const chatController = new Elysia({ prefix: '/api/chat' })
     async ({ body, user, set }) => {
       const result = await chatService.processChat(body.message, user.id);
       set.status = result.transactions?.length ? 201 : 200;
-      return result;
+      return { data: result };
     },
     {
       auth: true,

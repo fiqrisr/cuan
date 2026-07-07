@@ -8,6 +8,10 @@ export type ChatResult = {
   categories?: unknown;
 };
 
+export type ChatResponse = {
+  data: ChatResult;
+};
+
 export type SavedTransaction = {
   id: string;
   userId: string;

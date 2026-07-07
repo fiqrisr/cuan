@@ -67,7 +67,7 @@ import {
   verification,
 } from '@/db/schema';
 import { auth } from '@/modules/auth';
-import type { ChatResult } from '@/modules/chat/chat.service';
+import type { ChatResponse } from '@/modules/chat/chat.service';
 
 async function clearDatabase(): Promise<void> {
   await db.delete(transactions);
@@ -159,11 +159,11 @@ describe('POST /api/chat', () => {
     const response = await chat(cookies, 'belanja 125k');
 
     expect(response.status).toBe(201);
-    const body = (await response.json()) as ChatResult;
-    expect(body.intent).toBe('add_transaction');
-    expect(body.transactions?.length).toBe(1);
-    expect(body.transactions?.[0].amount).toBe(125000);
-    expect(body.transactions?.[0].category).toBe('food-beverage');
+    const body = (await response.json()) as ChatResponse;
+    expect(body.data.intent).toBe('add_transaction');
+    expect(body.data.transactions?.length).toBe(1);
+    expect(body.data.transactions?.[0].amount).toBe(125000);
+    expect(body.data.transactions?.[0].category).toBe('Makanan & Minuman');
   });
 
   it('saves multiple transactions from one chat message', async () => {
@@ -198,11 +198,11 @@ describe('POST /api/chat', () => {
     const response = await chat(cookies, 'coffee 15k, lunch 30k');
 
     expect(response.status).toBe(201);
-    const body = (await response.json()) as ChatResult;
-    expect(body.intent).toBe('add_transaction');
-    expect(body.transactions?.length).toBe(2);
-    expect(body.transactions?.[0].amount).toBe(15000);
-    expect(body.transactions?.[1].amount).toBe(30000);
+    const body = (await response.json()) as ChatResponse;
+    expect(body.data.intent).toBe('add_transaction');
+    expect(body.data.transactions?.length).toBe(2);
+    expect(body.data.transactions?.[0].amount).toBe(15000);
+    expect(body.data.transactions?.[1].amount).toBe(30000);
     // Verify both saved in DB
     const allTx = await db.query.transactions.findMany();
     expect(allTx.length).toBeGreaterThanOrEqual(2);
@@ -232,8 +232,8 @@ describe('POST /api/chat', () => {
     const response = await chat(cookies, 'coffee 20k');
 
     expect(response.status).toBe(201);
-    const body = (await response.json()) as ChatResult;
-    expect(body.transactions?.[0].accountId).toBe(acct.id);
+    const body = (await response.json()) as ChatResponse;
+    expect(body.data.transactions?.[0].accountId).toBe(acct.id);
   });
 
   it('handles manage_account create intent', async () => {
@@ -254,10 +254,10 @@ describe('POST /api/chat', () => {
     const response = await chat(cookies, 'buat akun BCA bank 5jt');
 
     expect(response.status).toBe(200);
-    const body = (await response.json()) as ChatResult;
-    expect(body.intent).toBe('manage_account');
-    expect(body.account).toBeDefined();
-    const acctResult = body.account as { name: string; balance: number };
+    const body = (await response.json()) as ChatResponse;
+    expect(body.data.intent).toBe('manage_account');
+    expect(body.data.account).toBeDefined();
+    const acctResult = body.data.account as { name: string; balance: number };
     expect(acctResult.name).toBe('BCA');
     expect(acctResult.balance).toBe(5000000);
   });
@@ -309,10 +309,10 @@ describe('POST /api/chat', () => {
     const response = await chat(cookies, 'pengeluaran terbesar minggu ini?');
 
     expect(response.status).toBe(200);
-    const body = (await response.json()) as ChatResult;
-    expect(body.intent).toBe('query');
-    expect(body.reply).toContain('50');
-    expect(body.queryResult).toBeDefined();
+    const body = (await response.json()) as ChatResponse;
+    expect(body.data.intent).toBe('query');
+    expect(body.data.reply).toContain('50');
+    expect(body.data.queryResult).toBeDefined();
   });
 
   it('returns 401 without auth', async () => {

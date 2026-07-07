@@ -7,13 +7,15 @@ export const CreateChatRequestDto = t.Object({
 export type CreateChatRequest = typeof CreateChatRequestDto.static;
 
 export const CreateChatResponseDto = t.Object({
-  intent: t.String(),
-  reply: t.String(),
-  transactions: t.Optional(t.Array(t.Any())),
-  queryResult: t.Optional(t.Any()),
-  account: t.Optional(t.Any()),
-  accounts: t.Optional(t.Array(t.Any())),
-  categories: t.Optional(t.Any()),
+  data: t.Object({
+    intent: t.String(),
+    reply: t.String(),
+    transactions: t.Optional(t.Array(t.Any())),
+    queryResult: t.Optional(t.Any()),
+    account: t.Optional(t.Any()),
+    accounts: t.Optional(t.Array(t.Any())),
+    categories: t.Optional(t.Any()),
+  }),
 });
 
 export type CreateChatResponse = typeof CreateChatResponseDto.static;
