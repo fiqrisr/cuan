@@ -11,7 +11,7 @@ type ChatInputProps = {
 
 export function ChatInput({ value, onChange, onSubmit, isLoading }: ChatInputProps) {
   return (
-    <div className="shrink-0 px-5 py-4 bg-background/50 backdrop-blur-md border-t border-border/10">
+    <div className="shrink-0 px-5 pt-4 pb-24 lg:pb-4 bg-background/80 backdrop-blur-xl border-t border-border/10">
       <form onSubmit={onSubmit} className="max-w-[1440px] mx-auto w-full">
         <div className="glass-panel rounded-2xl p-1.5 flex items-center border border-border/30 shadow-tint w-full transition-all focus-within:border-primary/30 focus-within:shadow-tint-lg">
           <input
