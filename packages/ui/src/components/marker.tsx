@@ -7,7 +7,7 @@ const markerVariants = cva(
   {
     variants: {
       variant: {
-        default: 'border-transparent bg-muted/10 text-[#8e928f]',
+        default: 'border-transparent bg-muted/10 text-muted-foreground',
         success: 'border-transparent bg-primary/10 text-primary',
         destructive: 'border-transparent bg-destructive/10 text-destructive',
       },
