@@ -15,8 +15,8 @@ export const Route = createRootRoute({
 
     const navItems = [
       { to: '/', icon: LayoutDashboard, label: 'Dashboard' },
-      { to: '/chat', icon: Bot, label: 'Assistant' },
       { to: '/transactions', icon: History, label: 'Activity' },
+      { to: '/chat', icon: Bot, label: 'Assistant', isPrimary: true },
       { to: '/accounts', icon: Wallet, label: 'Accounts' },
       { to: '/profile', icon: User, label: 'Profile' },
     ] as const;
@@ -75,45 +75,43 @@ export const Route = createRootRoute({
         <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
           <main
             id="main-content"
-            className={`flex-1 flex flex-col min-h-0 overflow-hidden ${showNav ? 'pb-[92px] lg:pb-0' : ''}`}
+            className="flex-1 flex flex-col min-h-0 overflow-hidden relative z-0"
           >
             <Outlet />
           </main>
 
           {showNav && <Footer />}
 
-          {/* Mobile bottom nav */}
+          {/* Mobile bottom nav - Floating Dock */}
           {showNav && (
-            <nav
-              aria-label="Mobile"
-              className="lg:hidden fixed bottom-0 left-0 right-0 bg-background/95 backdrop-blur-xl border-t border-border/10 flex justify-around items-center pb-6 pt-3 px-2 z-50 shadow-tint-lg"
-            >
-              {navItems.map(({ to, icon: Icon, label }) => (
-                <Link
-                  key={to}
-                  to={to}
-                  className="flex flex-col items-center justify-center p-3 text-muted-foreground transition-all hover:text-foreground active:scale-95 w-16 h-14 relative"
-                >
-                  {({ isActive }) => (
-                    <>
-                      {isActive && (
-                        <div className="absolute inset-1 bg-primary/[0.08] rounded-xl z-0" />
-                      )}
-                      <Icon
-                        size={21}
-                        strokeWidth={1.75}
-                        className={`relative z-10 transition-transform ${isActive ? 'text-primary scale-105' : 'text-muted-foreground'}`}
-                      />
-                      <span
-                        className={`label-caps text-[9px] mt-1 relative z-10 ${isActive ? 'text-primary' : 'text-muted-foreground'}`}
-                      >
-                        {label}
-                      </span>
-                    </>
-                  )}
-                </Link>
-              ))}
-            </nav>
+            <div className="lg:hidden fixed bottom-6 left-0 right-0 z-50 flex justify-center pointer-events-none px-4">
+              <nav
+                aria-label="Mobile"
+                className="pointer-events-auto bg-background/80 backdrop-blur-2xl border border-border/15 shadow-2xl flex justify-between items-center px-2 py-2 rounded-full w-full max-w-[400px] relative"
+              >
+                {navItems.map(({ to, icon: Icon, label, isPrimary }) => (
+                  <Link
+                    key={to}
+                    to={to}
+                    className={`flex flex-col items-center justify-center p-2 transition-all active:scale-95 flex-1 relative min-w-0 rounded-full ${isPrimary ? 'text-primary-foreground -mt-5 bg-primary shadow-lg shadow-primary/30 h-14 w-14 flex-none' : 'text-muted-foreground hover:text-foreground'}`}
+                  >
+                    {({ isActive }) => (
+                      <>
+                        {isActive && !isPrimary && (
+                          <div className="absolute inset-0 bg-primary/10 rounded-full z-0" />
+                        )}
+                        <Icon
+                          size={isPrimary ? 24 : 20}
+                          strokeWidth={isPrimary ? 2.5 : 2}
+                          className={`relative z-10 transition-transform ${isActive && !isPrimary ? 'text-primary scale-110' : ''} ${isPrimary && isActive ? 'scale-110' : ''}`}
+                        />
+                        <span className="sr-only">{label}</span>
+                      </>
+                    )}
+                  </Link>
+                ))}
+              </nav>
+            </div>
           )}
         </div>
 
