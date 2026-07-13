@@ -1,9 +1,9 @@
+import { eq, sql } from 'drizzle-orm';
 import { db } from '@/db';
 import { financialAccounts, transactions } from '@/db/schema';
 import { BadRequestError } from '@/lib/error';
 import { logger } from '@/middleware/logger';
 import { financialAccountService } from '@/modules/financial-account/financial-account.service';
-import { eq, sql } from 'drizzle-orm';
 
 export type TransferFundsParams = {
   sourceAccount: string;

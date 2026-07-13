@@ -2,11 +2,7 @@ import { Skeleton } from '@cuan/ui';
 
 export function AccountListSkeleton() {
   return (
-    <div
-      aria-busy="true"
-      aria-label="Loading accounts"
-      className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5"
-    >
+    <div aria-busy="true" className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
       {Array.from({ length: 3 }).map((_, i) => (
         // biome-ignore lint/suspicious/noArrayIndexKey: static skeleton cards
         <div key={i} className="rounded-xl glass-panel p-6 flex flex-col gap-4">

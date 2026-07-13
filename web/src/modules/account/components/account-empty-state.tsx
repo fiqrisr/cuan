@@ -1,5 +1,5 @@
-import { Wallet } from 'lucide-react';
 import { Link } from '@tanstack/react-router';
+import { Wallet } from 'lucide-react';
 
 export function AccountEmptyState() {
   return (

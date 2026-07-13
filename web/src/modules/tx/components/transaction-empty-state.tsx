@@ -1,5 +1,5 @@
-import { ReceiptText } from 'lucide-react';
 import { Link } from '@tanstack/react-router';
+import { ReceiptText } from 'lucide-react';
 
 export function TransactionEmptyState() {
   return (

@@ -1,18 +1,18 @@
-import { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle, Button } from '@cuan/ui';
+import { Button, Card, CardContent, CardDescription, CardHeader, CardTitle } from '@cuan/ui';
 import { BarChart3, LineChart } from 'lucide-react';
+import { useState } from 'react';
 import {
-  BarChart,
+  Area,
+  AreaChart,
   Bar,
+  BarChart,
+  CartesianGrid,
+  ReferenceLine,
+  ResponsiveContainer,
+  Tooltip,
+  type TooltipContentProps,
   XAxis,
   YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  AreaChart,
-  Area,
-  ReferenceLine,
-  type TooltipContentProps,
 } from 'recharts';
 
 type TrendTooltipProps = Partial<TooltipContentProps<number, string>>;

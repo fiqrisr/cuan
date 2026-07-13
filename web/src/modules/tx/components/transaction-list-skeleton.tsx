@@ -4,11 +4,7 @@ const ROWS = 6;
 
 export function TransactionListSkeleton() {
   return (
-    <div
-      aria-busy="true"
-      aria-label="Loading transactions"
-      className="flex flex-col divide-y divide-border/10"
-    >
+    <div aria-busy="true" className="flex flex-col divide-y divide-border/10">
       {Array.from({ length: ROWS }).map((_, i) => (
         // biome-ignore lint/suspicious/noArrayIndexKey: static skeleton rows
         <div key={i} className="flex items-center gap-4 px-5 py-4">

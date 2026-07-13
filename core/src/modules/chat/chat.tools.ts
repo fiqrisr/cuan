@@ -11,6 +11,7 @@ import { handleManageAccount } from './handlers/manage-account.handler';
 import { handleManageCategory } from './handlers/manage-category.handler';
 import { handleQuery } from './handlers/query.handler';
 import { handleTransferFunds } from './handlers/transfer-funds.handler';
+
 const addTransactionParams = z.object({
   transactions: z
     .array(extractedTransactionSchema)

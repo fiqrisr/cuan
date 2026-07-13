@@ -1,4 +1,5 @@
 import { Skeleton } from '@cuan/ui';
+import { useState } from 'react';
 import { useGetAccountListQuery } from '@/modules/account/hooks/use-get-account-list-query';
 import { useGetTransactionListQuery } from '@/modules/tx/hooks/use-get-transaction-list-query';
 import { CategoryBreakdown } from '../components/category-breakdown';
@@ -6,7 +7,6 @@ import { RecentTransactions } from '../components/recent-transactions';
 import { SpendingTrend } from '../components/spending-trend';
 import { SummaryCards } from '../components/summary-cards';
 import { useGetDashboardStatsQuery } from '../hooks/use-get-dashboard-stats-query';
-import { useState } from 'react';
 
 export function DashboardPage() {
   const [range, setRange] = useState('30d');

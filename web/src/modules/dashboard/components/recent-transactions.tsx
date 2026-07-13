@@ -1,6 +1,6 @@
 import { Badge, Card, CardContent, CardDescription, CardHeader, CardTitle } from '@cuan/ui';
-import { ReceiptText } from 'lucide-react';
 import { Link } from '@tanstack/react-router';
+import { ReceiptText } from 'lucide-react';
 import { TransactionAmount } from '@/modules/tx/components/transaction-amount';
 import type { Transaction } from '@/modules/tx/types';
 
