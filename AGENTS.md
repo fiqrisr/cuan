@@ -1,7 +1,7 @@
 # Repository Guidelines
 
 ## Project Overview
-Cuan is a monorepo application containing a backend (`core`) and a frontend (`web-app`). The backend is a robust REST API that processes natural language chats into structured expense data using AI (OpenAI-compatible endpoints).
+Cuan is a monorepo application containing a backend (`core`) and a frontend (`web`). The backend is a robust REST API that processes natural language chats into structured expense data using AI (OpenAI-compatible endpoints).
 
 ## Architecture & Data Flow
 The monorepo uses **Moonrepo** for task orchestration and **Bun** as the primary runtime and package manager.
@@ -12,7 +12,7 @@ The monorepo uses **Moonrepo** for task orchestration and **Bun** as the primary
   - **AI Intent System**: Chat messages are sent to an LLM via `openmodel`. The LLM classifies the intent into `add_transaction`, `query`, or `manage_account`. It returns structured JSON. It **MUST NOT** generate raw SQL or hallucinate financial numbers.
   - **Money Storage**: Money is stored as `numeric(12,2)` in PostgreSQL for exact precision. The `pg` driver returns these as strings in JS to prevent floating-point truncation; be aware of this when doing math.
 
-- **Frontend (`web-app`)**: Currently an empty scaffold planned to be a React SPA built with Vite and TanStack Router.
+- **Frontend (`web`)**: A React SPA built with Vite, TanStack Router, TanStack Query, Tailwind CSS v4, and the shared `@cuan/ui` package. It uses `better-auth` for session management, `recharts` for data visualization, and the native `bun:test` / Vitest toolchain for testing.
 - **Database**: Local development relies on **PostgreSQL 15** via Docker Compose on port `5433`. Database columns for money use `numeric(12,2)` to avoid floating-point errors.
 
 ## Core Domain Concepts & Gotchas
@@ -28,12 +28,14 @@ The monorepo uses **Moonrepo** for task orchestration and **Bun** as the primary
 - `core/src/modules/<feature>/`: Feature-sliced modules (e.g., `chat`, `financial-account`, `transaction`, `auth`, `category`). Each contains its own `.controller.ts`, `.service.ts`, `.schema.ts`, `.dto.ts`, `.types.ts` and barrel `index.ts`.
 - `core/src/db/`: Centralized database configurations and schema.
 - `core/tests/`: Integration tests for the backend.
-- `web-app/`: React frontend workspace.
+- `web/`: React frontend workspace.
+- `packages/ui/`: Shared React component library and design system used by `web`.
 - `.moon/`: Moonrepo toolchains, inherited tasks, and workspace configurations.
 
 ## Development Commands
 - **Dependency Install**: `bun install`
 - **Run Backend**: `moon core:dev` or `cd core && bun run dev` (runs the Elysia server)
+- **Run Frontend**: `moon web:dev` or `cd web && bun run dev` (runs the Vite dev server on port 5173)
 - **Database Local Setup**: `docker compose up -d`
 - **Database Migrations**: `cd core && bun run db:migrate` or `bun run db:reset`
 - **Lint & Format**: 
@@ -56,6 +58,10 @@ The monorepo uses **Moonrepo** for task orchestration and **Bun** as the primary
 - `core/src/db/index.ts`: Database singleton setup utilizing `pg` Pool and Drizzle.
 - `core/src/modules/auth/auth-guard.ts`: Elysia authentication macro protecting private routes using `better-auth`.
 - `core/src/lib/openmodel/index.ts`: Custom AI SDK wrapper that connects to LLMs based on model strings.
+- `web/src/main.tsx`: React entry point, query client, router, and theme provider setup.
+- `web/src/routes/__root.tsx`: Root TanStack Router layout with navigation, footer, skip link, and 404 page.
+- `web/src/core/theme-context.tsx`: Light/dark/system theme provider persisted to local storage.
+- `packages/ui/src/index.css`: Shared Tailwind CSS v4 design tokens, theme variables, and utility classes.
 - `biome.json`: Monorepo formatting and linting rules.
 - `.moon/workspace.yml` & `.moon/toolchains.yml`: Key Moon configurations mapping toolchains and shared tasks.
 
