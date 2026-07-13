@@ -1,74 +1,71 @@
 import { createRootRoute, Link, Outlet } from '@tanstack/react-router';
 import { TanStackRouterDevtools } from '@tanstack/router-devtools';
 import { Bot, History, LayoutDashboard, Leaf, Moon, Sun, User, Wallet } from 'lucide-react';
+import { Footer } from '@/components/footer';
+import { NotFound } from '@/components/not-found';
 import { authClient } from '@/core/auth';
 import { useTheme } from '@/core/theme-context';
 
 export const Route = createRootRoute({
+  notFoundComponent: NotFound,
   component: function RootComponent() {
     const { data: session } = authClient.useSession();
     const showNav = !!session;
     const { resolvedTheme, setTheme } = useTheme();
 
+    const navItems = [
+      { to: '/', icon: LayoutDashboard, label: 'Dashboard' },
+      { to: '/chat', icon: Bot, label: 'Assistant' },
+      { to: '/transactions', icon: History, label: 'Activity' },
+      { to: '/accounts', icon: Wallet, label: 'Accounts' },
+      { to: '/profile', icon: User, label: 'Profile' },
+    ] as const;
+
     return (
-      <div className="flex flex-col lg:flex-row h-dvh overflow-hidden bg-background text-foreground">
+      <div className="flex flex-col lg:flex-row h-dvh overflow-hidden bg-background text-foreground grain">
+        <a href="#main-content" className="skip-link">
+          Skip to content
+        </a>
+
         {/* Desktop sidebar */}
         {showNav && (
-          <aside className="hidden lg:flex flex-col w-56 shrink-0 border-r border-border/20 bg-background/50 backdrop-blur-md">
-            <div className="px-6 pt-6 pb-4 flex items-center gap-2">
-              <Leaf size={18} className="text-primary" />
-              <span className="font-serif font-bold text-lg tracking-tight text-foreground">
+          <aside className="hidden lg:flex flex-col w-60 shrink-0 border-r border-border/10 bg-background/60 backdrop-blur-xl">
+            <div className="px-6 pt-7 pb-6 flex items-center gap-2.5">
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg glass-panel border-primary/20 text-primary">
+                <Leaf size={16} strokeWidth={2} />
+              </div>
+              <span className="font-serif logo-weight text-xl tracking-tight text-foreground">
                 Cuan
               </span>
             </div>
-            <nav className="flex-1 px-4 py-4 flex flex-col gap-1.5">
-              <Link
-                to="/"
-                className="flex items-center gap-3 px-4 py-3.5 rounded text-sm font-bold text-muted-foreground transition-all hover:bg-muted hover:text-foreground [&.active]:bg-primary/10 [&.active]:text-primary"
-              >
-                <LayoutDashboard size={19} />
-                Dashboard
-              </Link>
-              <Link
-                to="/chat"
-                className="flex items-center gap-3 px-4 py-3.5 rounded text-sm font-bold text-muted-foreground transition-all hover:bg-muted hover:text-foreground [&.active]:bg-primary/10 [&.active]:text-primary"
-              >
-                <Bot size={19} />
-                Assistant
-              </Link>
-              <Link
-                to="/transactions"
-                className="flex items-center gap-3 px-4 py-3.5 rounded text-sm font-bold text-muted-foreground transition-all hover:bg-muted hover:text-foreground [&.active]:bg-primary/10 [&.active]:text-primary"
-              >
-                <History size={19} />
-                Activity
-              </Link>
-              <Link
-                to="/accounts"
-                className="flex items-center gap-3 px-4 py-3.5 rounded text-sm font-bold text-muted-foreground transition-all hover:bg-muted hover:text-foreground [&.active]:bg-primary/10 [&.active]:text-primary"
-              >
-                <Wallet size={19} />
-                Accounts
-              </Link>
-              <Link
-                to="/profile"
-                className="flex items-center gap-3 px-4 py-3.5 rounded text-sm font-bold text-muted-foreground transition-all hover:bg-muted hover:text-foreground [&.active]:bg-primary/10 [&.active]:text-primary"
-              >
-                <User size={19} />
-                Profile
-              </Link>
+            <nav aria-label="Main" className="flex-1 px-3 py-2 flex flex-col gap-1">
+              {navItems.map(({ to, icon: Icon, label }) => (
+                <Link
+                  key={to}
+                  to={to}
+                  className="group flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-muted-foreground transition-all hover:bg-muted hover:text-foreground [&.active]:bg-primary/[0.08] [&.active]:text-primary"
+                  activeProps={{ className: 'active' }}
+                >
+                  <Icon
+                    size={18}
+                    strokeWidth={1.75}
+                    className="transition-transform group-hover:scale-105"
+                  />
+                  {label}
+                </Link>
+              ))}
             </nav>
-            <div className="px-6 py-4 border-t border-border/10 flex items-center justify-between mt-auto">
-              <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+            <div className="px-5 py-4 border-t border-border/10 flex items-center justify-between mt-auto">
+              <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
                 Theme
               </span>
               <button
                 type="button"
                 onClick={() => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark')}
-                className="flex items-center justify-center p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors cursor-pointer"
+                className="flex items-center justify-center p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-all cursor-pointer active:scale-95"
                 title={`Switch to ${resolvedTheme === 'dark' ? 'light' : 'dark'} theme`}
               >
-                {resolvedTheme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
+                {resolvedTheme === 'dark' ? <Sun size={17} /> : <Moon size={17} />}
               </button>
             </div>
           </aside>
@@ -77,109 +74,45 @@ export const Route = createRootRoute({
         {/* Content area */}
         <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
           <main
+            id="main-content"
             className={`flex-1 flex flex-col min-h-0 overflow-hidden ${showNav ? 'pb-[92px] lg:pb-0' : ''}`}
           >
             <Outlet />
           </main>
 
+          {showNav && <Footer />}
+
           {/* Mobile bottom nav */}
           {showNav && (
-            <nav className="lg:hidden fixed bottom-0 left-0 right-0 bg-background/90 backdrop-blur-lg border-t border-border/20 flex justify-around items-center pb-6 pt-3 px-2 z-50 shadow-[0_-4px_30px_rgba(0,0,0,0.5)]">
-              <Link
-                to="/"
-                className="flex flex-col items-center justify-center p-3.5 text-muted-foreground transition-colors hover:text-foreground active:scale-95 w-[76px] h-14 relative"
-              >
-                {({ isActive }) => (
-                  <>
-                    {isActive && <div className="absolute inset-0 bg-primary/10 rounded-xl z-0" />}
-                    <LayoutDashboard
-                      size={22}
-                      className={`relative z-10 ${isActive ? 'text-primary' : 'text-muted-foreground'}`}
-                    />
-                    <span
-                      className={`label-caps text-[9px] mt-1 relative z-10 ${isActive ? 'text-primary' : 'text-muted-foreground'}`}
-                    >
-                      Dashboard
-                    </span>
-                  </>
-                )}
-              </Link>
-              <Link
-                to="/chat"
-                className="flex flex-col items-center justify-center p-3.5 text-muted-foreground transition-colors hover:text-foreground active:scale-95 w-[76px] h-14 relative"
-              >
-                {({ isActive }) => (
-                  <>
-                    {isActive && <div className="absolute inset-0 bg-primary/10 rounded-xl z-0" />}
-                    <Bot
-                      size={22}
-                      className={`relative z-10 ${isActive ? 'text-primary' : 'text-muted-foreground'}`}
-                    />
-                    <span
-                      className={`label-caps text-[9px] mt-1 relative z-10 ${isActive ? 'text-primary' : 'text-muted-foreground'}`}
-                    >
-                      Assistant
-                    </span>
-                  </>
-                )}
-              </Link>
-              <Link
-                to="/transactions"
-                className="flex flex-col items-center justify-center p-3.5 text-muted-foreground transition-colors hover:text-foreground active:scale-95 w-[76px] h-14 relative"
-              >
-                {({ isActive }) => (
-                  <>
-                    {isActive && <div className="absolute inset-0 bg-primary/10 rounded-xl z-0" />}
-                    <History
-                      size={22}
-                      className={`relative z-10 ${isActive ? 'text-primary' : 'text-muted-foreground'}`}
-                    />
-                    <span
-                      className={`label-caps text-[9px] mt-1 relative z-10 ${isActive ? 'text-primary' : 'text-muted-foreground'}`}
-                    >
-                      Activity
-                    </span>
-                  </>
-                )}
-              </Link>
-              <Link
-                to="/accounts"
-                className="flex flex-col items-center justify-center p-3.5 text-muted-foreground transition-colors hover:text-foreground active:scale-95 w-[76px] h-14 relative"
-              >
-                {({ isActive }) => (
-                  <>
-                    {isActive && <div className="absolute inset-0 bg-primary/10 rounded-xl z-0" />}
-                    <Wallet
-                      size={22}
-                      className={`relative z-10 ${isActive ? 'text-primary' : 'text-muted-foreground'}`}
-                    />
-                    <span
-                      className={`label-caps text-[9px] mt-1 relative z-10 ${isActive ? 'text-primary' : 'text-muted-foreground'}`}
-                    >
-                      Accounts
-                    </span>
-                  </>
-                )}
-              </Link>
-              <Link
-                to="/profile"
-                className="flex flex-col items-center justify-center p-3.5 text-muted-foreground transition-colors hover:text-foreground active:scale-95 w-[76px] h-14 relative"
-              >
-                {({ isActive }) => (
-                  <>
-                    {isActive && <div className="absolute inset-0 bg-primary/10 rounded-xl z-0" />}
-                    <User
-                      size={22}
-                      className={`relative z-10 ${isActive ? 'text-primary' : 'text-muted-foreground'}`}
-                    />
-                    <span
-                      className={`label-caps text-[9px] mt-1 relative z-10 ${isActive ? 'text-primary' : 'text-muted-foreground'}`}
-                    >
-                      Profile
-                    </span>
-                  </>
-                )}
-              </Link>
+            <nav
+              aria-label="Mobile"
+              className="lg:hidden fixed bottom-0 left-0 right-0 bg-background/95 backdrop-blur-xl border-t border-border/10 flex justify-around items-center pb-6 pt-3 px-2 z-50 shadow-tint-lg"
+            >
+              {navItems.map(({ to, icon: Icon, label }) => (
+                <Link
+                  key={to}
+                  to={to}
+                  className="flex flex-col items-center justify-center p-3 text-muted-foreground transition-all hover:text-foreground active:scale-95 w-16 h-14 relative"
+                >
+                  {({ isActive }) => (
+                    <>
+                      {isActive && (
+                        <div className="absolute inset-1 bg-primary/[0.08] rounded-xl z-0" />
+                      )}
+                      <Icon
+                        size={21}
+                        strokeWidth={1.75}
+                        className={`relative z-10 transition-transform ${isActive ? 'text-primary scale-105' : 'text-muted-foreground'}`}
+                      />
+                      <span
+                        className={`label-caps text-[9px] mt-1 relative z-10 ${isActive ? 'text-primary' : 'text-muted-foreground'}`}
+                      >
+                        {label}
+                      </span>
+                    </>
+                  )}
+                </Link>
+              ))}
             </nav>
           )}
         </div>

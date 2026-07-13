@@ -10,12 +10,12 @@ export function AccountsPage() {
 
   return (
     <div className="flex flex-col flex-1 min-h-0 overflow-y-auto">
-      <div className="px-5 py-12 sm:px-16 max-w-[1440px] mx-auto w-full flex flex-col gap-8">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 pb-2 border-b border-border/10">
+      <div className="px-5 py-10 sm:px-8 lg:px-16 xl:px-20 max-w-[1440px] mx-auto w-full flex flex-col gap-8">
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6 pb-3 border-b border-border/10">
           <div>
-            <h1 className="headline-md text-foreground tracking-tight">Accounts</h1>
-            <p className="body-md text-muted-foreground mt-1">
-              Manage your financial assets and balances
+            <h1 className="display-lg-mobile lg:headline-md text-foreground">Accounts</h1>
+            <p className="body-md text-muted-foreground mt-2 prose-short">
+              Manage your financial assets and balances.
             </p>
           </div>
         </div>
@@ -34,7 +34,7 @@ export function AccountsPage() {
         {!isLoading && !isError && accounts.length === 0 && <AccountEmptyState />}
 
         {!isLoading && !isError && accounts.length > 0 && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
             {accounts.map(account => (
               <AccountCard key={account.id} account={account} />
             ))}

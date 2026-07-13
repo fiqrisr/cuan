@@ -74,13 +74,13 @@ export function TransactionRow({ transaction: tx }: Props) {
       <div className="flex items-center gap-3 min-w-0">
         {/* Category Icon */}
         <div
-          className={`w-10 h-10 rounded-full shrink-0 flex items-center justify-center border ${
+          className={`w-10 h-10 rounded-xl shrink-0 flex items-center justify-center border ${
             isIncome
               ? 'bg-primary/10 text-primary border-primary/20'
               : 'bg-muted/40 text-muted-foreground border-border/10'
           }`}
         >
-          <Icon size={16} />
+          <Icon size={16} strokeWidth={1.75} />
         </div>
         <div className="flex flex-col min-w-0">
           <span className="font-semibold text-sm text-foreground truncate">{tx.description}</span>
@@ -91,7 +91,7 @@ export function TransactionRow({ transaction: tx }: Props) {
       </div>
       <div className="flex flex-col items-end shrink-0 gap-1.5">
         <TransactionAmount amount={tx.amount} type={tx.type} />
-        {tx.category && <Badge variant="success">AI Categorized</Badge>}
+        {tx.category && <Badge variant="success">AI categorized</Badge>}
       </div>
     </div>
   );

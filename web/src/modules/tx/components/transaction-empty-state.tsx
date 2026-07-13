@@ -1,4 +1,5 @@
 import { ReceiptText } from 'lucide-react';
+import { Link } from '@tanstack/react-router';
 
 export function TransactionEmptyState() {
   return (
@@ -6,11 +7,21 @@ export function TransactionEmptyState() {
       role="status"
       className="flex flex-col items-center justify-center gap-3 py-16 text-center"
     >
-      <ReceiptText size={40} className="text-muted-foreground" />
-      <div className="flex flex-col gap-1">
-        <p className="font-semibold text-base">No transactions</p>
-        <p className="text-sm text-muted-foreground">Use chat to log expenses and income.</p>
+      <div className="p-4 rounded-2xl bg-muted/30 text-muted-foreground">
+        <ReceiptText size={32} strokeWidth={1.5} />
       </div>
+      <div className="flex flex-col gap-1">
+        <p className="font-semibold text-base text-foreground">No transactions found</p>
+        <p className="text-sm text-muted-foreground prose-short">
+          Try adjusting your filters, or log your first expense through the assistant.
+        </p>
+      </div>
+      <Link
+        to="/chat"
+        className="mt-2 inline-flex items-center justify-center rounded-md bg-primary px-5 py-2 text-sm font-semibold text-primary-foreground transition-all hover:brightness-110 active:scale-[0.98]"
+      >
+        Open assistant
+      </Link>
     </div>
   );
 }

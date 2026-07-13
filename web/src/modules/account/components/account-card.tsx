@@ -42,7 +42,7 @@ export function AccountCard({ account }: AccountCardProps) {
     <Card
       className={
         account.isDefault
-          ? 'ring-1 ring-primary/30 relative flex flex-col justify-between'
+          ? 'ring-1 ring-primary/25 relative flex flex-col justify-between'
           : 'relative flex flex-col justify-between'
       }
     >
@@ -50,8 +50,8 @@ export function AccountCard({ account }: AccountCardProps) {
         <CardHeader className="pb-2">
           <div className="flex items-center justify-between gap-4">
             <div className="flex items-center gap-2 flex-1 min-w-0">
-              <div className="p-2 glass-panel border-primary/20 rounded-full text-primary shrink-0">
-                <Wallet size={16} />
+              <div className="p-2 glass-panel border-primary/20 rounded-xl text-primary shrink-0">
+                <Wallet size={16} strokeWidth={1.75} />
               </div>
               {isEditing ? (
                 <div className="flex items-center gap-1 flex-1">
@@ -133,10 +133,10 @@ export function AccountCard({ account }: AccountCardProps) {
         <Link
           to="/accounts/$accountId/transactions"
           params={{ accountId: account.id }}
-          className="inline-flex items-center gap-1.5 text-xs text-primary hover:underline font-semibold"
+          className="inline-flex items-center gap-1.5 text-xs font-medium text-primary hover:underline underline-offset-4 transition-colors"
         >
-          View Transactions
-          <ArrowRight size={14} />
+          View transactions
+          <ArrowRight size={14} strokeWidth={1.75} />
         </Link>
       </CardFooter>
     </Card>

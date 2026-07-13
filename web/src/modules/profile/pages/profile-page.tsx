@@ -84,19 +84,19 @@ export function ProfilePage() {
 
   return (
     <div className="flex flex-col flex-1 min-h-0 overflow-y-auto">
-      <div className="px-5 py-12 sm:px-16 max-w-[1440px] mx-auto w-full flex flex-col gap-8">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 pb-2 border-b border-border/10">
+      <div className="px-5 py-10 sm:px-8 lg:px-16 xl:px-20 max-w-[1440px] mx-auto w-full flex flex-col gap-8">
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6 pb-3 border-b border-border/10">
           <div>
-            <h1 className="headline-md text-foreground tracking-tight">Profile</h1>
-            <p className="body-md text-muted-foreground mt-1">
-              Manage your private account preferences
+            <h1 className="display-lg-mobile lg:headline-md text-foreground">Profile</h1>
+            <p className="body-md text-muted-foreground mt-2 prose-short">
+              Manage your private account preferences.
             </p>
           </div>
         </div>
 
         <Card className="max-w-2xl">
           <CardHeader>
-            <CardTitle className="label-caps text-muted-foreground">Account Details</CardTitle>
+            <CardTitle className="label-caps text-muted-foreground">Account details</CardTitle>
           </CardHeader>
           <CardContent className="flex flex-col gap-6">
             {isPending ? (
@@ -135,7 +135,7 @@ export function ProfilePage() {
 
         <Card className="max-w-2xl mt-4">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
-            <CardTitle className="label-caps text-muted-foreground">Category Management</CardTitle>
+            <CardTitle className="label-caps text-muted-foreground">Category management</CardTitle>
             <Button
               size="sm"
               variant="outline"
@@ -154,7 +154,7 @@ export function ProfilePage() {
                     htmlFor="new-category-label"
                     className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider"
                   >
-                    Category Label
+                    Category label
                   </label>
                   <Input
                     id="new-category-label"
@@ -307,11 +307,11 @@ export function ProfilePage() {
         </Card>
         <Card className="max-w-2xl mt-4">
           <CardHeader>
-            <CardTitle className="label-caps text-muted-foreground">Theme Settings</CardTitle>
+            <CardTitle className="label-caps text-muted-foreground">Theme settings</CardTitle>
           </CardHeader>
           <CardContent className="flex flex-col gap-6">
             <div>
-              <p className="font-semibold text-base text-foreground">Visual Theme</p>
+              <p className="font-semibold text-base text-foreground">Visual theme</p>
               <p className="text-sm text-muted-foreground mt-1">
                 Customize how Cuan looks on your device. Persisted to local storage.
               </p>

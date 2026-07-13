@@ -1,5 +1,14 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@cuan/ui';
-import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from 'recharts';
+import {
+  Cell,
+  Pie,
+  PieChart,
+  ResponsiveContainer,
+  Tooltip,
+  type TooltipContentProps,
+} from 'recharts';
+
+type CategoryTooltipProps = Partial<TooltipContentProps<number, string>>;
 
 type CategoryItem = {
   id: number | null;
@@ -21,29 +30,26 @@ const formatCurrency = (val: number) => {
 };
 
 const CHART_COLORS = [
-  '#10b981', // emerald-500
-  '#f59e0b', // amber-500
-  '#3b82f6', // blue-500
-  '#8b5cf6', // violet-500
-  '#ec4899', // pink-500
-  '#06b6d4', // cyan-500
-  '#f97316', // orange-500
-  '#64748b', // slate-500
+  '#3d8f73',
+  '#5da88e',
+  '#7ec0a9',
+  '#9fd1ba',
+  '#b8c9c1',
+  '#8e928f',
+  '#6b7d74',
+  '#4a5a52',
 ];
 
 export function CategoryBreakdown({ categories }: Props) {
   const sortedCategories = [...categories].sort((a, b) => Number(b.amount) - Number(a.amount));
 
-  const CustomTooltip = ({ active, payload }: any) => {
+  const CustomTooltip = ({ active, payload }: CategoryTooltipProps) => {
     if (active && payload && payload.length) {
-      const data = payload[0].payload;
+      const data = payload[0].payload as CategoryItem;
       return (
-        <div className="bg-popover border border-border/10 p-3 rounded-lg shadow-xl text-sm min-w-[150px]">
+        <div className="bg-popover border border-border/10 p-3 rounded-lg shadow-tint text-sm min-w-[150px]">
           <div className="flex items-center gap-2 mb-2">
-            <div
-              className="w-3 h-3 rounded-full"
-              style={{ backgroundColor: data.fill || CHART_COLORS[0] }}
-            />
+            <div className="w-3 h-3 rounded-full" style={{ backgroundColor: CHART_COLORS[0] }} />
             <span className="font-semibold text-foreground">{data.label}</span>
           </div>
           <div className="flex justify-between items-center gap-4">
@@ -67,13 +73,16 @@ export function CategoryBreakdown({ categories }: Props) {
   return (
     <Card className="flex flex-col h-full min-h-[380px]">
       <CardHeader>
-        <CardTitle className="text-base font-semibold">Category Breakdown</CardTitle>
+        <CardTitle className="text-base font-semibold">Category breakdown</CardTitle>
         <CardDescription>Expenses by category in the selected period</CardDescription>
       </CardHeader>
       <CardContent className="flex-1 flex flex-col pt-0 pb-4">
         {sortedCategories.length === 0 ? (
-          <div className="flex-1 flex flex-col items-center justify-center text-muted-foreground py-8 text-sm">
-            No expenses in this period
+          <div className="flex-1 flex flex-col items-center justify-center text-muted-foreground py-10 gap-2">
+            <div className="p-3 rounded-full bg-muted/30">
+              <span className="block h-5 w-5 rounded-full border-2 border-dashed border-muted-foreground/40" />
+            </div>
+            <p className="text-sm font-medium text-foreground">No expenses in this period</p>
           </div>
         ) : (
           <div className="flex-1 flex flex-col gap-4">

@@ -69,13 +69,13 @@ export function TransactionsPage({ accountId }: { accountId?: string }) {
 
   return (
     <div className="flex flex-col flex-1 min-h-0 overflow-y-auto">
-      <div className="px-5 py-12 sm:px-16 max-w-[1440px] mx-auto w-full flex flex-col gap-8">
+      <div className="px-5 py-10 sm:px-8 lg:px-16 xl:px-20 max-w-[1440px] mx-auto w-full flex flex-col gap-8">
         {/* Header & Search */}
         <div className="flex flex-col gap-4">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 pb-2 border-b border-border/10">
             <div>
-              <h1 className="headline-md text-foreground tracking-tight">{title}</h1>
-              <p className="body-md text-muted-foreground mt-1">{description}</p>
+              <h1 className="display-lg-mobile lg:headline-md text-foreground">{title}</h1>
+              <p className="body-md text-muted-foreground mt-2 prose-short">{description}</p>
             </div>
           </div>
 
@@ -87,7 +87,7 @@ export function TransactionsPage({ accountId }: { accountId?: string }) {
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
               placeholder="Search transactions..."
-              className="pl-10 w-full"
+              className="pl-10 w-full h-11"
             />
           </div>
         </div>
@@ -102,9 +102,9 @@ export function TransactionsPage({ accountId }: { accountId?: string }) {
                   key={category}
                   type="button"
                   onClick={() => setSelectedCategory(category)}
-                  className={`whitespace-nowrap px-4 py-1.5 rounded-full text-xs font-semibold tracking-wide transition-all duration-200 cursor-pointer ${
+                  className={`whitespace-nowrap px-4 py-1.5 rounded-full text-xs font-medium transition-all duration-200 cursor-pointer ${
                     isSelected
-                      ? 'bg-primary text-primary-foreground shadow-sm'
+                      ? 'bg-primary text-primary-foreground shadow-tint'
                       : 'bg-muted/40 text-muted-foreground border border-border/10 hover:bg-muted/60'
                   }`}
                 >

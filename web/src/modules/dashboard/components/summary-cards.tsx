@@ -1,4 +1,4 @@
-import { Badge, Card, CardContent, CardHeader, CardTitle } from '@cuan/ui';
+import { Card, CardContent, CardHeader, CardTitle } from '@cuan/ui';
 import { ArrowDownRight, ArrowUpRight, PiggyBank, Wallet } from 'lucide-react';
 
 type Props = {
@@ -24,62 +24,73 @@ export function SummaryCards({
   netSavings,
   savingsRate,
 }: Props) {
+  const items = [
+    {
+      title: 'Total balance',
+      value: formatCurrency(totalBalance),
+      hint: 'Current balance across accounts',
+      icon: Wallet,
+      tone: 'default' as const,
+    },
+    {
+      title: 'Income',
+      value: formatCurrency(totalIncome),
+      hint: 'Total earnings in period',
+      icon: ArrowDownRight,
+      tone: 'primary' as const,
+    },
+    {
+      title: 'Expenses',
+      value: formatCurrency(totalExpense),
+      hint: 'Total spending in period',
+      icon: ArrowUpRight,
+      tone: 'destructive' as const,
+    },
+    {
+      title: 'Savings',
+      value: formatCurrency(netSavings),
+      hint: `${savingsRate.toFixed(1)}% savings rate`,
+      icon: PiggyBank,
+      tone: 'primary' as const,
+    },
+  ];
+
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
-          <CardTitle className="label-caps text-muted-foreground">Total Balance</CardTitle>
-          <Wallet className="h-4 w-4 text-muted-foreground" />
-        </CardHeader>
-        <CardContent>
-          <div className="headline-sm text-foreground tracking-tight font-semibold mt-2">
-            {formatCurrency(totalBalance)}
-          </div>
-          <p className="text-xs text-muted-foreground mt-1">Current balance across accounts</p>
-        </CardContent>
-      </Card>
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+      {items.map(({ title, value, hint, icon: Icon, tone }) => {
+        const valueColor =
+          tone === 'primary'
+            ? 'text-primary'
+            : tone === 'destructive'
+              ? 'text-destructive'
+              : 'text-foreground';
+        const iconColor =
+          tone === 'primary'
+            ? 'text-primary'
+            : tone === 'destructive'
+              ? 'text-destructive'
+              : 'text-muted-foreground';
 
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
-          <CardTitle className="label-caps text-muted-foreground">Income</CardTitle>
-          <ArrowDownRight className="h-4 w-4 text-primary" />
-        </CardHeader>
-        <CardContent>
-          <div className="headline-sm text-primary tracking-tight font-semibold mt-2">
-            {formatCurrency(totalIncome)}
-          </div>
-          <p className="text-xs text-muted-foreground mt-1">Total earnings in period</p>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
-          <CardTitle className="label-caps text-muted-foreground">Expenses</CardTitle>
-          <ArrowUpRight className="h-4 w-4 text-destructive" />
-        </CardHeader>
-        <CardContent>
-          <div className="headline-sm text-destructive tracking-tight font-semibold mt-2">
-            {formatCurrency(totalExpense)}
-          </div>
-          <p className="text-xs text-muted-foreground mt-1">Total spending in period</p>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
-          <CardTitle className="label-caps text-muted-foreground">Savings</CardTitle>
-          <PiggyBank className="h-4 w-4 text-primary" />
-        </CardHeader>
-        <CardContent>
-          <div className="headline-sm text-primary tracking-tight font-semibold mt-2">
-            {formatCurrency(netSavings)}
-          </div>
-          <div className="flex items-center gap-2 mt-2">
-            <Badge variant="success">{savingsRate.toFixed(1)}%</Badge>
-            <span className="text-xs text-muted-foreground">Savings rate</span>
-          </div>
-        </CardContent>
-      </Card>
+        return (
+          <Card
+            key={title}
+            className="group transition-all duration-200 hover:-translate-y-0.5 hover:shadow-tint"
+          >
+            <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
+              <CardTitle className="text-xs font-medium text-muted-foreground">{title}</CardTitle>
+              <div className={`p-1.5 rounded-md bg-muted/30 ${iconColor}`}>
+                <Icon size={16} strokeWidth={1.75} />
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className={`headline-sm ${valueColor} font-semibold mt-1 data-mono`}>
+                {value}
+              </div>
+              <p className="text-xs text-muted-foreground mt-2 leading-relaxed">{hint}</p>
+            </CardContent>
+          </Card>
+        );
+      })}
     </div>
   );
 }
