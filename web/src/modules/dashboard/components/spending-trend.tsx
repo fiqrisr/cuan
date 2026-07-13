@@ -59,7 +59,9 @@ export function SpendingTrend({ daily }: Props) {
       <Card className="flex flex-col h-full min-h-[350px]">
         <CardHeader>
           <CardTitle className="text-base font-semibold">Spending & cash flow</CardTitle>
-          <CardDescription>Daily comparison of income vs expenses</CardDescription>
+          <CardDescription>
+            Daily comparison of income vs expenses
+          </CardDescription>
         </CardHeader>
         <CardContent className="flex-1 flex flex-col items-center justify-center text-muted-foreground py-14 gap-2">
           <div className="p-3 rounded-full bg-muted/30">
@@ -109,12 +111,14 @@ export function SpendingTrend({ daily }: Props) {
 
   return (
     <Card className="flex flex-col h-full min-h-[380px] relative">
-      <CardHeader className="flex flex-col sm:flex-row sm:items-center justify-between pb-2 gap-4">
+      <CardHeader className="flex flex-col lg:flex-row lg:items-center justify-between pb-2 gap-4">
         <div>
           <CardTitle className="text-base font-semibold">Spending & Cash Flow</CardTitle>
-          <CardDescription>Daily comparison of income, expenses, and cash flow</CardDescription>
+          <CardDescription className="mt-0.5 leading-snug">
+            Daily comparison of income, expenses, and cash flow
+          </CardDescription>
         </div>
-        <div className="flex bg-muted/40 p-0.5 rounded-lg border border-border/10 shrink-0">
+        <div className="flex bg-muted/40 p-0.5 rounded-lg border border-border/10 shrink-0 self-start lg:self-auto overflow-x-auto max-w-full">
           <Button
             variant={activeTab === 'bars' ? 'secondary' : 'ghost'}
             size="sm"
