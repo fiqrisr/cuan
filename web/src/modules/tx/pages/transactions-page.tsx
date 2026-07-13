@@ -1,7 +1,8 @@
-import { Input } from '@cuan/ui';
+import { Button, Input } from '@cuan/ui';
 import { Search } from 'lucide-react';
 import { useState } from 'react';
 import { useGetAccountListQuery } from '@/modules/account/hooks/use-get-account-list-query';
+import { CreateTransactionForm } from '../components/create-transaction-form';
 import { TransactionEmptyState } from '../components/transaction-empty-state';
 import { TransactionListSkeleton } from '../components/transaction-list-skeleton';
 import { TransactionRow } from '../components/transaction-row';
@@ -36,6 +37,7 @@ export function TransactionsPage({ accountId }: { accountId?: string }) {
     : 'Review all your processed income and expenses';
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
+  const [isCreating, setIsCreating] = useState(false);
 
   const transactions = data?.data ?? [];
 
@@ -77,7 +79,18 @@ export function TransactionsPage({ accountId }: { accountId?: string }) {
               <h1 className="display-lg-mobile lg:headline-md text-foreground">{title}</h1>
               <p className="body-md text-muted-foreground mt-2 prose-short">{description}</p>
             </div>
+            <Button onClick={() => setIsCreating(true)} disabled={isCreating || isLoading}>
+              + Add Transaction
+            </Button>
           </div>
+
+          {isCreating && (
+            <CreateTransactionForm
+              onSuccess={() => setIsCreating(false)}
+              onCancel={() => setIsCreating(false)}
+              defaultAccountId={accountId}
+            />
+          )}
 
           {/* Search Input */}
           <div className="relative w-full mt-2">
@@ -133,7 +146,7 @@ export function TransactionsPage({ accountId }: { accountId?: string }) {
             {groupedKeys.map(dateKey => (
               <div key={dateKey} className="flex flex-col gap-3">
                 <h3 className="label-caps text-muted-foreground mt-2">{dateKey}</h3>
-                <div className="flex flex-col gap-3">
+                <div className="flex flex-col">
                   {grouped[dateKey].map(tx => (
                     <TransactionRow key={tx.id} transaction={tx} />
                   ))}
