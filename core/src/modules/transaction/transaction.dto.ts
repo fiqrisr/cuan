@@ -14,6 +14,18 @@ export const FormattedTransactionDto = t.Object({
   updatedAt: t.Union([t.Date(), t.Null()]),
 });
 
+export const CreateTransactionRequestDto = t.Object({
+  type: t.Union([t.Literal('expense'), t.Literal('income')]),
+  amount: t.Number({ minimum: 0 }),
+  currency: t.Optional(t.String()),
+  categoryId: t.Number(),
+  description: t.Optional(t.String()),
+  date: t.String(),
+  accountId: t.Optional(t.String({ format: 'uuid' })),
+});
+
+export type CreateTransactionRequest = typeof CreateTransactionRequestDto.static;
+
 export const ListTransactionsRequestDto = t.Object({
   type: t.Optional(t.Union([t.Literal('expense'), t.Literal('income')])),
   category: t.Optional(t.String()),

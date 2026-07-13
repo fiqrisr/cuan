@@ -3,6 +3,7 @@ import { NotFoundError } from '@/lib/error';
 import { logger } from '@/middleware/logger';
 import { authGuard } from '@/modules/auth/auth-guard';
 import {
+  CreateTransactionRequestDto,
   GetTransactionStatsRequestDto,
   GetTransactionStatsResponseDto,
   ListTransactionsRequestDto,
@@ -35,6 +36,31 @@ export const transactionController = new Elysia({ prefix: '/api/transactions' })
       auth: true,
       query: ListTransactionsRequestDto,
       response: ListTransactionsResponseDto,
+    },
+  )
+  .post(
+    '/',
+    async ({ body, user, set }) => {
+      logger.info({ event: 'create_transaction' }, 'creating transaction');
+      const created = await transactionService.create({
+        userId: user.id,
+        type: body.type,
+        amount: body.amount,
+        currency: body.currency ?? 'IDR',
+        categoryId: body.categoryId,
+        description: body.description,
+        date: new Date(body.date),
+        accountId: body.accountId,
+      });
+      set.status = 201;
+      return { data: created };
+    },
+    {
+      auth: true,
+      body: CreateTransactionRequestDto,
+      response: {
+        201: TransactionResponseDto,
+      },
     },
   )
   .get(

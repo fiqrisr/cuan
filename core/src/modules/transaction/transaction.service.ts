@@ -108,6 +108,46 @@ export class TransactionService {
     if (!row) return null;
     return formatTransaction(row, row.category?.label ?? null);
   }
+  async create(data: {
+    userId: string;
+    type: 'expense' | 'income';
+    amount: number;
+    currency: string;
+    categoryId: number;
+    description?: string;
+    date: Date;
+    accountId?: string;
+  }): Promise<FormattedTransaction> {
+    return db.transaction(async tx => {
+      const [created] = await tx
+        .insert(transactions)
+        .values({
+          userId: data.userId,
+          type: data.type,
+          amount: data.amount.toString(),
+          currency: data.currency,
+          categoryId: data.categoryId,
+          description: data.description,
+          date: data.date,
+          accountId: data.accountId || null,
+        })
+        .returning();
+
+      if (created.accountId) {
+        const delta = created.type === 'expense' ? -data.amount : data.amount;
+        await tx
+          .update(financialAccounts)
+          .set({ balance: sql`${financialAccounts.balance} + ${delta.toString()}::numeric` })
+          .where(eq(financialAccounts.id, created.accountId));
+      }
+
+      const cat = await tx.query.categories.findFirst({
+        where: (c, { eq }) => eq(c.id, data.categoryId),
+      });
+
+      return formatTransaction(created, cat?.label || null);
+    });
+  }
 
   async update(
     id: string,
