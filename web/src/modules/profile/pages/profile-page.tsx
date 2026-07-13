@@ -3,6 +3,7 @@ import { Check, LogOut, Monitor, Moon, Pencil, Sun, Trash2, User, X } from 'luci
 import { useState } from 'react';
 import { authClient } from '@/core/auth';
 import { useTheme } from '@/core/theme-context';
+import { ConfirmModal } from '@/components/confirm-modal';
 import { useCreateCategoryMutation } from '../hooks/use-create-category-mutation';
 import { useDeleteCategoryMutation } from '../hooks/use-delete-category-mutation';
 import { useGetCategoriesQuery } from '../hooks/use-get-categories-query';
@@ -21,6 +22,7 @@ export function ProfilePage() {
   const [editingId, setEditingId] = useState<number | null>(null);
   const [editingLabel, setEditingLabel] = useState('');
   const [updateError, setUpdateError] = useState<string | null>(null);
+  const [deletingId, setDeletingId] = useState<number | null>(null);
   const { data: categoriesData, isLoading: categoriesLoading } = useGetCategoriesQuery();
   const { mutateAsync: createCategory, isPending: isCreatingCat } = useCreateCategoryMutation();
   const { mutateAsync: updateCategory, isPending: isUpdatingCat } = useUpdateCategoryMutation();
@@ -71,10 +73,11 @@ export function ProfilePage() {
     }
   };
 
-  const handleDelete = async (id: number) => {
-    if (!confirm('Are you sure you want to delete this category?')) return;
+  const confirmDelete = async () => {
+    if (!deletingId) return;
     try {
-      await deleteCategory(id);
+      await deleteCategory(deletingId);
+      setDeletingId(null);
     } catch (err) {
       console.error(err);
     }
@@ -287,7 +290,7 @@ export function ProfilePage() {
                               <Button
                                 size="icon"
                                 variant="ghost"
-                                onClick={() => handleDelete(category.id)}
+                                onClick={() => setDeletingId(category.id)}
                                 disabled={isDeletingCat}
                                 className="h-7 w-7 text-destructive hover:text-destructive/80 shrink-0"
                                 title="Delete category"
@@ -317,7 +320,7 @@ export function ProfilePage() {
               </p>
             </div>
 
-            <div className="grid grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <Button
                 variant={theme === 'light' ? 'default' : 'outline'}
                 className="flex flex-col items-center gap-2 py-6 h-auto"
@@ -342,14 +345,29 @@ export function ProfilePage() {
                 onClick={() => setTheme('system')}
               >
                 <Monitor size={20} />
-                <span className="text-xs font-semibold">
-                  System {theme === 'system' && `(${resolvedTheme === 'dark' ? 'Dark' : 'Light'})`}
+                <span className="text-xs font-semibold text-center whitespace-normal leading-tight">
+                  System{' '}
+                  {theme === 'system' && (
+                    <span className="block text-[10px] opacity-80 mt-0.5">
+                      ({resolvedTheme === 'dark' ? 'Dark' : 'Light'})
+                    </span>
+                  )}
                 </span>
               </Button>
             </div>
           </CardContent>
         </Card>
       </div>
+      <ConfirmModal
+        isOpen={deletingId !== null}
+        title="Delete Category"
+        description="Are you sure you want to delete this category? It will be removed from your lists."
+        confirmText="Delete"
+        onConfirm={confirmDelete}
+        onCancel={() => setDeletingId(null)}
+        isPending={isDeletingCat}
+        variant="danger"
+      />
     </div>
   );
 }
