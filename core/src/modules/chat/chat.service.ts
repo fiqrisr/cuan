@@ -1,28 +1,10 @@
-import { createAnthropic } from '@ai-sdk/anthropic';
-import { createOpenAI } from '@ai-sdk/openai';
-import { generateText, type LanguageModel, stepCountIs, streamText } from 'ai';
-import { env } from '@/env';
+import { generateText, stepCountIs, streamText } from 'ai';
+import { languageModel } from '@/lib/ai-provider';
 import { logger } from '../../middleware/logger';
 import { categoryService } from '../category/category.service';
 import { getSystemPrompt } from './chat.prompt';
 import { buildChatTools } from './chat.tools';
 import type { ChatResult, SavedTransaction, SavedTransfer } from './chat.types';
-
-function getLanguageModel(baseUrl: string, apiKey: string, modelId: string): LanguageModel {
-  const anthropic = createAnthropic({ baseURL: baseUrl, apiKey });
-  const openai = createOpenAI({ baseURL: baseUrl, apiKey });
-
-  if (modelId.includes('deepseek') || modelId.includes('claude')) {
-    return anthropic(modelId);
-  }
-  return openai(modelId);
-}
-
-export const openmodel = getLanguageModel(
-  env.OPENMODEL_BASE_URL,
-  env.OPENMODEL_API_KEY,
-  env.OPENMODEL_MODEL,
-);
 
 export class ChatService {
   async processChat(message: string, userId: string): Promise<ChatResult> {
@@ -33,7 +15,7 @@ export class ChatService {
     const categoriesInfo = categories.map(c => `- ${c.name} (${c.label})`).join('\n');
 
     const aiResponse = await generateText({
-      model: openmodel,
+      model: languageModel,
       tools,
       stopWhen: stepCountIs(3),
       system: getSystemPrompt(categoriesInfo),
@@ -99,7 +81,7 @@ export class ChatService {
     const categoriesInfo = categories.map(c => `- ${c.name} (${c.label})`).join('\n');
 
     return streamText({
-      model: openmodel,
+      model: languageModel,
       tools,
       stopWhen: stepCountIs(3),
       system: getSystemPrompt(categoriesInfo),
