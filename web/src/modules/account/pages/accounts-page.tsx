@@ -1,12 +1,33 @@
+import { Button, Input } from '@cuan/ui';
+import { useState } from 'react';
 import { AccountCard } from '../components/account-card';
 import { AccountEmptyState } from '../components/account-empty-state';
 import { AccountListSkeleton } from '../components/account-list-skeleton';
+import { useCreateAccountMutation } from '../hooks/use-create-account-mutation';
 import { useGetAccountListQuery } from '../hooks/use-get-account-list-query';
 
 export function AccountsPage() {
   const { data, isLoading, isError, error } = useGetAccountListQuery();
+  const { mutateAsync: createAccount, isPending: isCreating } = useCreateAccountMutation();
+  const [isCreatingMode, setIsCreatingMode] = useState(false);
+  const [newName, setNewName] = useState('');
+  const [createError, setCreateError] = useState<string | null>(null);
 
   const accounts = data?.data ?? [];
+
+  const handleCreate = async () => {
+    const label = newName.trim();
+    if (!label) return;
+    try {
+      setCreateError(null);
+      await createAccount({ name: label, type: 'bank', currency: 'IDR', initialBalance: 0 });
+      setIsCreatingMode(false);
+      setNewName('');
+    } catch (err) {
+      console.error(err);
+      setCreateError(err instanceof Error ? err.message : 'Failed to create account');
+    }
+  };
 
   return (
     <div className="flex flex-col flex-1 min-h-0 overflow-y-auto">
@@ -18,7 +39,47 @@ export function AccountsPage() {
               Manage your financial assets and balances.
             </p>
           </div>
+          <Button onClick={() => setIsCreatingMode(true)} disabled={isCreatingMode || isLoading}>
+            + Add Account
+          </Button>
         </div>
+
+        {isCreatingMode && (
+          <div className="border border-border/20 rounded-lg p-5 flex flex-col gap-4 bg-muted/10 max-w-xl">
+            <div>
+              <label
+                htmlFor="new-account-name"
+                className="text-xs font-semibold text-muted-foreground uppercase tracking-wider"
+              >
+                Account Name
+              </label>
+              <Input
+                id="new-account-name"
+                placeholder="e.g. Main Bank, E-Wallet"
+                value={newName}
+                onChange={e => setNewName(e.target.value)}
+                className="mt-1.5"
+                autoFocus
+              />
+            </div>
+            {createError && <p className="text-sm text-destructive font-semibold">{createError}</p>}
+            <div className="flex justify-end gap-3 mt-2">
+              <Button
+                variant="ghost"
+                onClick={() => {
+                  setIsCreatingMode(false);
+                  setNewName('');
+                  setCreateError(null);
+                }}
+              >
+                Cancel
+              </Button>
+              <Button onClick={handleCreate} disabled={isCreating}>
+                {isCreating ? 'Creating...' : 'Create Account'}
+              </Button>
+            </div>
+          </div>
+        )}
 
         {isLoading && <AccountListSkeleton />}
 
@@ -31,10 +92,12 @@ export function AccountsPage() {
           </div>
         )}
 
-        {!isLoading && !isError && accounts.length === 0 && <AccountEmptyState />}
+        {!isLoading && !isError && accounts.length === 0 && !isCreatingMode && (
+          <AccountEmptyState />
+        )}
 
         {!isLoading && !isError && accounts.length > 0 && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {accounts.map(account => (
               <AccountCard key={account.id} account={account} />
             ))}

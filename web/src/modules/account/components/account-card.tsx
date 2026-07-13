@@ -1,7 +1,9 @@
-import { Badge, Button, Card, CardContent, CardFooter, CardHeader, Input } from '@cuan/ui';
+import { Badge, Button, Input } from '@cuan/ui';
 import { Link } from '@tanstack/react-router';
-import { ArrowRight, Check, Pencil, Wallet, X } from 'lucide-react';
+import { Check, Edit2, Wallet, X } from 'lucide-react';
 import { useState } from 'react';
+import { ConfirmModal } from '@/components/confirm-modal';
+import { useDeleteAccountMutation } from '../hooks/use-delete-account-mutation';
 import { useUpdateAccountMutation } from '../hooks/use-update-account-mutation';
 import type { FinancialAccount } from '../types';
 
@@ -12,7 +14,10 @@ type AccountCardProps = {
 export function AccountCard({ account }: AccountCardProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [name, setName] = useState(account.name);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+
   const { mutateAsync: updateAccount, isPending: isUpdating } = useUpdateAccountMutation();
+  const { mutateAsync: deleteAccount, isPending: isDeleting } = useDeleteAccountMutation();
 
   const formatted = new Intl.NumberFormat('id-ID', {
     style: 'currency',
@@ -38,27 +43,33 @@ export function AccountCard({ account }: AccountCardProps) {
     }
   };
 
+  const handleDelete = async () => {
+    try {
+      await deleteAccount(account.id);
+      setShowDeleteModal(false);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   return (
-    <Card
-      className={
-        account.isDefault
-          ? 'ring-1 ring-primary/25 relative flex flex-col justify-between'
-          : 'relative flex flex-col justify-between'
-      }
-    >
-      <div>
-        <CardHeader className="pb-2">
-          <div className="flex items-center justify-between gap-4">
-            <div className="flex items-center gap-2 flex-1 min-w-0">
-              <div className="p-2 glass-panel border-primary/20 rounded-xl text-primary shrink-0">
-                <Wallet size={16} strokeWidth={1.75} />
+    <>
+      <div
+        className={`relative flex flex-col justify-between p-5 rounded-2xl border bg-card text-card-foreground shadow-sm transition-all hover:shadow-md ${account.isDefault ? 'border-primary/30 ring-1 ring-primary/20' : 'border-border/10'}`}
+      >
+        <div>
+          <div className="flex items-start justify-between gap-4 mb-4">
+            <div className="flex items-center gap-3 min-w-0 flex-1">
+              <div className="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center shrink-0">
+                <Wallet size={18} strokeWidth={1.75} />
               </div>
+
               {isEditing ? (
-                <div className="flex items-center gap-1 flex-1">
+                <div className="flex items-center gap-1.5 flex-1">
                   <Input
                     value={name}
                     onChange={e => setName(e.target.value)}
-                    className="h-8 text-sm py-1 w-full"
+                    className="h-8 text-sm py-1 max-w-[140px] sm:max-w-[200px]"
                     autoFocus
                     onKeyDown={e => {
                       if (e.key === 'Enter') handleSaveName();
@@ -73,7 +84,7 @@ export function AccountCard({ account }: AccountCardProps) {
                     variant="ghost"
                     onClick={handleSaveName}
                     disabled={isUpdating}
-                    className="h-8 w-8 text-success shrink-0"
+                    className="h-8 w-8 text-success hover:text-success/80 shrink-0"
                   >
                     <Check size={14} />
                   </Button>
@@ -84,61 +95,86 @@ export function AccountCard({ account }: AccountCardProps) {
                       setIsEditing(false);
                       setName(account.name);
                     }}
-                    className="h-8 w-8 text-destructive shrink-0"
+                    className="h-8 w-8 text-destructive hover:text-destructive/80 shrink-0"
                   >
                     <X size={14} />
                   </Button>
                 </div>
               ) : (
-                <div className="flex items-center gap-1 min-w-0 flex-1 group/title">
-                  <span className="text-sm font-semibold text-foreground truncate">
-                    {account.name}
-                  </span>
-                  <Button
-                    size="icon"
-                    variant="ghost"
-                    onClick={() => setIsEditing(true)}
-                    className="h-6 w-6 opacity-0 group-hover/title:opacity-100 focus:opacity-100 transition-opacity shrink-0"
-                    title="Rename account"
-                  >
-                    <Pencil size={12} className="text-muted-foreground hover:text-foreground" />
-                  </Button>
+                <div className="flex flex-col min-w-0 flex-1">
+                  <div className="flex items-center gap-2">
+                    <span className="text-base font-semibold text-foreground truncate">
+                      {account.name}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => setIsEditing(true)}
+                      className="text-muted-foreground hover:text-foreground transition-colors p-1"
+                      aria-label="Edit account name"
+                    >
+                      <Edit2 size={12} />
+                    </button>
+                  </div>
+                  {account.isDefault && (
+                    <Badge variant="success" className="h-5 px-1.5 text-[9px] w-fit mt-0.5">
+                      Default
+                    </Badge>
+                  )}
                 </div>
               )}
             </div>
+
             <div className="flex items-center gap-2 shrink-0">
-              {account.isDefault ? (
-                <Badge variant="success">Default</Badge>
-              ) : (
+              {!account.isDefault && (
                 <Button
                   size="sm"
                   variant="outline"
                   onClick={handleSetDefault}
                   disabled={isUpdating}
-                  className="h-7 px-2 text-[10px] min-w-0 font-medium"
+                  className="h-7 px-2 text-[10px] font-medium"
                 >
                   Set Default
                 </Button>
               )}
             </div>
           </div>
-        </CardHeader>
-        <CardContent>
-          <div className="headline-sm text-foreground font-semibold mt-2 data-mono">
+
+          <div className="font-mono text-2xl font-bold text-foreground tracking-tight mb-6">
             {formatted}
           </div>
-        </CardContent>
+        </div>
+
+        <div className="flex items-center justify-between border-t border-border/10 pt-4 mt-auto">
+          <Link
+            to="/accounts/$accountId/transactions"
+            params={{ accountId: account.id }}
+            className="text-xs font-medium text-primary hover:text-primary/80 transition-colors"
+          >
+            View history →
+          </Link>
+
+          {!account.isDefault && (
+            <button
+              type="button"
+              onClick={() => setShowDeleteModal(true)}
+              className="text-xs font-medium text-destructive hover:text-destructive/80 transition-colors"
+            >
+              Delete account
+            </button>
+          )}
+        </div>
       </div>
-      <CardFooter className="justify-end border-t border-border/10 pt-4 mt-2">
-        <Link
-          to="/accounts/$accountId/transactions"
-          params={{ accountId: account.id }}
-          className="inline-flex items-center gap-1.5 text-xs font-medium text-primary hover:underline underline-offset-4 transition-colors"
-        >
-          View transactions
-          <ArrowRight size={14} strokeWidth={1.75} />
-        </Link>
-      </CardFooter>
-    </Card>
+
+      <ConfirmModal
+        isOpen={showDeleteModal}
+        title="Delete Account"
+        description={`Are you sure you want to delete "${account.name}"? This action cannot be undone and will permanently delete all associated transactions.`}
+        confirmText="Delete"
+        onConfirm={handleDelete}
+        onCancel={() => setShowDeleteModal(false)}
+        isPending={isDeleting}
+        variant="danger"
+      />
+    </>
   );
 }
