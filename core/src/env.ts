@@ -5,6 +5,7 @@ const commonEnvSchema = z.object({
   DATABASE_URL: z.string().min(1),
   BETTER_AUTH_SECRET: z.string().min(32),
   BETTER_AUTH_URL: z.url().optional(),
+  FRONTEND_URL: z.url().optional(),
   NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
   LOG_LEVEL: z.enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace']).default('info'),
 });
@@ -51,6 +52,7 @@ if (!parsed.success) {
 export const env = {
   ...parsed.data,
   BETTER_AUTH_URL: parsed.data.BETTER_AUTH_URL ?? `http://localhost:${parsed.data.PORT}`,
+  FRONTEND_URL: parsed.data.FRONTEND_URL,
 };
 
 export type Env = typeof env;
