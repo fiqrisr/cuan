@@ -3,6 +3,13 @@ import { defineConfig } from 'astro/config';
 
 export default defineConfig({
   site: 'https://cuan.fiqri.dev',
+  i18n: {
+    defaultLocale: 'id',
+    locales: ['id', 'en'],
+    routing: {
+      prefixDefaultLocale: false,
+    },
+  },
   vite: {
     plugins: [tailwindcss()],
   },

@@ -1,0 +1,273 @@
+---
+import { landingTranslations, type Locale } from '../i18n/translations';
+
+type Props = {
+  locale?: Locale;
+};
+
+const { locale = 'id' } = Astro.props;
+const t = landingTranslations[locale];
+const APP_URL = 'https://app.cuan.fiqri.dev';
+---
+
+<!-- Hero -->
+<section class="ambient-glow relative overflow-hidden">
+  <div
+    class="mx-auto grid max-w-6xl items-center gap-16 px-5 pt-32 pb-20 sm:px-6 lg:min-h-[100dvh] lg:grid-cols-[1.05fr_0.95fr] lg:pt-24 lg:pb-24"
+  >
+    <div>
+      <h1 class="display-lg max-w-xl text-foreground whitespace-pre-line">
+        {t.hero.title}
+      </h1>
+      <p class="body-lg prose-short mt-6 text-muted-foreground">
+        {t.hero.subtitle}
+      </p>
+      <div class="mt-10 flex flex-wrap items-center gap-4">
+        <a
+          href={APP_URL}
+          class="label-caps rounded-md bg-primary px-6 py-3 text-primary-foreground shadow-tint transition-transform active:scale-[0.98]"
+        >
+          {t.hero.startCta}
+        </a>
+        <a
+          href="#how-it-works"
+          class="label-caps rounded-md border border-border px-6 py-3 text-foreground transition-colors hover:border-[rgba(159,209,186,0.3)]"
+        >
+          {t.hero.howItWorksCta}
+        </a>
+      </div>
+    </div>
+
+    <!-- Product preview: mirrors the real chat UI in web/ -->
+    <div class="glass-panel rounded-2xl shadow-tint-lg">
+      <div class="flex items-center gap-3 border-b border-border/10 px-5 py-4">
+        <div
+          class="glass-panel flex h-9 w-9 items-center justify-center rounded-xl border-primary/20 text-primary shadow-tint"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.75"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M12 8V4H8" />
+            <rect width="16" height="12" x="4" y="8" rx="2" />
+            <path d="M2 14h2" />
+            <path d="M20 14h2" />
+            <path d="M15 13v2" />
+            <path d="M9 13v2" />
+          </svg>
+        </div>
+        <div>
+          <p class="text-sm font-semibold leading-none text-foreground">{t.chatPreview.botName}</p>
+          <p class="mt-1 text-[11px] font-medium text-muted-foreground">
+            {t.chatPreview.botSubtitle}
+          </p>
+        </div>
+      </div>
+
+      <div class="flex flex-col gap-4 px-5 py-6">
+        <div
+          class="max-w-[85%] self-end rounded-xl rounded-tr-sm border border-primary/20 bg-accent px-4 py-3"
+        >
+          <p class="body-md text-accent-foreground">{t.chatPreview.userMsg1}</p>
+        </div>
+        <div class="flex items-start gap-2 self-start">
+          <div
+            class="glass-panel flex h-8 w-8 shrink-0 items-center justify-center rounded-full border-primary/20 text-primary"
+            aria-hidden="true"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.75"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M12 8V4H8" />
+              <rect width="16" height="12" x="4" y="8" rx="2" />
+              <path d="M2 14h2" />
+              <path d="M20 14h2" />
+              <path d="M15 13v2" />
+              <path d="M9 13v2" />
+            </svg>
+          </div>
+          <div class="flex flex-col gap-1">
+            <span
+              class="inline-flex w-fit items-center gap-1 rounded-sm bg-primary/10 px-2 py-1 text-[11px] font-medium text-primary"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="12"
+                height="12"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M21.801 10A10 10 0 1 1 17 3.335" />
+                <path d="m9 11 3 3L22 4" />
+              </svg>
+              {t.chatPreview.toolDone}
+            </span>
+            <div
+              class="ai-message-gradient max-w-md rounded-xl rounded-tl-sm border border-border/20 px-4 py-3"
+            >
+              <p class="body-md text-foreground">
+                {t.chatPreview.aiMsg1}
+              </p>
+            </div>
+          </div>
+        </div>
+        <div
+          class="max-w-[85%] self-end rounded-xl rounded-tr-sm border border-primary/20 bg-accent px-4 py-3"
+        >
+          <p class="body-md text-accent-foreground">{t.chatPreview.userMsg2}</p>
+        </div>
+        <div class="flex items-start gap-2 self-start">
+          <div
+            class="glass-panel flex h-8 w-8 shrink-0 items-center justify-center rounded-full border-primary/20 text-primary"
+            aria-hidden="true"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.75"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M12 8V4H8" />
+              <rect width="16" height="12" x="4" y="8" rx="2" />
+              <path d="M2 14h2" />
+              <path d="M20 14h2" />
+              <path d="M15 13v2" />
+              <path d="M9 13v2" />
+            </svg>
+          </div>
+          <div
+            class="ai-message-gradient max-w-md rounded-xl rounded-tl-sm border border-border/20 px-4 py-3"
+          >
+            <p class="body-md text-foreground">
+              {t.chatPreview.aiMsg2}
+            </p>
+            <p class="data-mono mt-2 text-primary">{t.chatPreview.aiStat2}</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="border-t border-border/10 px-5 pt-4 pb-4">
+        <div
+          class="glass-panel flex w-full items-center rounded-2xl border border-border/30 p-1.5 shadow-tint"
+        >
+          <span class="flex-1 px-4 py-2.5 text-sm text-muted-foreground/60">
+            {t.chatPreview.inputPlaceholder}
+          </span>
+          <span
+            class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary text-primary-foreground"
+            aria-hidden="true"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="m5 12 7-7 7 7" />
+              <path d="M12 19V5" />
+            </svg>
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Features -->
+<section id="features" class="border-t border-border">
+  <div class="mx-auto max-w-5xl px-5 py-24 sm:px-6 sm:py-32">
+    <h2 class="headline-md max-w-2xl text-foreground">
+      {t.features.heading}
+    </h2>
+    <div class="mt-16 grid gap-6 sm:grid-cols-2">
+      {
+        t.features.items.map((f) => (
+          <article
+            class:list={[
+              'rounded-xl p-6 sm:p-8',
+              f.visual === 'glass'
+                ? 'glass-panel glass-panel-interactive'
+                : 'ai-message-gradient glass-panel-interactive border border-border/20',
+            ]}
+          >
+            <h3 class="headline-sm text-foreground">{f.title}</h3>
+            <p class="body-md mt-3 text-muted-foreground">{f.body}</p>
+            {'stat' in f && f.stat && (
+              <div class="mt-6 border-t border-border/20 pt-5">
+                <p class="data-mono text-xl text-primary">{f.stat}</p>
+                <p class="label-caps mt-1 text-muted-foreground">{f.statLabel}</p>
+              </div>
+            )}
+          </article>
+        ))
+      }
+    </div>
+  </div>
+</section>
+
+<!-- How it works -->
+<section id="how-it-works" class="ambient-glow-bottom border-t border-border">
+  <div class="mx-auto max-w-5xl px-5 py-24 sm:px-6 sm:py-32">
+    <p class="label-caps mb-4 text-primary">{t.howItWorks.label}</p>
+    <h2 class="headline-md max-w-2xl text-foreground">{t.howItWorks.heading}</h2>
+    <ol class="mt-16 grid gap-y-12 sm:grid-cols-3 sm:gap-x-8 sm:gap-y-0 sm:divide-x sm:divide-border/30">
+      {
+        t.howItWorks.steps.map((s) => (
+          <li class="sm:px-8 sm:first:pl-0 sm:last:pr-0">
+            <h3 class="headline-sm text-foreground">{s.title}</h3>
+            <p class="body-md mt-3 text-muted-foreground">{s.body}</p>
+          </li>
+        ))
+      }
+    </ol>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="border-t border-border">
+  <div class="mx-auto max-w-5xl px-5 py-24 sm:px-6 sm:py-32">
+    <h2 class="headline-md max-w-2xl text-foreground">
+      {t.cta.heading}
+    </h2>
+    <p class="body-lg prose-short mt-6 text-muted-foreground">
+      {t.cta.subtitle}
+    </p>
+    <a
+      href={APP_URL}
+      class="label-caps mt-10 inline-block rounded-md bg-primary px-8 py-4 text-primary-foreground shadow-tint transition-transform active:scale-[0.98]"
+    >
+      {t.cta.button}
+    </a>
+  </div>
+</section>

@@ -1,14 +1,14 @@
 ---
-import Base from '../layouts/Base.astro';
-import { landingTranslations } from '../i18n/translations';
+import Base from '../../layouts/Base.astro';
+import { landingTranslations } from '../../i18n/translations';
 
-const t = landingTranslations.id.privacy;
+const t = landingTranslations.en.privacy;
 ---
 
 <Base
   title={`${t.title} - Cuan`}
   description={t.intro}
-  locale="id"
+  locale="en"
 >
   <section class="mx-auto max-w-3xl px-5 pt-32 pb-24 sm:px-6 sm:pt-40">
     <h1 class="headline-md text-foreground">{t.title}</h1>

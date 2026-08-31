@@ -1,13 +1,27 @@
 ---
 import '../styles/global.css';
+import { landingTranslations, type Locale } from '../i18n/translations';
 
-const { title, description } = Astro.props;
+type Props = {
+  title: string;
+  description: string;
+  locale?: Locale;
+};
+
+const { title, description, locale = 'id' } = Astro.props;
+const t = landingTranslations[locale];
 const APP_URL = 'https://app.cuan.fiqri.dev';
 const canonical = new URL(Astro.url.pathname, Astro.site);
+
+const isEn = locale === 'en';
+const homeHref = isEn ? '/en/' : '/';
+const altLocaleHref = isEn ? '/' : '/en/';
+const privacyHref = isEn ? '/en/privacy/' : '/privacy/';
+const termsHref = isEn ? '/en/terms/' : '/terms/';
 ---
 
 <!doctype html>
-<html lang="en" class="grain">
+<html lang={locale} class="grain">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -28,16 +42,28 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
       href="https://fonts.googleapis.com/css2?family=Geist:wght@100..900&family=Geist+Mono:wght@100..900&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap"
       rel="stylesheet"
     />
+
+    {!isEn && (
+      <script is:inline>
+        // If user already preferred English or browser is English (and no manual override), redirect to /en/
+        try {
+          const stored = localStorage.getItem('cuan-locale');
+          if (stored === 'en' && window.location.pathname === '/') {
+            window.location.replace('/en/');
+          }
+        } catch {}
+      </script>
+    )}
   </head>
   <body class="flex min-h-screen flex-col">
-    <a href="#main" class="skip-link">Skip to content</a>
+    <a href="#main" class="skip-link">{isEn ? 'Skip to content' : 'Lewati ke konten'}</a>
 
     <header class="fixed inset-x-0 top-0 z-50 border-b border-border/10 bg-background/40 backdrop-blur-lg">
       <nav
         class="mx-auto flex h-16 max-w-5xl items-center justify-between px-5 sm:px-6"
         aria-label="Primary"
       >
-        <a href="/" class="flex items-center gap-3" aria-label="Cuan home">
+        <a href={homeHref} class="flex items-center gap-3" aria-label="Cuan home">
           <span
             class="glass-panel flex h-9 w-9 items-center justify-center rounded-xl border-primary/20 text-primary shadow-tint"
           >
@@ -64,28 +90,39 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
           <span class="leading-tight">
             <span class="block text-sm font-semibold text-foreground">Cuan</span>
             <span class="mt-0.5 block text-[11px] font-medium text-muted-foreground">
-              Your financial assistant
+              {t.chatPreview.botSubtitle}
             </span>
           </span>
         </a>
-        <div class="flex items-center gap-6">
+        <div class="flex items-center gap-4 sm:gap-6">
           <a
             href="#features"
             class="body-md hidden text-muted-foreground transition-colors hover:text-foreground sm:block"
           >
-            Features
+            {t.nav.features}
           </a>
           <a
             href="#how-it-works"
             class="body-md hidden text-muted-foreground transition-colors hover:text-foreground sm:block"
           >
-            How it works
+            {t.nav.howItWorks}
           </a>
+
+          <!-- Language Switcher -->
+          <a
+            href={altLocaleHref}
+            class="data-mono rounded-md border border-border/20 bg-muted/20 px-2 py-1 text-xs text-muted-foreground transition-colors hover:border-primary/30 hover:text-foreground"
+            title={`Switch to ${isEn ? 'Bahasa Indonesia' : 'English'}`}
+            onclick={`try { localStorage.setItem('cuan-locale', '${isEn ? 'id' : 'en'}'); } catch {}`}
+          >
+            {isEn ? 'ID' : 'EN'}
+          </a>
+
           <a
             href={APP_URL}
             class="label-caps rounded-md bg-primary px-4 py-2 text-primary-foreground transition-transform active:scale-[0.98]"
           >
-            Open app
+            {t.nav.openApp}
           </a>
         </div>
       </nav>
@@ -101,9 +138,9 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
       >
         <p>&copy; {new Date().getFullYear()} Cuan</p>
         <div class="flex items-center gap-5">
-          <a href="/privacy" class="transition-colors hover:text-foreground">Privacy</a>
-          <a href="/terms" class="transition-colors hover:text-foreground">Terms</a>
-          <a href={APP_URL} class="transition-colors hover:text-foreground">Sign in</a>
+          <a href={privacyHref} class="transition-colors hover:text-foreground">{t.nav.privacy}</a>
+          <a href={termsHref} class="transition-colors hover:text-foreground">{t.nav.terms}</a>
+          <a href={APP_URL} class="transition-colors hover:text-foreground">{t.nav.signIn}</a>
         </div>
       </div>
     </footer>
