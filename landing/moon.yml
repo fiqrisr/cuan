@@ -1,0 +1,29 @@
+$schema: 'https://moonrepo.dev/schemas/project.json'
+
+language: 'typescript'
+layer: 'application'
+stack: 'frontend'
+
+project:
+  name: 'landing'
+  description: 'Cuan marketing landing page (Astro, cuan.fiqri.dev)'
+
+tasks:
+  dev:
+    command: 'bun run dev'
+    preset: server
+
+  build:
+    command: 'bun run build'
+    inputs:
+      - 'src/**/*'
+      - 'public/**/*'
+      - 'astro.config.mjs'
+      - 'package.json'
+      - 'tsconfig.json'
+    outputs:
+      - 'dist'
+
+  preview:
+    command: 'bun run preview'
+    preset: server

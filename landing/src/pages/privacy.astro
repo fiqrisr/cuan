@@ -1,0 +1,53 @@
+---
+import Base from '../layouts/Base.astro';
+---
+
+<Base
+  title="Privacy - Cuan"
+  description="How Cuan handles your data. Short version: your ledger is yours, stored in your own database, never sold or shared."
+>
+  <section class="mx-auto max-w-3xl px-5 pt-32 pb-24 sm:px-6 sm:pt-40">
+    <h1 class="headline-md text-foreground">Privacy</h1>
+    <p class="body-md mt-2 text-muted-foreground">Last updated: August 2026</p>
+
+    <div class="body-lg mt-10 flex flex-col gap-6 text-muted-foreground">
+      <p>
+        Cuan is a personal expense tracker. This page explains, in plain language, what data the
+        service stores and why.
+      </p>
+
+      <h2 class="headline-sm pt-4 text-foreground">What is stored</h2>
+      <p>
+        Your account (name, email, password hash), your financial accounts, categories, and the
+        transactions you log. Chat messages are sent to a language model to extract structured
+        expense data; the resulting transactions are what get saved.
+      </p>
+
+      <h2 class="headline-sm pt-4 text-foreground">What is never done</h2>
+      <p>
+        Your data is never sold, never shared with advertisers, and never used to train models.
+        Session authentication is handled by better-auth against the same database that holds your
+        ledger.
+      </p>
+
+      <h2 class="headline-sm pt-4 text-foreground">AI processing</h2>
+      <p>
+        Chat messages are processed by an LLM through an OpenAI-compatible endpoint to classify
+        intent and extract amounts, categories, and accounts. The model returns structured JSON
+        only; it does not generate SQL or invent figures.
+      </p>
+
+      <h2 class="headline-sm pt-4 text-foreground">Deletion</h2>
+      <p>
+        Delete your account from the profile page in the app. Your accounts, categories,
+        transactions, and sessions are removed with it.
+      </p>
+
+      <h2 class="headline-sm pt-4 text-foreground">Contact</h2>
+      <p>
+        Questions about this policy: open an issue on the project repository or reach the
+        maintainer through the contact details listed there.
+      </p>
+    </div>
+  </section>
+</Base>

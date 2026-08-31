@@ -1,0 +1,314 @@
+---
+import Base from '../layouts/Base.astro';
+
+const APP_URL = 'https://app.cuan.fiqri.dev';
+
+const features = [
+  {
+    title: 'Chat-first logging',
+    body: 'Type the way you talk. "Kopi 25rb gopay" becomes a categorized transaction with the right account, amount, and date. No forms, no dropdowns.',
+    visual: 'glass',
+  },
+  {
+    title: 'Exact money math',
+    body: 'Amounts are stored as fixed-precision decimals, never floats. Every write recalculates the account balance in the same database transaction, so the books always reconcile.',
+    visual: 'gradient',
+    stat: 'numeric(12,2)',
+    statLabel: 'exact decimal storage',
+  },
+  {
+    title: 'Multiple accounts, one default',
+    body: 'Cash, e-wallets, and bank accounts each keep a running balance. Set a default and chat entries without an account land there automatically.',
+    visual: 'gradient',
+  },
+  {
+    title: 'Private by default',
+    body: 'Your ledger lives in your own database behind session auth. Nothing is shared, sold, or fed back into training data.',
+    visual: 'glass',
+  },
+];
+
+const steps = [
+  {
+    title: 'Say what you spent',
+    body: 'Open the chat and describe the expense in plain language. Any mix of English and Bahasa, in any order.',
+  },
+  {
+    title: 'Cuan structures it',
+    body: 'The assistant extracts amount, category, account, and date, then shows you the entry before it writes.',
+  },
+  {
+    title: 'Balances stay true',
+    body: 'The linked account recalculates in the same transaction. Totals are never stale, never approximate.',
+  },
+];
+---
+
+<Base
+  title="Cuan - Personal finance, written in plain words"
+  description="Cuan turns chat into a ledger. Log expenses in natural language, keep exact balances across accounts, and ask your money questions directly."
+>
+  <!-- Hero -->
+  <section class="ambient-glow relative overflow-hidden">
+    <div
+      class="mx-auto grid max-w-6xl items-center gap-16 px-5 pt-32 pb-20 sm:px-6 lg:min-h-[100dvh] lg:grid-cols-[1.05fr_0.95fr] lg:pt-24 lg:pb-24"
+    >
+      <div>
+        <h1 class="display-lg max-w-xl text-foreground">
+          Your expenses,<br />as fast as you can type them.
+        </h1>
+        <p class="body-lg prose-short mt-6 text-muted-foreground">
+          Cuan turns everyday chat into structured, double-checked expense records. Log a coffee
+          the moment you buy it; ask where your money went and get a real answer.
+        </p>
+        <div class="mt-10 flex flex-wrap items-center gap-4">
+          <a
+            href={APP_URL}
+            class="label-caps rounded-md bg-primary px-6 py-3 text-primary-foreground shadow-tint transition-transform active:scale-[0.98]"
+          >
+            Start keeping books
+          </a>
+          <a
+            href="#how-it-works"
+            class="label-caps rounded-md border border-border px-6 py-3 text-foreground transition-colors hover:border-[rgba(159,209,186,0.3)]"
+          >
+            See how it works
+          </a>
+        </div>
+      </div>
+
+      <!-- Product preview: mirrors the real chat UI in web/ -->
+      <div class="glass-panel rounded-2xl shadow-tint-lg">
+        <div class="flex items-center gap-3 border-b border-border/10 px-5 py-4">
+          <div
+            class="glass-panel flex h-9 w-9 items-center justify-center rounded-xl border-primary/20 text-primary shadow-tint"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.75"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <path d="M12 8V4H8" />
+              <rect width="16" height="12" x="4" y="8" rx="2" />
+              <path d="M2 14h2" />
+              <path d="M20 14h2" />
+              <path d="M15 13v2" />
+              <path d="M9 13v2" />
+            </svg>
+          </div>
+          <div>
+            <p class="text-sm font-semibold leading-none text-foreground">Cuan</p>
+            <p class="mt-1 text-[11px] font-medium text-muted-foreground">
+              Your financial assistant
+            </p>
+          </div>
+        </div>
+
+        <div class="flex flex-col gap-4 px-5 py-6">
+          <div
+            class="max-w-[85%] self-end rounded-xl rounded-tr-sm border border-primary/20 bg-accent px-4 py-3"
+          >
+            <p class="body-md text-accent-foreground">Kopi 25rb gopay</p>
+          </div>
+          <div class="flex items-start gap-2 self-start">
+            <div
+              class="glass-panel flex h-8 w-8 shrink-0 items-center justify-center rounded-full border-primary/20 text-primary"
+              aria-hidden="true"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.75"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M12 8V4H8" />
+                <rect width="16" height="12" x="4" y="8" rx="2" />
+                <path d="M2 14h2" />
+                <path d="M20 14h2" />
+                <path d="M15 13v2" />
+                <path d="M9 13v2" />
+              </svg>
+            </div>
+            <div class="flex flex-col gap-1">
+              <span
+                class="inline-flex w-fit items-center gap-1 rounded-sm bg-primary/10 px-2 py-1 text-[11px] font-medium text-primary"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="12"
+                  height="12"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  aria-hidden="true"
+                >
+                  <path d="M21.801 10A10 10 0 1 1 17 3.335" />
+                  <path d="m9 11 3 3L22 4" />
+                </svg>
+                Completed
+              </span>
+              <div
+                class="ai-message-gradient max-w-md rounded-xl rounded-tl-sm border border-border/20 px-4 py-3"
+              >
+                <p class="body-md text-foreground">
+                  Logged <strong class="font-semibold">Rp25.000</strong> to Food &amp; Dining from
+                  GoPay. Today: Rp128.500.
+                </p>
+              </div>
+            </div>
+          </div>
+          <div
+            class="max-w-[85%] self-end rounded-xl rounded-tr-sm border border-primary/20 bg-accent px-4 py-3"
+          >
+            <p class="body-md text-accent-foreground">Food this week?</p>
+          </div>
+          <div class="flex items-start gap-2 self-start">
+            <div
+              class="glass-panel flex h-8 w-8 shrink-0 items-center justify-center rounded-full border-primary/20 text-primary"
+              aria-hidden="true"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.75"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M12 8V4H8" />
+                <rect width="16" height="12" x="4" y="8" rx="2" />
+                <path d="M2 14h2" />
+                <path d="M20 14h2" />
+                <path d="M15 13v2" />
+                <path d="M9 13v2" />
+              </svg>
+            </div>
+            <div
+              class="ai-message-gradient max-w-md rounded-xl rounded-tl-sm border border-border/20 px-4 py-3"
+            >
+              <p class="body-md text-foreground">
+                Rp1.240.000 across 9 transactions. That is 18% under your weekly average.
+              </p>
+              <p class="data-mono mt-2 text-primary">Rp1.240.000 · 9 entries</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="border-t border-border/10 px-5 pt-4 pb-4">
+          <div
+            class="glass-panel flex w-full items-center rounded-2xl border border-border/30 p-1.5 shadow-tint"
+          >
+            <span class="flex-1 px-4 py-2.5 text-sm text-muted-foreground/60">
+              Log an expense, ask a question...
+            </span>
+            <span
+              class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary text-primary-foreground"
+              aria-hidden="true"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="m5 12 7-7 7 7" />
+                <path d="M12 19V5" />
+              </svg>
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features -->
+  <section id="features" class="border-t border-border">
+    <div class="mx-auto max-w-5xl px-5 py-24 sm:px-6 sm:py-32">
+      <h2 class="headline-md max-w-2xl text-foreground">
+        Everything a ledger should be. Nothing a spreadsheet forces on you.
+      </h2>
+      <div class="mt-16 grid gap-6 sm:grid-cols-2">
+        {
+          features.map((f) => (
+            <article
+              class:list={[
+                'rounded-xl p-6 sm:p-8',
+                f.visual === 'glass'
+                  ? 'glass-panel glass-panel-interactive'
+                  : 'ai-message-gradient glass-panel-interactive border border-border/20',
+              ]}
+            >
+              <h3 class="headline-sm text-foreground">{f.title}</h3>
+              <p class="body-md mt-3 text-muted-foreground">{f.body}</p>
+              {f.stat && (
+                <div class="mt-6 border-t border-border/20 pt-5">
+                  <p class="data-mono text-xl text-primary">{f.stat}</p>
+                  <p class="label-caps mt-1 text-muted-foreground">{f.statLabel}</p>
+                </div>
+              )}
+            </article>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- How it works -->
+  <section id="how-it-works" class="ambient-glow-bottom border-t border-border">
+    <div class="mx-auto max-w-5xl px-5 py-24 sm:px-6 sm:py-32">
+      <p class="label-caps mb-4 text-primary">How it works</p>
+      <h2 class="headline-md max-w-2xl text-foreground">Three seconds from thought to ledger.</h2>
+      <ol class="mt-16 grid gap-y-12 sm:grid-cols-3 sm:gap-x-8 sm:gap-y-0 sm:divide-x sm:divide-border/30">
+        {
+          steps.map((s) => (
+            <li class="sm:px-8 sm:first:pl-0 sm:last:pr-0">
+              <h3 class="headline-sm text-foreground">{s.title}</h3>
+              <p class="body-md mt-3 text-muted-foreground">{s.body}</p>
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="border-t border-border">
+    <div class="mx-auto max-w-5xl px-5 py-24 sm:px-6 sm:py-32">
+      <h2 class="headline-md max-w-2xl text-foreground">
+        Your next expense is one sentence away from the books.
+      </h2>
+      <p class="body-lg prose-short mt-6 text-muted-foreground">
+        Free to start. Your data stays yours.
+      </p>
+      <a
+        href={APP_URL}
+        class="label-caps mt-10 inline-block rounded-md bg-primary px-8 py-4 text-primary-foreground shadow-tint transition-transform active:scale-[0.98]"
+      >
+        Start keeping books
+      </a>
+    </div>
+  </section>
+</Base>

@@ -19,7 +19,9 @@
       "!**/out",
       "!**/.agent",
       "!**/*.css",
-      "!**/routeTree.gen.ts"
+      "!**/routeTree.gen.ts",
+      "!landing/**/*.astro",
+      "!landing/.astro"
     ]
   },
   "formatter": {
