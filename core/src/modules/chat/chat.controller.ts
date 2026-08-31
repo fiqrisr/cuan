@@ -8,7 +8,7 @@ export const chatController = new Elysia({ prefix: '/api/chat' })
   .post(
     '/',
     async ({ body, user, set }) => {
-      const result = await chatService.processChat(body.message, user.id);
+      const result = await chatService.processChat(body.message, user.id, body.locale);
       set.status = result.transactions?.length ? 201 : 200;
       return { data: result };
     },
@@ -21,7 +21,11 @@ export const chatController = new Elysia({ prefix: '/api/chat' })
       },
     },
   )
-  .post('/stream', async ({ body, user }) => chatService.streamChat(body.message, user.id), {
-    auth: true,
-    body: CreateChatRequestDto,
-  });
+  .post(
+    '/stream',
+    async ({ body, user }) => chatService.streamChat(body.message, user.id, body.locale),
+    {
+      auth: true,
+      body: CreateChatRequestDto,
+    },
+  );

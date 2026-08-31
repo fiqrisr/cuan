@@ -7,7 +7,7 @@ import { buildChatTools } from './chat.tools';
 import type { ChatResult, SavedTransaction, SavedTransfer } from './chat.types';
 
 export class ChatService {
-  async processChat(message: string, userId: string): Promise<ChatResult> {
+  async processChat(message: string, userId: string, locale?: 'en' | 'id'): Promise<ChatResult> {
     logger.info({ event: 'chat_process_started', userId }, 'processing chat message');
     const tools = buildChatTools(userId);
 
@@ -18,7 +18,7 @@ export class ChatService {
       model: languageModel,
       tools,
       stopWhen: stepCountIs(3),
-      system: getSystemPrompt(categoriesInfo),
+      system: getSystemPrompt(categoriesInfo, locale),
       prompt: message,
     });
 
@@ -73,7 +73,7 @@ export class ChatService {
     };
   }
 
-  async streamChat(message: string, userId: string): Promise<Response> {
+  async streamChat(message: string, userId: string, locale?: 'en' | 'id'): Promise<Response> {
     logger.info({ event: 'chat_stream_started', userId }, 'streaming chat message');
     const tools = buildChatTools(userId);
 
@@ -84,7 +84,7 @@ export class ChatService {
       model: languageModel,
       tools,
       stopWhen: stepCountIs(3),
-      system: getSystemPrompt(categoriesInfo),
+      system: getSystemPrompt(categoriesInfo, locale),
       prompt: message,
     }).toUIMessageStreamResponse();
   }

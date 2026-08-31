@@ -127,7 +127,7 @@ export class TransactionService {
           amount: data.amount.toString(),
           currency: data.currency,
           categoryId: data.categoryId,
-          description: data.description,
+          description: data.description ?? '',
           date: data.date,
           accountId: data.accountId || null,
         })

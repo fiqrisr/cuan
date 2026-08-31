@@ -2,6 +2,7 @@ import { t } from 'elysia';
 
 export const CreateChatRequestDto = t.Object({
   message: t.String({ minLength: 1 }),
+  locale: t.Optional(t.Union([t.Literal('en'), t.Literal('id')])),
 });
 
 export type CreateChatRequest = typeof CreateChatRequestDto.static;
