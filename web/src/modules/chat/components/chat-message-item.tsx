@@ -8,6 +8,7 @@ import {
   TypingIndicator,
 } from '@cuan/ui';
 import { Bot, CheckCircle2, ChevronDown } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import type { ChatMessage } from '../types';
 
 type ChatMessageItemProps = {
@@ -15,6 +16,7 @@ type ChatMessageItemProps = {
 };
 
 export function ChatMessageItem({ message }: ChatMessageItemProps) {
+  const { t } = useTranslation();
   const side = message.role === 'user' ? 'right' : 'left';
   const hasReasoning = message.reasoning !== undefined && message.reasoning.length > 0;
   const isStreaming = message.isStreaming ?? false;
@@ -22,10 +24,10 @@ export function ChatMessageItem({ message }: ChatMessageItemProps) {
   const showBubble = message.content || (isStreaming && message.role === 'assistant');
 
   const toolNameMapping: Record<string, string> = {
-    add_transaction: 'Recording transaction...',
-    query_finances: 'Analyzing finances...',
-    manage_account: 'Managing accounts...',
-    manage_category: 'Managing categories...',
+    add_transaction: t('chat.toolRecording'),
+    query_finances: t('chat.toolAnalyzing'),
+    manage_account: t('chat.toolAccounts'),
+    manage_category: t('chat.toolCategories'),
   };
 
   return (
@@ -45,7 +47,9 @@ export function ChatMessageItem({ message }: ChatMessageItemProps) {
                 isLoading={tool.status === 'running'}
               >
                 {tool.status === 'done' && <CheckCircle2 size={12} className="mr-0.5" />}
-                {tool.status === 'done' ? 'Completed' : toolNameMapping[tool.name] || 'Thinking...'}
+                {tool.status === 'done'
+                  ? t('chat.toolDone')
+                  : toolNameMapping[tool.name] || t('chat.thinking')}
               </Marker>
             ))}
           </div>
@@ -55,7 +59,7 @@ export function ChatMessageItem({ message }: ChatMessageItemProps) {
           <details className="group mb-1 max-w-md" open={isStreaming && !message.content}>
             <summary className="flex items-center gap-1 list-none cursor-pointer text-xs text-muted-foreground hover:text-foreground transition-colors">
               <ChevronDown size={14} className="transition-transform group-open:rotate-180" />
-              <span>{isStreaming ? 'Thinking' : 'Thought process'}</span>
+              <span>{isStreaming ? t('chat.thinking') : t('chat.thoughtProcess')}</span>
             </summary>
             <div className="mt-1.5 p-3 rounded bg-muted/30 text-muted-foreground text-xs leading-relaxed whitespace-pre-wrap border border-border/10">
               {message.reasoning}

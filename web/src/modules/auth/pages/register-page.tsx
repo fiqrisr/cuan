@@ -10,6 +10,7 @@ import {
 import { Link, useRouter } from '@tanstack/react-router';
 import { Loader2 } from 'lucide-react';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { AuthFormField } from '../components/auth-form-field';
 import { AuthLayout } from '../components/auth-layout';
 import { useRegisterMutation } from '../hooks/use-register-mutation';
@@ -30,6 +31,7 @@ function validateRegistration({
 }
 
 export function RegisterPage() {
+  const { t } = useTranslation();
   const router = useRouter();
   const { mutateAsync, isPending } = useRegisterMutation();
   const [name, setName] = useState('');
@@ -54,16 +56,13 @@ export function RegisterPage() {
   };
 
   return (
-    <AuthLayout
-      title="Start tracking"
-      subtitle="Create an account and turn your everyday messages into a clear picture of your money."
-    >
+    <AuthLayout title={t('auth.registerTitle')} subtitle={t('auth.registerSubtitle')}>
       <Card className="w-full max-w-sm bg-card/80 backdrop-blur-xl border-border/10 shadow-tint-lg">
         <form onSubmit={handleRegister}>
           <CardHeader className="space-y-1">
-            <CardTitle className="headline-sm text-foreground">Create your account</CardTitle>
+            <CardTitle className="headline-sm text-foreground">{t('auth.signUp')}</CardTitle>
             <CardDescription className="body-md text-muted-foreground">
-              Enter your details to get started.
+              {t('auth.registerSubtitle')}
             </CardDescription>
           </CardHeader>
           <CardContent className="grid gap-5">
@@ -77,7 +76,7 @@ export function RegisterPage() {
             )}
             <AuthFormField
               id="name"
-              label="Name"
+              label={t('auth.displayName')}
               type="text"
               placeholder="Siti Rahayu"
               value={name}
@@ -86,7 +85,7 @@ export function RegisterPage() {
             />
             <AuthFormField
               id="email"
-              label="Email"
+              label={t('auth.email')}
               type="email"
               placeholder="you@example.com"
               value={email}
@@ -95,7 +94,7 @@ export function RegisterPage() {
             />
             <AuthFormField
               id="password"
-              label="Password"
+              label={t('auth.password')}
               type="password"
               placeholder="••••••••"
               value={password}
@@ -125,19 +124,19 @@ export function RegisterPage() {
               {isPending ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Creating account...
+                  {t('common.loading')}
                 </>
               ) : (
-                'Create account'
+                t('auth.signUp')
               )}
             </Button>
             <div className="text-center text-sm text-muted-foreground">
-              Already have an account?{' '}
+              {t('auth.hasAccount')}{' '}
               <Link
                 to="/login"
                 className="font-medium text-primary hover:underline underline-offset-4 transition-colors"
               >
-                Log in
+                {t('auth.signIn')}
               </Link>
             </div>
           </CardFooter>

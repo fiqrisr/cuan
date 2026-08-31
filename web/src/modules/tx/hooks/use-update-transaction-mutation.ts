@@ -17,7 +17,12 @@ export function useUpdateTransactionMutation() {
   return useMutation({
     mutationFn: async ({ id, ...params }: UpdateTransactionParams) => {
       const { data, error } = await api.api.transactions({ id: id }).patch(params);
-      if (error) throw new Error(error.message || 'Failed to update transaction');
+      if (error)
+        throw new Error(
+          (error as { value?: { message?: string }; message?: string }).value?.message ||
+            (error as { message?: string }).message ||
+            'Failed to update transaction',
+        );
       return data;
     },
     onSuccess: () => {

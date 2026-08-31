@@ -1,5 +1,6 @@
 import { Button, Input } from '@cuan/ui';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useGetAccountListQuery } from '@/modules/account/hooks/use-get-account-list-query';
 import { useGetCategoriesQuery } from '@/modules/profile/hooks/use-get-categories-query';
 import { useCreateTransactionMutation } from '../hooks/use-create-transaction-mutation';
@@ -11,6 +12,7 @@ type Props = {
 };
 
 export function CreateTransactionForm({ onSuccess, onCancel, defaultAccountId }: Props) {
+  const { t } = useTranslation();
   const { data: accountsData } = useGetAccountListQuery();
   const { data: categoriesData } = useGetCategoriesQuery();
   const { mutateAsync: createTx, isPending } = useCreateTransactionMutation();
@@ -29,7 +31,7 @@ export function CreateTransactionForm({ onSuccess, onCancel, defaultAccountId }:
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!description || !amount || !accountId || !categoryId || !date) {
-      setError('Please fill in all required fields');
+      setError(t('common.error'));
       return;
     }
 
@@ -46,7 +48,7 @@ export function CreateTransactionForm({ onSuccess, onCancel, defaultAccountId }:
       });
       onSuccess();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to create transaction');
+      setError(err instanceof Error ? err.message : t('common.error'));
     }
   };
 
@@ -58,7 +60,9 @@ export function CreateTransactionForm({ onSuccess, onCancel, defaultAccountId }:
       <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary/40 to-transparent" />
 
       <div className="flex items-center justify-between">
-        <h3 className="font-semibold text-foreground text-sm tracking-tight">New Transaction</h3>
+        <h3 className="font-semibold text-foreground text-sm tracking-tight">
+          {t('transactions.addTransaction')}
+        </h3>
 
         <div className="flex bg-muted/40 p-1 rounded-lg border border-border/10">
           <button
@@ -66,14 +70,14 @@ export function CreateTransactionForm({ onSuccess, onCancel, defaultAccountId }:
             onClick={() => setType('expense')}
             className={`px-3 py-1 text-xs font-medium rounded-md transition-colors ${type === 'expense' ? 'bg-background shadow-tint text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
           >
-            Expense
+            {t('transactions.typeExpense')}
           </button>
           <button
             type="button"
             onClick={() => setType('income')}
             className={`px-3 py-1 text-xs font-medium rounded-md transition-colors ${type === 'income' ? 'bg-background shadow-tint text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
           >
-            Income
+            {t('transactions.typeIncome')}
           </button>
         </div>
       </div>
@@ -84,11 +88,11 @@ export function CreateTransactionForm({ onSuccess, onCancel, defaultAccountId }:
             htmlFor="tx-description"
             className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider"
           >
-            Description
+            {t('common.description')}
           </label>
           <Input
             id="tx-description"
-            placeholder="e.g. Coffee at Starbucks"
+            placeholder="e.g. Kopi susu"
             value={description}
             onChange={e => setDescription(e.target.value)}
             autoFocus
@@ -101,7 +105,7 @@ export function CreateTransactionForm({ onSuccess, onCancel, defaultAccountId }:
             htmlFor="tx-amount"
             className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider"
           >
-            Amount
+            {t('common.amount')}
           </label>
           <div className="relative">
             <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm font-medium">
@@ -125,7 +129,7 @@ export function CreateTransactionForm({ onSuccess, onCancel, defaultAccountId }:
             htmlFor="tx-date"
             className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider"
           >
-            Date
+            {t('common.date')}
           </label>
           <Input
             id="tx-date"
@@ -141,7 +145,7 @@ export function CreateTransactionForm({ onSuccess, onCancel, defaultAccountId }:
             htmlFor="tx-account"
             className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider"
           >
-            Account
+            {t('common.account')}
           </label>
           <select
             id="tx-account"
@@ -150,7 +154,7 @@ export function CreateTransactionForm({ onSuccess, onCancel, defaultAccountId }:
             className="flex h-10 w-full rounded-lg border border-input bg-background px-3 py-2 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
           >
             <option value="" disabled>
-              Select account
+              {t('transactions.selectAccount')}
             </option>
             {accounts.map(acc => (
               <option key={acc.id} value={acc.id}>
@@ -165,7 +169,7 @@ export function CreateTransactionForm({ onSuccess, onCancel, defaultAccountId }:
             htmlFor="tx-category"
             className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider"
           >
-            Category
+            {t('common.category')}
           </label>
           <select
             id="tx-category"
@@ -174,7 +178,7 @@ export function CreateTransactionForm({ onSuccess, onCancel, defaultAccountId }:
             className="flex h-10 w-full rounded-lg border border-input bg-background px-3 py-2 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
           >
             <option value="" disabled>
-              Select category
+              {t('transactions.selectCategory')}
             </option>
             {categories.map(cat => (
               <option key={cat.id} value={cat.id}>
@@ -193,10 +197,10 @@ export function CreateTransactionForm({ onSuccess, onCancel, defaultAccountId }:
 
       <div className="flex justify-end gap-3 mt-2">
         <Button type="button" variant="ghost" onClick={onCancel} className="h-9 px-4 text-sm">
-          Cancel
+          {t('common.cancel')}
         </Button>
         <Button type="submit" disabled={isPending} className="h-9 px-6 text-sm shadow-tint">
-          {isPending ? 'Saving...' : 'Save'}
+          {isPending ? t('common.loading') : t('common.save')}
         </Button>
       </div>
     </form>

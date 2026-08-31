@@ -1,6 +1,7 @@
 import { Button } from '@cuan/ui';
 import { ArrowUp } from 'lucide-react';
 import type React from 'react';
+import { useTranslation } from 'react-i18next';
 
 type ChatInputProps = {
   value: string;
@@ -10,6 +11,7 @@ type ChatInputProps = {
 };
 
 export function ChatInput({ value, onChange, onSubmit, isLoading }: ChatInputProps) {
+  const { t } = useTranslation();
   return (
     <div className="shrink-0 px-5 pt-4 pb-24 lg:pb-4 bg-background/80 backdrop-blur-xl border-t border-border/10">
       <form onSubmit={onSubmit} className="max-w-[1440px] mx-auto w-full">
@@ -17,7 +19,7 @@ export function ChatInput({ value, onChange, onSubmit, isLoading }: ChatInputPro
           <input
             value={value}
             onChange={e => onChange(e.target.value)}
-            placeholder="Ask Cuan to log expenses, check balances, or manage accounts..."
+            placeholder={t('chat.inputPlaceholder')}
             className="flex-1 bg-transparent border-none focus:outline-none focus:ring-0 text-sm text-foreground placeholder:text-muted-foreground/60 px-4 py-2.5"
             disabled={isLoading}
             aria-label="Chat message"
@@ -27,7 +29,7 @@ export function ChatInput({ value, onChange, onSubmit, isLoading }: ChatInputPro
             size="icon"
             className="rounded-xl shrink-0 h-9 w-9 p-0 min-w-0"
             disabled={isLoading || !value.trim()}
-            aria-label="Send message"
+            aria-label={t('chat.send')}
           >
             <ArrowUp size={16} strokeWidth={2.5} />
           </Button>

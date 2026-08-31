@@ -1,6 +1,7 @@
 import { Button, Card, CardContent, CardDescription, CardHeader, CardTitle } from '@cuan/ui';
 import { BarChart3, LineChart } from 'lucide-react';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Area,
   AreaChart,
@@ -52,23 +53,22 @@ const formatDateLabel = (dateStr: string) => {
 };
 
 export function SpendingTrend({ daily }: Props) {
+  const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState<'bars' | 'net'>('bars');
 
   if (daily.length === 0) {
     return (
       <Card className="flex flex-col h-full min-h-[350px]">
         <CardHeader>
-          <CardTitle className="text-base font-semibold">Spending & cash flow</CardTitle>
-          <CardDescription>
-            Daily comparison of income vs expenses
-          </CardDescription>
+          <CardTitle className="text-base font-semibold">{t('dashboard.spendingTrend')}</CardTitle>
+          <CardDescription>{t('dashboard.incomeVsExpense')}</CardDescription>
         </CardHeader>
         <CardContent className="flex-1 flex flex-col items-center justify-center text-muted-foreground py-14 gap-2">
           <div className="p-3 rounded-full bg-muted/30">
             <BarChart3 size={22} strokeWidth={1.75} />
           </div>
-          <p className="text-sm font-medium text-foreground">No data available</p>
-          <p className="text-xs text-muted-foreground">Try selecting a wider date range.</p>
+          <p className="text-sm font-medium text-foreground">{t('common.noResults')}</p>
+          <p className="text-xs text-muted-foreground">{t('common.retry')}</p>
         </CardContent>
       </Card>
     );
@@ -113,9 +113,9 @@ export function SpendingTrend({ daily }: Props) {
     <Card className="flex flex-col h-full min-h-[380px] relative">
       <CardHeader className="flex flex-col lg:flex-row lg:items-center justify-between pb-2 gap-4">
         <div>
-          <CardTitle className="text-base font-semibold">Spending & Cash Flow</CardTitle>
+          <CardTitle className="text-base font-semibold">{t('dashboard.spendingTrend')}</CardTitle>
           <CardDescription className="mt-0.5 leading-snug">
-            Daily comparison of income, expenses, and cash flow
+            {t('dashboard.incomeVsExpense')}
           </CardDescription>
         </div>
         <div className="flex bg-muted/40 p-0.5 rounded-lg border border-border/10 shrink-0 self-start lg:self-auto overflow-x-auto max-w-full">
@@ -130,7 +130,7 @@ export function SpendingTrend({ daily }: Props) {
             }`}
           >
             <BarChart3 className="h-3.5 w-3.5" />
-            Income/Expense
+            {t('dashboard.incomeVsExpense')}
           </Button>
           <Button
             variant={activeTab === 'net' ? 'secondary' : 'ghost'}
@@ -143,7 +143,7 @@ export function SpendingTrend({ daily }: Props) {
             }`}
           >
             <LineChart className="h-3.5 w-3.5" />
-            Net Cash Flow
+            {t('dashboard.netThisMonth')}
           </Button>
         </div>
       </CardHeader>
@@ -173,7 +173,7 @@ export function SpendingTrend({ daily }: Props) {
 
                 <Bar
                   dataKey="income"
-                  name="Income"
+                  name={t('transactions.typeIncome')}
                   fill="var(--primary)"
                   radius={[2, 2, 0, 0]}
                   maxBarSize={40}
@@ -181,7 +181,7 @@ export function SpendingTrend({ daily }: Props) {
                 />
                 <Bar
                   dataKey="expense"
-                  name="Expense"
+                  name={t('transactions.typeExpense')}
                   fill="var(--destructive)"
                   radius={[2, 2, 0, 0]}
                   maxBarSize={40}

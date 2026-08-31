@@ -1,5 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@cuan/ui';
 import { ArrowDownRight, ArrowUpRight, PiggyBank, Wallet } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 type Props = {
   totalBalance: number;
@@ -24,32 +25,33 @@ export function SummaryCards({
   netSavings,
   savingsRate,
 }: Props) {
+  const { t } = useTranslation();
   const items = [
     {
-      title: 'Total balance',
+      title: t('dashboard.totalBalance'),
       value: formatCurrency(totalBalance),
-      hint: 'Current balance across accounts',
+      hint: t('accounts.subtitle'),
       icon: Wallet,
       tone: 'default' as const,
     },
     {
-      title: 'Income',
+      title: t('dashboard.monthlyIncome'),
       value: formatCurrency(totalIncome),
-      hint: 'Total earnings in period',
+      hint: t('dashboard.incomeVsExpense'),
       icon: ArrowDownRight,
       tone: 'primary' as const,
     },
     {
-      title: 'Expenses',
+      title: t('dashboard.monthlyExpense'),
       value: formatCurrency(totalExpense),
-      hint: 'Total spending in period',
+      hint: t('dashboard.spendingTrend'),
       icon: ArrowUpRight,
       tone: 'destructive' as const,
     },
     {
-      title: 'Savings',
+      title: t('dashboard.netThisMonth'),
       value: formatCurrency(netSavings),
-      hint: `${savingsRate.toFixed(1)}% savings rate`,
+      hint: `${savingsRate.toFixed(1)}%`,
       icon: PiggyBank,
       tone: 'primary' as const,
     },

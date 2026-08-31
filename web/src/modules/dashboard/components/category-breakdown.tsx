@@ -1,4 +1,5 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@cuan/ui';
+import { useTranslation } from 'react-i18next';
 import {
   Cell,
   Pie,
@@ -41,6 +42,7 @@ const CHART_COLORS = [
 ];
 
 export function CategoryBreakdown({ categories }: Props) {
+  const { t } = useTranslation();
   const sortedCategories = [...categories].sort((a, b) => Number(b.amount) - Number(a.amount));
 
   const CustomTooltip = ({ active, payload }: CategoryTooltipProps) => {
@@ -53,7 +55,7 @@ export function CategoryBreakdown({ categories }: Props) {
             <span className="font-semibold text-foreground">{data.label}</span>
           </div>
           <div className="flex justify-between items-center gap-4">
-            <span className="text-muted-foreground">Amount:</span>
+            <span className="text-muted-foreground">{t('common.amount')}:</span>
             <span className="font-mono font-medium text-foreground">
               {formatCurrency(data.amount)}
             </span>
@@ -73,8 +75,10 @@ export function CategoryBreakdown({ categories }: Props) {
   return (
     <Card className="flex flex-col h-full min-h-[380px]">
       <CardHeader>
-        <CardTitle className="text-base font-semibold">Category breakdown</CardTitle>
-        <CardDescription>Expenses by category in the selected period</CardDescription>
+        <CardTitle className="text-base font-semibold">
+          {t('dashboard.categoryBreakdown')}
+        </CardTitle>
+        <CardDescription>{t('transactions.subtitle')}</CardDescription>
       </CardHeader>
       <CardContent className="flex-1 flex flex-col pt-0 pb-4">
         {sortedCategories.length === 0 ? (
@@ -82,7 +86,7 @@ export function CategoryBreakdown({ categories }: Props) {
             <div className="p-3 rounded-full bg-muted/30">
               <span className="block h-5 w-5 rounded-full border-2 border-dashed border-muted-foreground/40" />
             </div>
-            <p className="text-sm font-medium text-foreground">No expenses in this period</p>
+            <p className="text-sm font-medium text-foreground">{t('common.noResults')}</p>
           </div>
         ) : (
           <div className="flex-1 flex flex-col gap-4">

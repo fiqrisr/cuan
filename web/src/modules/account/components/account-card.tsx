@@ -2,6 +2,7 @@ import { Badge, Button, Input } from '@cuan/ui';
 import { Link } from '@tanstack/react-router';
 import { Check, Edit2, Wallet, X } from 'lucide-react';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { ConfirmModal } from '@/components/confirm-modal';
 import { useDeleteAccountMutation } from '../hooks/use-delete-account-mutation';
 import { useUpdateAccountMutation } from '../hooks/use-update-account-mutation';
@@ -12,6 +13,7 @@ type AccountCardProps = {
 };
 
 export function AccountCard({ account }: AccountCardProps) {
+  const { t } = useTranslation();
   const [isEditing, setIsEditing] = useState(false);
   const [name, setName] = useState(account.name);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -110,14 +112,14 @@ export function AccountCard({ account }: AccountCardProps) {
                       type="button"
                       onClick={() => setIsEditing(true)}
                       className="text-muted-foreground hover:text-foreground transition-colors p-1"
-                      aria-label="Edit account name"
+                      aria-label={t('common.edit')}
                     >
                       <Edit2 size={12} />
                     </button>
                   </div>
                   {account.isDefault && (
                     <Badge variant="success" className="h-5 px-1.5 text-[9px] w-fit mt-0.5">
-                      Default
+                      {t('accounts.defaultBadge')}
                     </Badge>
                   )}
                 </div>
@@ -133,7 +135,7 @@ export function AccountCard({ account }: AccountCardProps) {
                   disabled={isUpdating}
                   className="h-7 px-2 text-[10px] font-medium"
                 >
-                  Set Default
+                  {t('accounts.setDefault')}
                 </Button>
               )}
             </div>
@@ -150,7 +152,7 @@ export function AccountCard({ account }: AccountCardProps) {
             params={{ accountId: account.id }}
             className="text-xs font-medium text-primary hover:text-primary/80 transition-colors"
           >
-            View history →
+            {t('nav.activity')} →
           </Link>
 
           {!account.isDefault && (
@@ -159,7 +161,7 @@ export function AccountCard({ account }: AccountCardProps) {
               onClick={() => setShowDeleteModal(true)}
               className="text-xs font-medium text-destructive hover:text-destructive/80 transition-colors"
             >
-              Delete account
+              {t('accounts.deleteAccount')}
             </button>
           )}
         </div>
@@ -167,13 +169,13 @@ export function AccountCard({ account }: AccountCardProps) {
 
       <ConfirmModal
         isOpen={showDeleteModal}
-        title="Delete Account"
-        description={`Are you sure you want to delete "${account.name}"? This action cannot be undone and will permanently delete all associated transactions.`}
-        confirmText="Delete"
+        title={t('accounts.deleteConfirmTitle')}
+        description={t('accounts.deleteConfirmBody')}
+        confirmText={t('common.delete')}
+        cancelText={t('common.cancel')}
         onConfirm={handleDelete}
         onCancel={() => setShowDeleteModal(false)}
         isPending={isDeleting}
-        variant="danger"
       />
     </>
   );

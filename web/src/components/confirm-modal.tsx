@@ -1,5 +1,6 @@
 import { Button } from '@cuan/ui';
 import { AlertCircle, X } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { useEffect } from 'react';
 import { createPortal } from 'react-dom';
 
@@ -19,13 +20,16 @@ export function ConfirmModal({
   isOpen,
   title,
   description,
-  confirmText = 'Confirm',
-  cancelText = 'Cancel',
+  confirmText,
+  cancelText,
   onConfirm,
   onCancel,
   isPending,
   variant = 'danger',
 }: ConfirmModalProps) {
+  const { t } = useTranslation();
+  const resolvedConfirmText = confirmText ?? t('common.confirm');
+  const resolvedCancelText = cancelText ?? t('common.cancel');
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = 'hidden';
@@ -72,7 +76,7 @@ export function ConfirmModal({
             disabled={isPending}
             className="w-full sm:w-auto"
           >
-            {cancelText}
+            {resolvedCancelText}
           </Button>
           <Button
             variant={variant === 'danger' ? 'destructive' : 'default'}
@@ -80,7 +84,7 @@ export function ConfirmModal({
             disabled={isPending}
             className="w-full sm:w-auto shadow-tint"
           >
-            {isPending ? 'Confirming...' : confirmText}
+            {isPending ? t('common.loading') : resolvedConfirmText}
           </Button>
         </div>
       </div>

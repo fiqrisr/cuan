@@ -1,5 +1,6 @@
 import type React from 'react';
 import { useCallback, useEffect, useRef, useState } from 'react';
+import i18n from '@/core/i18n';
 import type { ChatMessage } from '../types';
 
 export type ChatStreamEvent =
@@ -30,13 +31,14 @@ function parseSSELine(line: string): ChatStreamEvent | null {
 
 async function streamChat(
   message: string,
+  locale: string,
   onEvent: (event: ChatStreamEvent) => void,
   signal: AbortSignal,
 ): Promise<void> {
   const res = await fetch('/api/chat/stream', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ message }),
+    body: JSON.stringify({ message, locale }),
     signal,
   });
   if (!res.ok) {
@@ -181,7 +183,7 @@ export function useChatStream(): UseChatStreamReturn {
     setIsLoading(true);
 
     try {
-      await streamChat(text, evt => applyEvent(aiMsgId, evt), controller.signal);
+      await streamChat(text, i18n.language, evt => applyEvent(aiMsgId, evt), controller.signal);
     } catch (err) {
       if (err instanceof Error && err.name === 'AbortError') return;
       const msg = err instanceof Error ? err.message : 'Something went wrong';

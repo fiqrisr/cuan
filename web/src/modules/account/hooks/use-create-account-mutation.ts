@@ -3,7 +3,7 @@ import { api } from '@/core/api';
 
 type CreateAccountParams = {
   name: string;
-  type?: string;
+  type?: 'bank' | 'cash' | 'e-wallet' | 'other';
   currency?: string;
   initialBalance?: number;
 };
@@ -18,7 +18,12 @@ export function useCreateAccountMutation() {
         type: params.type || 'bank',
         initialBalance: params.initialBalance || 0,
       });
-      if (error) throw new Error(error.message || 'Failed to create account');
+      if (error)
+        throw new Error(
+          (error as { value?: { message?: string }; message?: string }).value?.message ||
+            (error as { message?: string }).message ||
+            'Failed to create account',
+        );
       return data;
     },
     onSuccess: () => {

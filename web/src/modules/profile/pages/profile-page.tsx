@@ -1,6 +1,7 @@
 import { Badge, Button, Card, CardContent, CardHeader, CardTitle, Input, Skeleton } from '@cuan/ui';
-import { Check, LogOut, Monitor, Moon, Pencil, Sun, Trash2, User, X } from 'lucide-react';
+import { Check, Globe, LogOut, Monitor, Moon, Pencil, Sun, Trash2, User, X } from 'lucide-react';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { authClient } from '@/core/auth';
 import { useTheme } from '@/core/theme-context';
 import { ConfirmModal } from '@/components/confirm-modal';
@@ -14,6 +15,7 @@ export function ProfilePage() {
   const { data, isPending } = authClient.useSession();
   const { mutateAsync: logout, isPending: isLoggingOut } = useLogoutMutation();
   const { theme, resolvedTheme, setTheme } = useTheme();
+  const { t, i18n } = useTranslation();
 
   const [isCreating, setIsCreating] = useState(false);
   const [newLabel, setNewLabel] = useState('');
@@ -90,16 +92,20 @@ export function ProfilePage() {
       <div className="px-5 pt-10 pb-28 lg:pb-10 sm:px-8 lg:px-16 xl:px-20 max-w-[1440px] mx-auto w-full flex flex-col gap-8">
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6 pb-3 border-b border-border/10">
           <div>
-            <h1 className="display-lg-mobile lg:headline-md text-foreground">Profile</h1>
+            <h1 className="display-lg-mobile lg:headline-md text-foreground">
+              {t('profile.title')}
+            </h1>
             <p className="body-md text-muted-foreground mt-2 prose-short">
-              Manage your private account preferences.
+              {t('profile.subtitle')}
             </p>
           </div>
         </div>
 
         <Card className="max-w-2xl">
           <CardHeader>
-            <CardTitle className="label-caps text-muted-foreground">Account details</CardTitle>
+            <CardTitle className="label-caps text-muted-foreground">
+              {t('profile.account')}
+            </CardTitle>
           </CardHeader>
           <CardContent className="flex flex-col gap-6">
             {isPending ? (
@@ -130,7 +136,7 @@ export function ProfilePage() {
                 disabled={isLoggingOut}
               >
                 <LogOut size={14} />
-                {isLoggingOut ? 'Logging out...' : 'Log Out'}
+                {isLoggingOut ? t('common.loading') : t('auth.signOut')}
               </Button>
             </div>
           </CardContent>
@@ -138,7 +144,9 @@ export function ProfilePage() {
 
         <Card className="max-w-2xl mt-4">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
-            <CardTitle className="label-caps text-muted-foreground">Category management</CardTitle>
+            <CardTitle className="label-caps text-muted-foreground">
+              {t('categories.title')}
+            </CardTitle>
             <Button
               size="sm"
               variant="outline"
@@ -146,7 +154,7 @@ export function ProfilePage() {
               className="h-7 px-3 text-xs min-w-0 font-medium"
               disabled={isCreating}
             >
-              + Add Category
+              + {t('categories.addCategory')}
             </Button>
           </CardHeader>
           <CardContent className="flex flex-col gap-4">
@@ -157,7 +165,7 @@ export function ProfilePage() {
                     htmlFor="new-category-label"
                     className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider"
                   >
-                    Category label
+                    {t('categories.categoryName')}
                   </label>
                   <Input
                     id="new-category-label"
@@ -181,7 +189,7 @@ export function ProfilePage() {
                     }}
                     className="h-7 text-xs min-w-0 px-3"
                   >
-                    Cancel
+                    {t('common.cancel')}
                   </Button>
                   <Button
                     size="sm"
@@ -189,7 +197,7 @@ export function ProfilePage() {
                     disabled={isCreatingCat}
                     className="h-7 text-xs min-w-0 px-3 font-semibold"
                   >
-                    {isCreatingCat ? 'Saving...' : 'Save'}
+                    {isCreatingCat ? t('common.loading') : t('common.save')}
                   </Button>
                 </div>
               </div>
@@ -202,7 +210,9 @@ export function ProfilePage() {
                 <Skeleton className="h-10 w-full" />
               </div>
             ) : categories.length === 0 ? (
-              <p className="text-sm text-muted-foreground text-center py-4">No categories found.</p>
+              <p className="text-sm text-muted-foreground text-center py-4">
+                {t('common.noResults')}
+              </p>
             ) : (
               <div className="flex flex-col divide-y divide-border/10 max-h-[350px] overflow-y-auto pr-1">
                 {categories.map(category => (
@@ -217,7 +227,7 @@ export function ProfilePage() {
                             value={editingLabel}
                             onChange={e => setEditingLabel(e.target.value)}
                             className="h-8 text-xs py-0.5 flex-1"
-                            placeholder="Category Label"
+                            placeholder={t('categories.categoryName')}
                             autoFocus
                             onKeyDown={e => {
                               if (e.key === 'Enter') handleUpdate(category.id);
@@ -283,7 +293,7 @@ export function ProfilePage() {
                                   setUpdateError(null);
                                 }}
                                 className="h-7 w-7 text-muted-foreground hover:text-foreground shrink-0"
-                                title="Edit category"
+                                title={t('common.edit')}
                               >
                                 <Pencil size={12} />
                               </Button>
@@ -293,7 +303,7 @@ export function ProfilePage() {
                                 onClick={() => setDeletingId(category.id)}
                                 disabled={isDeletingCat}
                                 className="h-7 w-7 text-destructive hover:text-destructive/80 shrink-0"
-                                title="Delete category"
+                                title={t('common.delete')}
                               >
                                 <Trash2 size={12} />
                               </Button>
@@ -310,14 +320,11 @@ export function ProfilePage() {
         </Card>
         <Card className="max-w-2xl mt-4">
           <CardHeader>
-            <CardTitle className="label-caps text-muted-foreground">Theme settings</CardTitle>
+            <CardTitle className="label-caps text-muted-foreground">{t('profile.theme')}</CardTitle>
           </CardHeader>
           <CardContent className="flex flex-col gap-6">
             <div>
-              <p className="font-semibold text-base text-foreground">Visual theme</p>
-              <p className="text-sm text-muted-foreground mt-1">
-                Customize how Cuan looks on your device. Persisted to local storage.
-              </p>
+              <p className="font-semibold text-base text-foreground">{t('profile.theme')}</p>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -327,7 +334,7 @@ export function ProfilePage() {
                 onClick={() => setTheme('light')}
               >
                 <Sun size={20} />
-                <span className="text-xs font-semibold">Light</span>
+                <span className="text-xs font-semibold">{t('nav.themeLight')}</span>
               </Button>
 
               <Button
@@ -336,7 +343,7 @@ export function ProfilePage() {
                 onClick={() => setTheme('dark')}
               >
                 <Moon size={20} />
-                <span className="text-xs font-semibold">Dark</span>
+                <span className="text-xs font-semibold">{t('nav.themeDark')}</span>
               </Button>
 
               <Button
@@ -346,10 +353,10 @@ export function ProfilePage() {
               >
                 <Monitor size={20} />
                 <span className="text-xs font-semibold text-center whitespace-normal leading-tight">
-                  System{' '}
+                  {t('nav.themeSystem')}{' '}
                   {theme === 'system' && (
                     <span className="block text-[10px] opacity-80 mt-0.5">
-                      ({resolvedTheme === 'dark' ? 'Dark' : 'Light'})
+                      ({resolvedTheme === 'dark' ? t('nav.themeDark') : t('nav.themeLight')})
                     </span>
                   )}
                 </span>
@@ -357,12 +364,54 @@ export function ProfilePage() {
             </div>
           </CardContent>
         </Card>
+
+        <Card className="max-w-2xl mt-4">
+          <CardHeader>
+            <CardTitle className="label-caps text-muted-foreground">
+              {t('profile.language')}
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="flex flex-col gap-6">
+            <div>
+              <p className="font-semibold text-base text-foreground">
+                {t('profile.languageLabel')}
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <Button
+                variant={i18n.language.startsWith('id') ? 'default' : 'outline'}
+                className="flex items-center justify-start gap-3 py-4 px-4 h-auto"
+                onClick={() => i18n.changeLanguage('id')}
+              >
+                <Globe size={18} />
+                <div className="text-left">
+                  <p className="text-xs font-semibold">{t('profile.languageId')}</p>
+                  <p className="text-[10px] opacity-80">Indonesian</p>
+                </div>
+              </Button>
+
+              <Button
+                variant={i18n.language.startsWith('en') ? 'default' : 'outline'}
+                className="flex items-center justify-start gap-3 py-4 px-4 h-auto"
+                onClick={() => i18n.changeLanguage('en')}
+              >
+                <Globe size={18} />
+                <div className="text-left">
+                  <p className="text-xs font-semibold">{t('profile.languageEn')}</p>
+                  <p className="text-[10px] opacity-80">English</p>
+                </div>
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
       </div>
       <ConfirmModal
         isOpen={deletingId !== null}
-        title="Delete Category"
-        description="Are you sure you want to delete this category? It will be removed from your lists."
-        confirmText="Delete"
+        title={t('categories.deleteConfirmTitle')}
+        description={t('categories.deleteConfirmBody')}
+        confirmText={t('common.delete')}
+        cancelText={t('common.cancel')}
         onConfirm={confirmDelete}
         onCancel={() => setDeletingId(null)}
         isPending={isDeletingCat}

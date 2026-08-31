@@ -2,7 +2,6 @@ import { Button, Input } from '@cuan/ui';
 import {
   Apple,
   Car,
-  Check,
   Coffee,
   CreditCard,
   Edit2,
@@ -10,10 +9,10 @@ import {
   Trash2,
   TrendingUp,
   Utensils,
-  X,
   Zap,
 } from 'lucide-react';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { ConfirmModal } from '@/components/confirm-modal';
 import { useDeleteTransactionMutation } from '../hooks/use-delete-transaction-mutation';
 import { useUpdateTransactionMutation } from '../hooks/use-update-transaction-mutation';
@@ -74,6 +73,7 @@ const getCategoryIcon = (category: string | null) => {
 };
 
 export function TransactionRow({ transaction: tx }: Props) {
+  const { t } = useTranslation();
   const isIncome = tx.type === 'income';
   const Icon = getCategoryIcon(tx.category);
 
@@ -116,7 +116,7 @@ export function TransactionRow({ transaction: tx }: Props) {
             value={description}
             onChange={e => setDescription(e.target.value)}
             className="h-8 text-sm w-full"
-            placeholder="Description"
+            placeholder={t('common.description')}
             autoFocus
           />
           <Input
@@ -124,7 +124,7 @@ export function TransactionRow({ transaction: tx }: Props) {
             value={amount}
             onChange={e => setAmount(e.target.value)}
             className="h-8 text-sm w-full font-mono"
-            placeholder="Amount"
+            placeholder={t('common.amount')}
           />
         </div>
         <div className="flex items-center gap-2 self-end sm:self-center">
@@ -138,7 +138,7 @@ export function TransactionRow({ transaction: tx }: Props) {
             }}
             className="h-8 px-3 text-xs"
           >
-            Cancel
+            {t('common.cancel')}
           </Button>
           <Button
             size="sm"
@@ -146,7 +146,7 @@ export function TransactionRow({ transaction: tx }: Props) {
             disabled={isUpdating}
             className="h-8 px-4 text-xs shadow-tint"
           >
-            {isUpdating ? 'Saving...' : 'Save'}
+            {isUpdating ? t('common.loading') : t('common.save')}
           </Button>
         </div>
       </div>
@@ -175,7 +175,7 @@ export function TransactionRow({ transaction: tx }: Props) {
                 type="button"
                 onClick={() => setIsEditing(true)}
                 className="text-muted-foreground hover:text-foreground opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity p-0.5"
-                aria-label="Edit transaction"
+                aria-label={t('common.edit')}
               >
                 <Edit2 size={12} />
               </button>
@@ -193,7 +193,7 @@ export function TransactionRow({ transaction: tx }: Props) {
             type="button"
             onClick={() => setShowDeleteModal(true)}
             className="text-destructive hover:text-destructive/80 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity p-1"
-            aria-label="Delete transaction"
+            aria-label={t('common.delete')}
           >
             <Trash2 size={14} />
           </button>
@@ -202,9 +202,10 @@ export function TransactionRow({ transaction: tx }: Props) {
 
       <ConfirmModal
         isOpen={showDeleteModal}
-        title="Delete Transaction"
-        description={`Are you sure you want to delete "${tx.description}"? This will impact your account balance.`}
-        confirmText="Delete"
+        title={t('transactions.deleteConfirmTitle')}
+        description={t('transactions.deleteConfirmBody')}
+        confirmText={t('common.delete')}
+        cancelText={t('common.cancel')}
         onConfirm={handleDelete}
         onCancel={() => setShowDeleteModal(false)}
         isPending={isDeleting}

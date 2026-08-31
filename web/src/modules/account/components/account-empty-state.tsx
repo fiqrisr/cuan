@@ -1,7 +1,9 @@
 import { Link } from '@tanstack/react-router';
 import { Wallet } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 export function AccountEmptyState() {
+  const { t } = useTranslation();
   return (
     <div
       role="status"
@@ -11,16 +13,14 @@ export function AccountEmptyState() {
         <Wallet size={32} strokeWidth={1.5} />
       </div>
       <div>
-        <h3 className="text-base font-semibold text-foreground">No accounts yet</h3>
-        <p className="text-sm text-muted-foreground mt-1 prose-short">
-          Tell the assistant to create an account, and it will show up here.
-        </p>
+        <h3 className="text-base font-semibold text-foreground">{t('accounts.emptyTitle')}</h3>
+        <p className="text-sm text-muted-foreground mt-1 prose-short">{t('accounts.emptyBody')}</p>
       </div>
       <Link
         to="/chat"
         className="mt-1 inline-flex items-center justify-center rounded-md bg-primary px-5 py-2 text-sm font-semibold text-primary-foreground transition-all hover:brightness-110 active:scale-[0.98]"
       >
-        Create account in chat
+        {t('accounts.addAccount')}
       </Link>
     </div>
   );

@@ -1,5 +1,6 @@
 import { Button, Input } from '@cuan/ui';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { AccountCard } from '../components/account-card';
 import { AccountEmptyState } from '../components/account-empty-state';
 import { AccountListSkeleton } from '../components/account-list-skeleton';
@@ -7,6 +8,7 @@ import { useCreateAccountMutation } from '../hooks/use-create-account-mutation';
 import { useGetAccountListQuery } from '../hooks/use-get-account-list-query';
 
 export function AccountsPage() {
+  const { t } = useTranslation();
   const { data, isLoading, isError, error } = useGetAccountListQuery();
   const { mutateAsync: createAccount, isPending: isCreating } = useCreateAccountMutation();
   const [isCreatingMode, setIsCreatingMode] = useState(false);
@@ -34,13 +36,15 @@ export function AccountsPage() {
       <div className="px-5 pt-10 pb-28 lg:pb-10 sm:px-8 lg:px-16 xl:px-20 max-w-[1440px] mx-auto w-full flex flex-col gap-8">
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6 pb-3 border-b border-border/10">
           <div>
-            <h1 className="display-lg-mobile lg:headline-md text-foreground">Accounts</h1>
+            <h1 className="display-lg-mobile lg:headline-md text-foreground">
+              {t('accounts.title')}
+            </h1>
             <p className="body-md text-muted-foreground mt-2 prose-short">
-              Manage your financial assets and balances.
+              {t('accounts.subtitle')}
             </p>
           </div>
           <Button onClick={() => setIsCreatingMode(true)} disabled={isCreatingMode || isLoading}>
-            + Add Account
+            + {t('accounts.addAccount')}
           </Button>
         </div>
 
@@ -51,7 +55,7 @@ export function AccountsPage() {
                 htmlFor="new-account-name"
                 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider"
               >
-                Account Name
+                {t('accounts.accountName')}
               </label>
               <Input
                 id="new-account-name"
@@ -72,10 +76,10 @@ export function AccountsPage() {
                   setCreateError(null);
                 }}
               >
-                Cancel
+                {t('common.cancel')}
               </Button>
               <Button onClick={handleCreate} disabled={isCreating}>
-                {isCreating ? 'Creating...' : 'Create Account'}
+                {isCreating ? t('common.loading') : t('accounts.addAccount')}
               </Button>
             </div>
           </div>

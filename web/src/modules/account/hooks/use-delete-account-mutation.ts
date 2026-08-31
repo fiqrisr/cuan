@@ -7,7 +7,12 @@ export function useDeleteAccountMutation() {
   return useMutation({
     mutationFn: async (id: string) => {
       const { error } = await api.api['financial-accounts']({ id: id }).delete();
-      if (error) throw new Error(error.message || 'Failed to delete account');
+      if (error)
+        throw new Error(
+          (error as { value?: { message?: string }; message?: string }).value?.message ||
+            (error as { message?: string }).message ||
+            'Failed to delete account',
+        );
       return true;
     },
     onSuccess: () => {

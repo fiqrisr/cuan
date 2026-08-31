@@ -10,11 +10,13 @@ import {
 import { Link, useRouter } from '@tanstack/react-router';
 import { Loader2 } from 'lucide-react';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { AuthFormField } from '../components/auth-form-field';
 import { AuthLayout } from '../components/auth-layout';
 import { useLoginMutation } from '../hooks/use-login-mutation';
 
 export function LoginPage() {
+  const { t } = useTranslation();
   const router = useRouter();
   const { mutateAsync, isPending } = useLoginMutation();
   const [email, setEmail] = useState('');
@@ -33,16 +35,13 @@ export function LoginPage() {
   };
 
   return (
-    <AuthLayout
-      title="Welcome back"
-      subtitle="Log in to review your accounts, chat with your assistant, and keep your money organized."
-    >
+    <AuthLayout title={t('auth.loginTitle')} subtitle={t('auth.loginSubtitle')}>
       <Card className="w-full max-w-sm bg-card/80 backdrop-blur-xl border-border/10 shadow-tint-lg">
         <form onSubmit={handleLogin}>
           <CardHeader className="space-y-1">
-            <CardTitle className="headline-sm text-foreground">Log in to Cuan</CardTitle>
+            <CardTitle className="headline-sm text-foreground">{t('auth.signIn')}</CardTitle>
             <CardDescription className="body-md text-muted-foreground">
-              Enter your details to continue.
+              {t('auth.loginSubtitle')}
             </CardDescription>
           </CardHeader>
           <CardContent className="grid gap-5">
@@ -56,7 +55,7 @@ export function LoginPage() {
             )}
             <AuthFormField
               id="email"
-              label="Email"
+              label={t('auth.email')}
               type="email"
               placeholder="you@example.com"
               value={email}
@@ -65,7 +64,7 @@ export function LoginPage() {
             />
             <AuthFormField
               id="password"
-              label="Password"
+              label={t('auth.password')}
               type="password"
               placeholder="••••••••"
               value={password}
@@ -78,19 +77,19 @@ export function LoginPage() {
               {isPending ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Logging in...
+                  {t('common.loading')}
                 </>
               ) : (
-                'Log in'
+                t('auth.signIn')
               )}
             </Button>
             <div className="text-center text-sm text-muted-foreground">
-              Don't have an account?{' '}
+              {t('auth.noAccount')}{' '}
               <Link
                 to="/register"
                 className="font-medium text-primary hover:underline underline-offset-4 transition-colors"
               >
-                Register
+                {t('auth.signUp')}
               </Link>
             </div>
           </CardFooter>

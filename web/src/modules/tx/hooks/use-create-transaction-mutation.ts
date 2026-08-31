@@ -17,7 +17,12 @@ export function useCreateTransactionMutation() {
   return useMutation({
     mutationFn: async (params: CreateTransactionParams) => {
       const { data, error } = await api.api.transactions.post(params);
-      if (error) throw new Error(error.message || 'Failed to create transaction');
+      if (error)
+        throw new Error(
+          (error as { value?: { message?: string }; message?: string }).value?.message ||
+            (error as { message?: string }).message ||
+            'Failed to create transaction',
+        );
       return data;
     },
     onSuccess: () => {

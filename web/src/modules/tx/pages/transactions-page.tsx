@@ -1,6 +1,7 @@
 import { Button, Input } from '@cuan/ui';
 import { Search } from 'lucide-react';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useGetAccountListQuery } from '@/modules/account/hooks/use-get-account-list-query';
 import { CreateTransactionForm } from '../components/create-transaction-form';
 import { TransactionEmptyState } from '../components/transaction-empty-state';
@@ -27,14 +28,15 @@ const getRelativeDateKey = (dateStr: string) => {
 };
 
 export function TransactionsPage({ accountId }: { accountId?: string }) {
+  const { t } = useTranslation();
   const { data, isLoading, isError, error } = useGetTransactionListQuery({ accountId });
   const { data: accountsData } = useGetAccountListQuery();
 
   const account = accountsData?.data.find(a => a.id === accountId);
-  const title = account ? `${account.name} History` : 'History';
+  const title = account ? `${account.name} History` : t('transactions.title');
   const description = account
     ? `Review income and expenses for ${account.name}`
-    : 'Review all your processed income and expenses';
+    : t('transactions.subtitle');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [isCreating, setIsCreating] = useState(false);
@@ -80,7 +82,7 @@ export function TransactionsPage({ accountId }: { accountId?: string }) {
               <p className="body-md text-muted-foreground mt-2 prose-short">{description}</p>
             </div>
             <Button onClick={() => setIsCreating(true)} disabled={isCreating || isLoading}>
-              + Add Transaction
+              + {t('transactions.addTransaction')}
             </Button>
           </div>
 
@@ -99,7 +101,7 @@ export function TransactionsPage({ accountId }: { accountId?: string }) {
               type="text"
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
-              placeholder="Search transactions..."
+              placeholder={t('common.search')}
               className="pl-10 w-full h-11"
             />
           </div>

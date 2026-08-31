@@ -7,7 +7,12 @@ export function useDeleteTransactionMutation() {
   return useMutation({
     mutationFn: async (id: string) => {
       const { error } = await api.api.transactions({ id: id }).delete();
-      if (error) throw new Error(error.message || 'Failed to delete transaction');
+      if (error)
+        throw new Error(
+          (error as { value?: { message?: string }; message?: string }).value?.message ||
+            (error as { message?: string }).message ||
+            'Failed to delete transaction',
+        );
       return true;
     },
     onSuccess: () => {

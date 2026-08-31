@@ -1,6 +1,7 @@
 import { Badge, Card, CardContent, CardDescription, CardHeader, CardTitle } from '@cuan/ui';
 import { Link } from '@tanstack/react-router';
 import { ReceiptText } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { TransactionAmount } from '@/modules/tx/components/transaction-amount';
 import type { Transaction } from '@/modules/tx/types';
 
@@ -9,13 +10,16 @@ type Props = {
 };
 
 export function RecentTransactions({ transactions }: Props) {
+  const { t } = useTranslation();
   const recent = transactions.slice(0, 5);
 
   return (
     <Card className="flex flex-col">
       <CardHeader>
-        <CardTitle className="text-base font-semibold">Recent transactions</CardTitle>
-        <CardDescription>Your latest financial activities</CardDescription>
+        <CardTitle className="text-base font-semibold">
+          {t('dashboard.recentTransactions')}
+        </CardTitle>
+        <CardDescription>{t('transactions.subtitle')}</CardDescription>
       </CardHeader>
       <CardContent className="flex-1 pb-5">
         {recent.length === 0 ? (
@@ -24,10 +28,8 @@ export function RecentTransactions({ transactions }: Props) {
               <ReceiptText size={24} strokeWidth={1.75} />
             </div>
             <div className="text-center">
-              <p className="font-medium text-sm text-foreground">No transactions yet</p>
-              <p className="text-xs text-muted-foreground mt-1">
-                Ask the assistant to log your first expense.
-              </p>
+              <p className="font-medium text-sm text-foreground">{t('dashboard.noTransactions')}</p>
+              <p className="text-xs text-muted-foreground mt-1">{t('transactions.emptyBody')}</p>
             </div>
           </div>
         ) : (
@@ -67,7 +69,7 @@ export function RecentTransactions({ transactions }: Props) {
               to="/transactions"
               className="text-xs font-medium text-primary hover:underline underline-offset-4 transition-colors"
             >
-              View all transactions
+              {t('dashboard.viewAll')}
             </Link>
           </div>
         )}

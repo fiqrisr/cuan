@@ -5,6 +5,7 @@ import { Footer } from '@/components/footer';
 import { NotFound } from '@/components/not-found';
 import { authClient } from '@/core/auth';
 import { useTheme } from '@/core/theme-context';
+import { useTranslation } from 'react-i18next';
 
 export const Route = createRootRoute({
   notFoundComponent: NotFound,
@@ -12,19 +13,29 @@ export const Route = createRootRoute({
     const { data: session } = authClient.useSession();
     const showNav = !!session;
     const { resolvedTheme, setTheme } = useTheme();
+    const { t } = useTranslation();
 
-    const navItems = [
-      { to: '/', icon: LayoutDashboard, label: 'Dashboard' },
-      { to: '/transactions', icon: History, label: 'Activity' },
-      { to: '/chat', icon: Bot, label: 'Assistant', isPrimary: true },
-      { to: '/accounts', icon: Wallet, label: 'Accounts' },
-      { to: '/profile', icon: User, label: 'Profile' },
-    ] as const;
+    const navItems: {
+      to: string;
+      icon: React.ComponentType<{
+        size?: number | string;
+        strokeWidth?: number | string;
+        className?: string;
+      }>;
+      label: string;
+      isPrimary?: boolean;
+    }[] = [
+      { to: '/', icon: LayoutDashboard, label: t('nav.dashboard') },
+      { to: '/transactions', icon: History, label: t('nav.activity') },
+      { to: '/chat', icon: Bot, label: t('nav.assistant'), isPrimary: true },
+      { to: '/accounts', icon: Wallet, label: t('nav.accounts') },
+      { to: '/profile', icon: User, label: t('nav.profile') },
+    ];
 
     return (
       <div className="flex flex-col lg:flex-row h-dvh overflow-hidden bg-background text-foreground grain">
         <a href="#main-content" className="skip-link">
-          Skip to content
+          {t('common.skipToContent')}
         </a>
 
         {/* Desktop sidebar */}
@@ -57,13 +68,13 @@ export const Route = createRootRoute({
             </nav>
             <div className="px-5 py-4 border-t border-border/10 flex items-center justify-between mt-auto">
               <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
-                Theme
+                {t('profile.theme')}
               </span>
               <button
                 type="button"
                 onClick={() => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark')}
                 className="flex items-center justify-center p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-all cursor-pointer active:scale-95"
-                title={`Switch to ${resolvedTheme === 'dark' ? 'light' : 'dark'} theme`}
+                title={`Switch to ${resolvedTheme === 'dark' ? t('nav.themeLight') : t('nav.themeDark')}`}
               >
                 {resolvedTheme === 'dark' ? <Sun size={17} /> : <Moon size={17} />}
               </button>

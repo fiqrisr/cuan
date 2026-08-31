@@ -1,5 +1,6 @@
 import { Skeleton } from '@cuan/ui';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useGetAccountListQuery } from '@/modules/account/hooks/use-get-account-list-query';
 import { useGetTransactionListQuery } from '@/modules/tx/hooks/use-get-transaction-list-query';
 import { CategoryBreakdown } from '../components/category-breakdown';
@@ -9,6 +10,7 @@ import { SummaryCards } from '../components/summary-cards';
 import { useGetDashboardStatsQuery } from '../hooks/use-get-dashboard-stats-query';
 
 export function DashboardPage() {
+  const { t } = useTranslation();
   const [range, setRange] = useState('30d');
   const [accountId, setAccountId] = useState('');
 
@@ -81,9 +83,11 @@ export function DashboardPage() {
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6 pb-3 border-b border-border/10">
           <div>
-            <h1 className="display-lg-mobile lg:display-lg text-foreground">Dashboard</h1>
+            <h1 className="display-lg-mobile lg:display-lg text-foreground">
+              {t('dashboard.title')}
+            </h1>
             <p className="body-lg text-muted-foreground mt-2 prose-short">
-              A quick look at where your money sits, flows, and grows.
+              {t('dashboard.subtitle')}
             </p>
           </div>
 
@@ -94,7 +98,7 @@ export function DashboardPage() {
               className="h-10 px-0 py-1 bg-transparent border-0 border-b border-tertiary/30 text-sm font-medium focus:outline-none focus:border-primary text-foreground shrink-0 rounded-none cursor-pointer transition-colors duration-200"
             >
               <option value="" className="bg-card text-foreground">
-                All Accounts
+                {t('accounts.title')} ({t('common.total')})
               </option>
               {accounts.map(a => (
                 <option key={a.id} value={a.id} className="bg-card text-foreground">
@@ -109,16 +113,16 @@ export function DashboardPage() {
               className="h-10 px-0 py-1 bg-transparent border-0 border-b border-tertiary/30 text-sm font-medium focus:outline-none focus:border-primary text-foreground shrink-0 rounded-none cursor-pointer transition-colors duration-200"
             >
               <option value="7d" className="bg-card text-foreground">
-                Last 7 Days
+                {t('common.thisWeek')}
               </option>
               <option value="30d" className="bg-card text-foreground">
-                Last 30 Days
+                30 {t('common.today').toLowerCase()}
               </option>
               <option value="this-month" className="bg-card text-foreground">
-                This Month
+                {t('common.thisMonth')}
               </option>
               <option value="this-year" className="bg-card text-foreground">
-                This Year
+                {t('dashboard.last6Months')}
               </option>
             </select>
           </div>

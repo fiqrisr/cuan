@@ -1,16 +1,16 @@
 import { Bot, Sparkles } from 'lucide-react';
-
+import { useTranslation } from 'react-i18next';
 type ChatEmptyStateProps = {
   onSuggestion: (text: string) => void;
 };
 
-const SUGGESTIONS = [
-  'I spent Rp150,000 on coffee',
-  "What's my balance?",
-  "Show this month's expenses",
-];
-
 export function ChatEmptyState({ onSuggestion }: ChatEmptyStateProps) {
+  const { t } = useTranslation();
+  const suggestions = [
+    'Kopi 25rb gopay',
+    'Berapa saldo akun BCA?',
+    'Pengeluaran makanan minggu ini?',
+  ];
   return (
     <div
       role="status"
@@ -24,14 +24,12 @@ export function ChatEmptyState({ onSuggestion }: ChatEmptyStateProps) {
       </div>
       <div className="text-center space-y-1">
         <p className="font-serif font-semibold text-foreground text-xl tracking-tight">
-          Hi, I'm Cuan
+          {t('chat.emptyGreeting')}
         </p>
-        <p className="text-sm text-muted-foreground prose-short">
-          Ask me to log spending, check balances, or manage accounts.
-        </p>
+        <p className="text-sm text-muted-foreground prose-short">{t('chat.emptyHint')}</p>
       </div>
       <div className="flex flex-col gap-2 mt-2 w-full max-w-[280px]">
-        {SUGGESTIONS.map(suggestion => (
+        {suggestions.map(suggestion => (
           <button
             key={suggestion}
             type="button"
