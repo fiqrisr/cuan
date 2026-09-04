@@ -43,8 +43,6 @@ export const landingTranslations = {
           title: 'Saldo selalu sinkron & pas',
           body: 'Tiap transaksi langsung memperbarui saldo rekening atau dompet digital yang sesuai. Tidak ada saldo selisih, tidak ada hitungan yang meleset.',
           visual: 'gradient',
-          stat: 'Rp0',
-          statLabel: 'selisih saldo antar rekening',
         },
         {
           title: 'Semua rekening dalam satu tempat',
@@ -183,8 +181,6 @@ export const landingTranslations = {
           title: 'Balances stay in sync',
           body: 'Every logged expense immediately updates the linked bank or e-wallet balance in real time. No rounding errors, no mystery discrepancies.',
           visual: 'gradient',
-          stat: '0',
-          statLabel: 'balance discrepancies across accounts',
         },
         {
           title: 'All accounts in one place',
