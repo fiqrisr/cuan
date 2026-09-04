@@ -1,0 +1,27 @@
+---
+import { landingTranslations, type Locale } from '@/i18n/translations';
+
+type Props = {
+  locale: Locale;
+};
+
+const { locale } = Astro.props;
+const t = landingTranslations[locale];
+---
+
+<section id="how-it-works" class="ambient-glow-bottom border-t border-border">
+  <div class="mx-auto max-w-5xl px-5 py-24 sm:px-6 sm:py-32">
+    <p class="label-caps mb-4 text-primary">{t.howItWorks.label}</p>
+    <h2 class="headline-md max-w-2xl text-foreground">{t.howItWorks.heading}</h2>
+    <ol class="mt-16 grid gap-y-12 sm:grid-cols-3 sm:gap-x-8 sm:gap-y-0 sm:divide-x sm:divide-border/30">
+      {
+        t.howItWorks.steps.map((s) => (
+          <li class="sm:px-8 sm:first:pl-0 sm:last:pr-0">
+            <h3 class="headline-sm text-foreground">{s.title}</h3>
+            <p class="body-md mt-3 text-muted-foreground">{s.body}</p>
+          </li>
+        ))
+      }
+    </ol>
+  </div>
+</section>

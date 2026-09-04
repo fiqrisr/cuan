@@ -1,0 +1,41 @@
+---
+import { landingTranslations, type Locale } from '@/i18n/translations';
+
+type Props = {
+  locale: Locale;
+};
+
+const { locale } = Astro.props;
+const t = landingTranslations[locale];
+---
+
+<section id="features" class="border-t border-border">
+  <div class="mx-auto max-w-5xl px-5 py-24 sm:px-6 sm:py-32">
+    <h2 class="headline-md max-w-2xl text-foreground">
+      {t.features.heading}
+    </h2>
+    <div class="mt-16 grid gap-6 sm:grid-cols-2">
+      {
+        t.features.items.map((f) => (
+          <article
+            class:list={[
+              'rounded-xl p-6 sm:p-8',
+              f.visual === 'glass'
+                ? 'glass-panel glass-panel-interactive'
+                : 'ai-message-gradient glass-panel-interactive border border-border/20',
+            ]}
+          >
+            <h3 class="headline-sm text-foreground">{f.title}</h3>
+            <p class="body-md mt-3 text-muted-foreground">{f.body}</p>
+            {'stat' in f && f.stat && (
+              <div class="mt-6 border-t border-border/20 pt-5">
+                <p class="data-mono text-xl text-primary">{f.stat}</p>
+                <p class="label-caps mt-1 text-muted-foreground">{f.statLabel}</p>
+              </div>
+            )}
+          </article>
+        ))
+      }
+    </div>
+  </div>
+</section>

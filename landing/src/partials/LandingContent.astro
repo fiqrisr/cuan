@@ -1,0 +1,18 @@
+---
+import { landingTranslations, type Locale } from '@/i18n/translations';
+
+type Props = {
+  locale?: Locale;
+};
+
+const { locale = 'id' } = Astro.props;
+
+import CTA from '@/partials/CTA.astro';
+import Features from '@/partials/Features.astro';
+import Hero from '@/partials/Hero.astro';
+import HowItWorks from '@/partials/HowItWorks.astro';
+---
+<Hero locale={locale} />
+<Features locale={locale} />
+<HowItWorks locale={locale} />
+<CTA locale={locale} />

@@ -1,0 +1,29 @@
+---
+import { buttonVariants } from '@cuan/ui';
+import { landingTranslations, type Locale } from '@/i18n/translations';
+
+type Props = {
+  locale: Locale;
+};
+
+const { locale } = Astro.props;
+const t = landingTranslations[locale];
+const APP_URL = 'https://app.cuan.fiqri.dev';
+---
+
+<section class="border-t border-border">
+  <div class="mx-auto max-w-5xl px-5 py-24 sm:px-6 sm:py-32">
+    <h2 class="headline-md max-w-2xl text-foreground">
+      {t.cta.heading}
+    </h2>
+    <p class="body-lg prose-short mt-6 text-muted-foreground">
+      {t.cta.subtitle}
+    </p>
+    <a
+      href={APP_URL}
+      class={buttonVariants({ variant: 'default', className: 'label-caps mt-10 px-8 py-4 shadow-tint' })}
+    >
+      {t.cta.button}
+    </a>
+  </div>
+</section>

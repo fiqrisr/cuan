@@ -1,16 +1,16 @@
 ---
-import { landingTranslations, type Locale } from '../i18n/translations';
+import { buttonVariants } from '@cuan/ui';
+import { landingTranslations, type Locale } from '@/i18n/translations';
 
 type Props = {
-  locale?: Locale;
+  locale: Locale;
 };
 
-const { locale = 'id' } = Astro.props;
+const { locale } = Astro.props;
 const t = landingTranslations[locale];
 const APP_URL = 'https://app.cuan.fiqri.dev';
 ---
 
-<!-- Hero -->
 <section class="ambient-glow relative overflow-hidden">
   <div
     class="mx-auto grid max-w-6xl items-center gap-16 px-5 pt-32 pb-20 sm:px-6 lg:min-h-[100dvh] lg:grid-cols-[1.05fr_0.95fr] lg:pt-24 lg:pb-24"
@@ -25,13 +25,13 @@ const APP_URL = 'https://app.cuan.fiqri.dev';
       <div class="mt-10 flex flex-wrap items-center gap-4">
         <a
           href={APP_URL}
-          class="label-caps rounded-md bg-primary px-6 py-3 text-primary-foreground shadow-tint transition-transform active:scale-[0.98]"
+          class={buttonVariants({ variant: 'default', className: 'label-caps px-6 py-3 shadow-tint' })}
         >
           {t.hero.startCta}
         </a>
         <a
           href="#how-it-works"
-          class="label-caps rounded-md border border-border px-6 py-3 text-foreground transition-colors hover:border-[rgba(159,209,186,0.3)]"
+          class={buttonVariants({ variant: 'outline', className: 'label-caps px-6 py-3 border-border hover:border-[rgba(159,209,186,0.3)]' })}
         >
           {t.hero.howItWorksCta}
         </a>
@@ -201,73 +201,5 @@ const APP_URL = 'https://app.cuan.fiqri.dev';
         </div>
       </div>
     </div>
-  </div>
-</section>
-
-<!-- Features -->
-<section id="features" class="border-t border-border">
-  <div class="mx-auto max-w-5xl px-5 py-24 sm:px-6 sm:py-32">
-    <h2 class="headline-md max-w-2xl text-foreground">
-      {t.features.heading}
-    </h2>
-    <div class="mt-16 grid gap-6 sm:grid-cols-2">
-      {
-        t.features.items.map((f) => (
-          <article
-            class:list={[
-              'rounded-xl p-6 sm:p-8',
-              f.visual === 'glass'
-                ? 'glass-panel glass-panel-interactive'
-                : 'ai-message-gradient glass-panel-interactive border border-border/20',
-            ]}
-          >
-            <h3 class="headline-sm text-foreground">{f.title}</h3>
-            <p class="body-md mt-3 text-muted-foreground">{f.body}</p>
-            {'stat' in f && f.stat && (
-              <div class="mt-6 border-t border-border/20 pt-5">
-                <p class="data-mono text-xl text-primary">{f.stat}</p>
-                <p class="label-caps mt-1 text-muted-foreground">{f.statLabel}</p>
-              </div>
-            )}
-          </article>
-        ))
-      }
-    </div>
-  </div>
-</section>
-
-<!-- How it works -->
-<section id="how-it-works" class="ambient-glow-bottom border-t border-border">
-  <div class="mx-auto max-w-5xl px-5 py-24 sm:px-6 sm:py-32">
-    <p class="label-caps mb-4 text-primary">{t.howItWorks.label}</p>
-    <h2 class="headline-md max-w-2xl text-foreground">{t.howItWorks.heading}</h2>
-    <ol class="mt-16 grid gap-y-12 sm:grid-cols-3 sm:gap-x-8 sm:gap-y-0 sm:divide-x sm:divide-border/30">
-      {
-        t.howItWorks.steps.map((s) => (
-          <li class="sm:px-8 sm:first:pl-0 sm:last:pr-0">
-            <h3 class="headline-sm text-foreground">{s.title}</h3>
-            <p class="body-md mt-3 text-muted-foreground">{s.body}</p>
-          </li>
-        ))
-      }
-    </ol>
-  </div>
-</section>
-
-<!-- CTA -->
-<section class="border-t border-border">
-  <div class="mx-auto max-w-5xl px-5 py-24 sm:px-6 sm:py-32">
-    <h2 class="headline-md max-w-2xl text-foreground">
-      {t.cta.heading}
-    </h2>
-    <p class="body-lg prose-short mt-6 text-muted-foreground">
-      {t.cta.subtitle}
-    </p>
-    <a
-      href={APP_URL}
-      class="label-caps mt-10 inline-block rounded-md bg-primary px-8 py-4 text-primary-foreground shadow-tint transition-transform active:scale-[0.98]"
-    >
-      {t.cta.button}
-    </a>
   </div>
 </section>

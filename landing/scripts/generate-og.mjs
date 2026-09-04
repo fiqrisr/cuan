@@ -4,7 +4,9 @@ import { Resvg } from '@resvg/resvg-js';
 import path from 'node:path';
 
 async function generateOgImage() {
-  const fontReq = await fetch('https://raw.githubusercontent.com/googlefonts/opensans/main/fonts/ttf/OpenSans-SemiBold.ttf');
+  const fontReq = await fetch(
+    'https://raw.githubusercontent.com/googlefonts/opensans/main/fonts/ttf/OpenSans-SemiBold.ttf',
+  );
   const fontData = await fontReq.arrayBuffer();
 
   const svg = await satori(
@@ -19,7 +21,8 @@ async function generateOgImage() {
           alignItems: 'center',
           justifyContent: 'center',
           backgroundColor: '#111413',
-          backgroundImage: 'radial-gradient(ellipse at 50% -20%, rgba(159, 209, 186, 0.15) 0%, transparent 60%)',
+          backgroundImage:
+            'radial-gradient(ellipse at 50% -20%, rgba(159, 209, 186, 0.15) 0%, transparent 60%)',
           fontFamily: 'OpenSans',
           color: '#e2e3e0',
         },
@@ -45,7 +48,8 @@ async function generateOgImage() {
                       height: '120px',
                       border: '2px solid rgba(159, 209, 186, 0.15)',
                       borderRadius: '32px',
-                      boxShadow: '0 24px 60px -16px rgba(159, 209, 186, 0.08), 0 8px 24px -8px rgba(0, 0, 0, 0.18)',
+                      boxShadow:
+                        '0 24px 60px -16px rgba(159, 209, 186, 0.08), 0 8px 24px -8px rgba(0, 0, 0, 0.18)',
                       backgroundColor: 'rgba(26, 28, 27, 0.5)',
                     },
                     children: [
@@ -63,16 +67,19 @@ async function generateOgImage() {
                           strokeLinejoin: 'round',
                           children: [
                             { type: 'path', props: { d: 'M12 8V4H8' } },
-                            { type: 'rect', props: { width: '16', height: '12', x: '4', y: '8', rx: '2' } },
+                            {
+                              type: 'rect',
+                              props: { width: '16', height: '12', x: '4', y: '8', rx: '2' },
+                            },
                             { type: 'path', props: { d: 'M2 14h2' } },
                             { type: 'path', props: { d: 'M20 14h2' } },
                             { type: 'path', props: { d: 'M15 13v2' } },
                             { type: 'path', props: { d: 'M9 13v2' } },
                           ],
-                        }
-                      }
-                    ]
-                  }
+                        },
+                      },
+                    ],
+                  },
                 },
                 {
                   type: 'div',
@@ -86,9 +93,9 @@ async function generateOgImage() {
                     },
                     children: 'Cuan',
                   },
-                }
-              ]
-            }
+                },
+              ],
+            },
           },
           {
             type: 'div',
@@ -104,7 +111,7 @@ async function generateOgImage() {
               },
               children: 'Your personal AI financial assistant.',
             },
-          }
+          },
         ],
       },
     },
@@ -119,14 +126,14 @@ async function generateOgImage() {
           style: 'normal',
         },
       ],
-    }
+    },
   );
 
   const resvg = new Resvg(svg, {
     background: '#111413',
     fitTo: { mode: 'width', value: 1200 },
   });
-  
+
   const pngData = resvg.render();
   const pngBuffer = pngData.asPng();
 
