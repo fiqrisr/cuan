@@ -1,12 +1,13 @@
 {
   "$schema": "https://json.schemastore.org/tsconfig",
   "extends": "tsconfig-moon/tsconfig.projects.json",
-  "include": ["src/**/*", "tests/**/*", "drizzle.config.ts", "worker-configuration.d.ts"],
+  "include": ["src/**/*", "tests/**/*", "scripts/**/*", "drizzle.config.ts", "worker-configuration.d.ts"],
   "compilerOptions": {
     "outDir": "../.moon/cache/types/core",
     "baseUrl": ".",
     "paths": {
       "@/*": ["src/*"]
-    }
+    },
+    "types": ["@cloudflare/workers-types"]
   }
 }

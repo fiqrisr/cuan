@@ -32,6 +32,7 @@
   },
   "devDependencies": {
     "@better-auth/cli": "^1.4.21",
+    "@cloudflare/workers-types": "^5.20260910.1",
     "@types/pg": "^8.20.0",
     "drizzle-kit": "^0.31.10",
     "pino-pretty": "^13.1.3"
