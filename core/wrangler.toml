@@ -1,0 +1,13 @@
+"$schema" = "./node_modules/wrangler/config-schema.json"
+
+name = "cuan"
+main = "src/index.ts"
+# Set this to today's date
+compatibility_date = "2026-09-03"
+workers_dev = false
+
+[[d1_databases]]
+binding = "CLOUDFLARE_D1_BINDING_NAME"
+database_name = "cuan"
+database_id = "c224019f-be47-4709-9506-4b5eef19190f"
+migrations_dir = "drizzle"

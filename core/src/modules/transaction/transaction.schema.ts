@@ -1,27 +1,29 @@
-import { relations } from 'drizzle-orm';
-import { index, integer, numeric, pgTable, text, timestamp, uuid } from 'drizzle-orm/pg-core';
+import { relations, sql } from 'drizzle-orm';
+import { index, integer, sqliteTable, text } from 'drizzle-orm/sqlite-core';
 import { user } from '@/modules/auth/auth.schema';
 import { categories } from '@/modules/category/category.schema';
 import { financialAccounts } from '@/modules/financial-account/financial-account.schema';
 
-export const transactions = pgTable(
+export const transactions = sqliteTable(
   'transactions',
   {
-    id: uuid('id').defaultRandom().primaryKey(),
+    id: text('id')
+      .$defaultFn(() => crypto.randomUUID())
+      .primaryKey(),
     userId: text('user_id')
       .notNull()
       .references(() => user.id, { onDelete: 'cascade' }),
-    accountId: uuid('account_id').references(() => financialAccounts.id),
-    type: text('type').notNull(), // 'expense' or 'income'
-    amount: numeric('amount', { precision: 12, scale: 2 }).notNull(),
+    accountId: text('account_id').references(() => financialAccounts.id),
+    type: text('type').$type<'expense' | 'income'>().notNull(),
+    amount: text('amount').notNull(),
     currency: text('currency').notNull().default('IDR'),
     categoryId: integer('category_id')
       .references(() => categories.id)
       .notNull(),
     description: text('description').notNull(),
-    date: timestamp('date', { withTimezone: true }).defaultNow().notNull(),
-    createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
-    updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
+    date: text('date').default(sql`CURRENT_TIMESTAMP`).notNull(),
+    createdAt: text('created_at').default(sql`CURRENT_TIMESTAMP`).notNull(),
+    updatedAt: text('updated_at').default(sql`CURRENT_TIMESTAMP`).notNull(),
   },
   table => [index('transactions_user_id_idx').on(table.userId)],
 );

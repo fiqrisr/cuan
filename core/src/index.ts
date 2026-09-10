@@ -1,5 +1,4 @@
 import { app } from './app';
-import { pool } from './db';
 import { env } from './env';
 import { logger } from './middleware/logger';
 
@@ -16,7 +15,6 @@ const shutdown = async (signal: string) => {
     `${signal} received. Shutting down gracefully...`,
   );
   server.stop();
-  await pool.end();
   process.exit(0);
 };
 

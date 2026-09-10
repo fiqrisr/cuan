@@ -1,12 +1,12 @@
 import { relations, sql } from 'drizzle-orm';
-import { index, pgTable, serial, text, uniqueIndex } from 'drizzle-orm/pg-core';
+import { index, sqliteTable, integer, text, uniqueIndex } from 'drizzle-orm/sqlite-core';
 import { user } from '@/modules/auth/auth.schema';
 import { transactions } from '@/modules/transaction/transaction.schema';
 
-export const categories = pgTable(
+export const categories = sqliteTable(
   'categories',
   {
-    id: serial('id').primaryKey(),
+    id: integer('id').primaryKey({ autoIncrement: true }),
     name: text('name').notNull(),
     label: text('label').notNull(),
     userId: text('user_id').references(() => user.id, { onDelete: 'cascade' }),
