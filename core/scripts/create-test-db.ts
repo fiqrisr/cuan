@@ -1,30 +1,15 @@
-import { Client } from 'pg';
+import { execSync } from 'node:child_process';
+import path from 'node:path';
 
-async function main(): Promise<void> {
-  const client = new Client('postgresql://postgres:postgres@localhost:5433/postgres');
-  await client.connect();
+const configPath = path.resolve(import.meta.dir, '../wrangler.toml');
 
-  try {
-    await client.query('CREATE DATABASE "cuan-test"');
-    console.log('Created test database "cuan-test"');
-  } catch (error) {
-    if (
-      error &&
-      typeof error === 'object' &&
-      'code' in error &&
-      typeof error.code === 'string' &&
-      error.code === '42P04'
-    ) {
-      console.log('Test database "cuan-test" already exists');
-    } else {
-      throw error;
-    }
-  } finally {
-    await client.end();
-  }
-}
-
-main().catch(error => {
-  console.error(error);
+try {
+  execSync(`wrangler d1 migrations apply cuan-test --local --config ${configPath}`, {
+    stdio: 'inherit',
+    env: process.env,
+  });
+  console.log('Applied migrations to local test D1 database "cuan-test"');
+} catch (error) {
+  console.error('Failed to apply migrations to test database:', error);
   process.exit(1);
-});
+}

@@ -1,16 +1,13 @@
-import { Client } from 'pg';
+import { rmSync } from 'node:fs';
+import path from 'node:path';
 
-async function main(): Promise<void> {
-  const client = new Client('postgresql://postgres:postgres@localhost:5433/postgres');
-  await client.connect();
+// Wrangler stores local D1 databases under .wrangler/state/v3/d1/<database-name>/
+const dbPath = path.resolve(import.meta.dir, '../.wrangler/state/v3/d1/cuan-test');
 
-  await client.query('DROP DATABASE IF EXISTS "cuan-test"');
-  console.log('Dropped test database "cuan-test"');
-
-  await client.end();
-}
-
-main().catch(error => {
-  console.error(error);
+try {
+  rmSync(dbPath, { recursive: true, force: true });
+  console.log('Dropped local test D1 database "cuan-test"');
+} catch (error) {
+  console.error('Failed to drop test database:', error);
   process.exit(1);
-});
+}

@@ -37,11 +37,11 @@ tasks:
     command: 'better-auth generate'
 
   'db-migrate':
-    command: 'drizzle-kit migrate'
+    command: 'bash scripts/db-migrate.sh'
     preset: server
 
   'db-push':
-    command: 'drizzle-kit push'
+    command: 'bash scripts/db-push.sh'
   seed:
     command: 'bun run scripts/seed.ts'
     preset: server

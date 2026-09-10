@@ -1,17 +1,24 @@
-import { Client } from 'pg';
+import { execSync } from 'node:child_process';
+import { rmSync } from 'node:fs';
+import path from 'node:path';
 
-async function main(): Promise<void> {
-  const client = new Client('postgresql://postgres:postgres@localhost:5433/postgres');
-  await client.connect();
+const configPath = path.resolve(import.meta.dir, '../wrangler.toml');
 
-  await client.query('DROP DATABASE IF EXISTS cuan');
-  await client.query('CREATE DATABASE cuan');
-  console.log('Reset dev database "cuan"');
+// Wrangler stores local D1 databases under .wrangler/state/v3/d1/<database-name>/
+const dbPath = path.resolve(import.meta.dir, '../.wrangler/state/v3/d1/cuan');
 
-  await client.end();
-}
+try {
+  // Drop local D1 state to fully reset
+  rmSync(dbPath, { recursive: true, force: true });
+  console.log('Dropped local D1 database "cuan"');
 
-main().catch(error => {
-  console.error(error);
+  // Re-apply all migrations from scratch
+  execSync(`wrangler d1 migrations apply cuan --local --config ${configPath}`, {
+    stdio: 'inherit',
+    env: process.env,
+  });
+  console.log('Re-applied migrations to local D1 database "cuan"');
+} catch (error) {
+  console.error('Failed to reset dev database:', error);
   process.exit(1);
-});
+}
