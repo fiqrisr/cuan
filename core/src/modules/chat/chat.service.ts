@@ -1,5 +1,5 @@
 import { generateText, stepCountIs, streamText } from 'ai';
-import { languageModel } from '@/lib/ai-provider';
+import { getLanguageModel } from '@/lib/ai-provider';
 import { logger } from '../../middleware/logger';
 import { categoryService } from '../category/category.service';
 import { getSystemPrompt } from './chat.prompt';
@@ -15,7 +15,7 @@ export class ChatService {
     const categoriesInfo = categories.map(c => `- ${c.name} (${c.label})`).join('\n');
 
     const aiResponse = await generateText({
-      model: languageModel,
+      model: getLanguageModel(),
       tools,
       stopWhen: stepCountIs(3),
       system: getSystemPrompt(categoriesInfo, locale),
@@ -81,7 +81,7 @@ export class ChatService {
     const categoriesInfo = categories.map(c => `- ${c.name} (${c.label})`).join('\n');
 
     return streamText({
-      model: languageModel,
+      model: getLanguageModel(),
       tools,
       stopWhen: stepCountIs(3),
       system: getSystemPrompt(categoriesInfo, locale),

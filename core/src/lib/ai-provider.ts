@@ -25,5 +25,3 @@ export function getLanguageModel(): LanguageModel {
 
   return openai(env.OPENMODEL_MODEL);
 }
-
-export const languageModel = getLanguageModel();

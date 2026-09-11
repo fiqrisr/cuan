@@ -42,17 +42,10 @@ const envSchema = z.preprocess(
   z.discriminatedUnion('AI_PROVIDER', [openmodelEnvSchema, geminiEnvSchema]),
 );
 
-const parsed = envSchema.safeParse(process.env);
-
-if (!parsed.success) {
-  const issues = parsed.error.issues.map(issue => `${issue.path.join('.')}: ${issue.message}`);
-  throw new Error(`Invalid environment variables:\n${issues.join('\n')}`);
+export function getValidatedEnv(env: unknown) {
+  return envSchema.safeParse(env);
 }
 
-export const env = {
-  ...parsed.data,
-  BETTER_AUTH_URL: parsed.data.BETTER_AUTH_URL ?? `http://localhost:${parsed.data.PORT}`,
-  FRONTEND_URL: parsed.data.FRONTEND_URL,
-};
+export const env = process.env as unknown as z.infer<typeof envSchema>;
 
 export type Env = typeof env;
