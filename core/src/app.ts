@@ -2,6 +2,7 @@ import { openapi } from '@elysia/openapi';
 import { cors } from '@elysiajs/cors';
 import { Elysia } from 'elysia';
 import { CloudflareAdapter } from 'elysia/adapter/cloudflare-worker';
+import { env } from './env';
 import { errorHandler } from './middleware/error-handler';
 import { logixlysiaLogger } from './middleware/logger';
 import { AuthOpenAPI, auth } from './modules/auth';
@@ -15,7 +16,7 @@ export const app = new Elysia({
 })
   .use(
     cors({
-      origin: true, // Allow all origins (or specify 'http://localhost:5173' for strict dev)
+      origin: ['http://localhost:5173', ...(env.FRONTEND_URL ?? '')],
       credentials: true,
       allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
     }),
