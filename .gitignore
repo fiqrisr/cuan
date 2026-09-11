@@ -12,6 +12,7 @@ coverage
 # Environment
 .env
 .env.local
+.env.production
 .env.*.local
 .dev.vars
 

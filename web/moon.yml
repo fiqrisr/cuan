@@ -1,45 +1,55 @@
-$schema: 'https://moonrepo.dev/schemas/project.json'
+$schema: "https://moonrepo.dev/schemas/project.json"
 
-language: 'typescript'
-layer: 'application'
-stack: 'frontend'
+language: "typescript"
+layer: "application"
+stack: "frontend"
 
 project:
-  name: 'web'
-  description: 'Cuan frontend SPA'
+  name: "web"
+  description: "Cuan frontend SPA"
 
 dependsOn:
-  - 'ui'
-  - 'core'
+  - "ui"
+  - "core"
 
 tasks:
   dev:
-    command: 'bun run dev'
+    command: "bun run dev"
     preset: server
 
   build:
-    command: 'bun run build'
+    command: "bun run build"
     deps:
-      - 'ui:build'
+      - "ui:build"
     inputs:
-      - 'src/**/*'
-      - 'public/**/*'
-      - 'index.html'
-      - 'vite.config.ts'
-      - 'package.json'
-      - 'tsconfig.*.json'
+      - "src/**/*"
+      - "public/**/*"
+      - "index.html"
+      - "vite.config.ts"
+      - "package.json"
+      - "tsconfig.*.json"
+      - ".env"
     outputs:
-      - 'dist'
+      - "dist"
+
+  deploy:
+    command: "bunx wrangler pages deploy"
+    deps:
+      - "build"
+    inputs:
+      - "src/**/*"
+    options:
+      cache: false
 
   lint:
-    command: 'bun run lint'
+    command: "bun run lint"
     inputs:
-      - 'src/**/*'
-      - 'package.json'
-      - '.oxlintrc.json'
-      - 'tsconfig.app.json'
-      - 'tsconfig.node.json'
+      - "src/**/*"
+      - "package.json"
+      - ".oxlintrc.json"
+      - "tsconfig.app.json"
+      - "tsconfig.node.json"
 
   preview:
-    command: 'bun run preview'
+    command: "bun run preview"
     preset: server
