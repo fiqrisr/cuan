@@ -1,4 +1,4 @@
-import type { z } from 'zod';
+import { z } from 'zod';
 import { BadRequestError } from '@/lib/error';
 import { logger } from '@/middleware/logger';
 import { financialAccountService } from '@/modules/financial-account/financial-account.service';
@@ -37,7 +37,8 @@ async function createAccount(params: ManageAccountParams, userId: string) {
   const created = await financialAccountService.create({
     userId,
     name: params.accountName,
-    type: params.accountType ?? 'other',
+    // LLM output is untrusted: reject unrecognized account types.
+    type: z.enum(['bank', 'e-wallet', 'cash', 'other']).catch('other').parse(params.accountType),
     currency: params.currency ?? 'IDR',
     initialBalance: params.initialBalance,
   });
