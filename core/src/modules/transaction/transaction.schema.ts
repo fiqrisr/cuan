@@ -21,9 +21,16 @@ export const transactions = sqliteTable(
       .references(() => categories.id)
       .notNull(),
     description: text('description').notNull(),
-    date: text('date').default(sql`CURRENT_TIMESTAMP`).notNull(),
-    createdAt: text('created_at').default(sql`CURRENT_TIMESTAMP`).notNull(),
-    updatedAt: text('updated_at').default(sql`CURRENT_TIMESTAMP`).notNull(),
+    date: integer('date', { mode: 'timestamp_ms' })
+      .default(sql`(cast(unixepoch('subsecond') * 1000 as integer))`)
+      .notNull(),
+    createdAt: integer('created_at', { mode: 'timestamp_ms' })
+      .default(sql`(cast(unixepoch('subsecond') * 1000 as integer))`)
+      .notNull(),
+    updatedAt: integer('updated_at', { mode: 'timestamp_ms' })
+      .default(sql`(cast(unixepoch('subsecond') * 1000 as integer))`)
+      .$onUpdate(() => new Date())
+      .notNull(),
   },
   table => [index('transactions_user_id_idx').on(table.userId)],
 );

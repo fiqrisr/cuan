@@ -1,5 +1,18 @@
 import { relations, sql } from 'drizzle-orm';
-import { integer, index, sqliteTable, text } from 'drizzle-orm/sqlite-core';
+import { customType, index, integer, sqliteTable, text } from 'drizzle-orm/sqlite-core';
+
+export const timestampText = customType<{ data: Date; driverData: string }>({
+  dataType() {
+    return 'text';
+  },
+  toDriver(val: Date) {
+    return val.toISOString();
+  },
+  fromDriver(val: string) {
+    return new Date(val);
+  },
+});
+
 import { financialAccounts } from '@/modules/financial-account/financial-account.schema';
 import { transactions } from '@/modules/transaction/transaction.schema';
 
@@ -9,10 +22,10 @@ export const user = sqliteTable('user', {
   email: text('email').notNull().unique(),
   emailVerified: integer('email_verified', { mode: 'boolean' }).default(false).notNull(),
   image: text('image'),
-  createdAt: text('created_at').default(sql`CURRENT_TIMESTAMP`).notNull(),
-  updatedAt: text('updated_at')
+  createdAt: timestampText('created_at').default(sql`CURRENT_TIMESTAMP`).notNull(),
+  updatedAt: timestampText('updated_at')
     .default(sql`CURRENT_TIMESTAMP`)
-    .$onUpdate(() => new Date().toISOString())
+    .$onUpdate(() => new Date())
     .notNull(),
 });
 
@@ -20,12 +33,12 @@ export const session = sqliteTable(
   'session',
   {
     id: text('id').primaryKey(),
-    expiresAt: text('expires_at').notNull(),
+    expiresAt: timestampText('expires_at').notNull(),
     token: text('token').notNull().unique(),
-    createdAt: text('created_at').default(sql`CURRENT_TIMESTAMP`).notNull(),
-    updatedAt: text('updated_at')
+    createdAt: timestampText('created_at').default(sql`CURRENT_TIMESTAMP`).notNull(),
+    updatedAt: timestampText('updated_at')
       .default(sql`CURRENT_TIMESTAMP`)
-      .$onUpdate(() => new Date().toISOString())
+      .$onUpdate(() => new Date())
       .notNull(),
     ipAddress: text('ip_address'),
     userAgent: text('user_agent'),
@@ -48,14 +61,14 @@ export const account = sqliteTable(
     accessToken: text('access_token'),
     refreshToken: text('refresh_token'),
     idToken: text('id_token'),
-    accessTokenExpiresAt: text('access_token_expires_at'),
-    refreshTokenExpiresAt: text('refresh_token_expires_at'),
+    accessTokenExpiresAt: timestampText('access_token_expires_at'),
+    refreshTokenExpiresAt: timestampText('refresh_token_expires_at'),
     scope: text('scope'),
     password: text('password'),
-    createdAt: text('created_at').default(sql`CURRENT_TIMESTAMP`).notNull(),
-    updatedAt: text('updated_at')
+    createdAt: timestampText('created_at').default(sql`CURRENT_TIMESTAMP`).notNull(),
+    updatedAt: timestampText('updated_at')
       .default(sql`CURRENT_TIMESTAMP`)
-      .$onUpdate(() => new Date().toISOString())
+      .$onUpdate(() => new Date())
       .notNull(),
   },
   table => [index('account_userId_idx').on(table.userId)],
@@ -67,11 +80,11 @@ export const verification = sqliteTable(
     id: text('id').primaryKey(),
     identifier: text('identifier').notNull(),
     value: text('value').notNull(),
-    expiresAt: text('expires_at').notNull(),
-    createdAt: text('created_at').default(sql`CURRENT_TIMESTAMP`).notNull(),
-    updatedAt: text('updated_at')
+    expiresAt: timestampText('expires_at').notNull(),
+    createdAt: timestampText('created_at').default(sql`CURRENT_TIMESTAMP`).notNull(),
+    updatedAt: timestampText('updated_at')
       .default(sql`CURRENT_TIMESTAMP`)
-      .$onUpdate(() => new Date().toISOString())
+      .$onUpdate(() => new Date())
       .notNull(),
   },
   table => [index('verification_identifier_idx').on(table.identifier)],

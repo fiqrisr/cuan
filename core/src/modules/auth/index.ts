@@ -3,10 +3,12 @@ import { drizzleAdapter } from 'better-auth/adapters/drizzle';
 import { openAPI } from 'better-auth/plugins';
 import { db } from '@/db';
 import { env } from '@/env';
+import { account, session, user, verification } from './auth.schema';
 
 export const auth = betterAuth({
   database: drizzleAdapter(db, {
-    provider: 'pg',
+    provider: 'sqlite',
+    schema: { user, session, account, verification },
   }),
   basePath: '/api',
   baseURL: env.BETTER_AUTH_URL,
