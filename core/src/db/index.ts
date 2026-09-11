@@ -1,32 +1,56 @@
 import type { DrizzleD1Database } from 'drizzle-orm/d1';
 import { drizzle } from 'drizzle-orm/d1';
-import type { PlatformProxy } from 'wrangler';
-import { getPlatformProxy } from 'wrangler';
 import * as schema from './schema';
 
-type D1Binding = typeof CLOUDFLARE_D1_BINDING_NAME;
-type Proxy = PlatformProxy<{ CLOUDFLARE_D1_BINDING_NAME: D1Binding }>;
+type D1Binding = D1Database;
+type Db = DrizzleD1Database<typeof schema>;
 
 const globalScope = globalThis as typeof globalThis & {
   CLOUDFLARE_D1_BINDING_NAME?: D1Binding;
 };
 
-let d1Binding: D1Binding | undefined = globalScope.CLOUDFLARE_D1_BINDING_NAME;
+let d1Binding: D1Binding | undefined;
+let instance: Db | undefined;
 
-if (!d1Binding) {
-  const platformProxy: Proxy = await getPlatformProxy({
-    configPath: `${import.meta.dir}/../../wrangler.toml`,
-  });
-  d1Binding = platformProxy.env.CLOUDFLARE_D1_BINDING_NAME;
+/**
+ * Wire the D1 binding from the runtime environment (Worker `env`,
+ * wrangler platform proxy, or test preload) before the first query.
+ */
+export function setD1Binding(binding: D1Binding): void {
+  if (binding !== d1Binding) {
+    d1Binding = binding;
+    instance = undefined;
+  }
 }
 
-if (!d1Binding) {
-  throw new Error(
-    'D1 binding "CLOUDFLARE_D1_BINDING_NAME" is not available. ' +
-      'Make sure it is declared in wrangler.toml.',
-  );
+function getDb(): Db {
+  const binding = d1Binding ?? globalScope.CLOUDFLARE_D1_BINDING_NAME;
+  if (!binding) {
+    throw new Error(
+      'D1 binding "CLOUDFLARE_D1_BINDING_NAME" is not available. ' +
+        'Make sure it is declared in wrangler.toml and set via setD1Binding().',
+    );
+  }
+  instance ??= drizzle(binding, { schema });
+  return instance;
 }
 
-export const db: DrizzleD1Database<typeof schema> = drizzle(d1Binding, { schema });
+/**
+ * Lazy singleton: the D1 binding only exists at request time (module Workers
+ * receive it via `env`), so database access is deferred until the first query
+ * instead of module import. The Proxy keeps the `db` import shape unchanged.
+ */
+export const db: Db = new Proxy({} as Db, {
+  get(_target, prop) {
+    const real = getDb() as unknown as Record<string | symbol, unknown>;
+    const value = real[prop];
+    return typeof value === 'function'
+      ? (value as (...args: never[]) => unknown).bind(real)
+      : value;
+  },
+  has(_target, prop) {
+    return prop in (getDb() as unknown as Record<string | symbol, unknown>);
+  },
+});
 
 export * from './schema';

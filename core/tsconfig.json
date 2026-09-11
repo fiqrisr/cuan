@@ -12,6 +12,8 @@
     "outDir": "../.moon/cache/types/core",
     "baseUrl": ".",
     "skipLibCheck": true,
+    "module": "preserve",
+    "moduleResolution": "bundler",
     "paths": {
       "@/*": ["src/*"]
     },

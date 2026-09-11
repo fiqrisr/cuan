@@ -1,13 +1,25 @@
 "$schema" = "./node_modules/wrangler/config-schema.json"
 
-name = "cuan"
+name = "cuan-core"
 main = "src/index.ts"
 # Set this to today's date
 compatibility_date = "2026-09-03"
 workers_dev = false
+routes = [{ pattern = "core.cuan.fiqri.dev", custom_domain = true }]
 
 [[d1_databases]]
 binding = "CLOUDFLARE_D1_BINDING_NAME"
 database_name = "cuan"
 database_id = "df371ae2-5683-4c6f-b0fd-91170cdc17b4"
 migrations_dir = "drizzle"
+
+[observability.logs]
+enabled = true
+head_sampling_rate = 1
+invocation_logs = true
+persist = true
+
+[observability.traces]
+enabled = false
+head_sampling_rate = 1
+persist = true

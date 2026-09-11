@@ -1,22 +1,22 @@
+import type { MaybePromise } from 'bun';
 import { app } from './app';
-import { env } from './env';
-import { logger } from './middleware/logger';
+import { setD1Binding } from './db';
+import { type Env, getValidatedEnv } from './env';
 
-const server = app.listen(env.PORT, () => {
-  logger.info(
-    { event: 'server_start', port: env.PORT },
-    `Core API running at http://localhost:${env.PORT}`,
-  );
-});
+type WorkerEnv = Env & { CLOUDFLARE_D1_BINDING_NAME: D1Database };
 
-const shutdown = async (signal: string) => {
-  logger.info(
-    { event: 'server_shutdown', signal },
-    `${signal} received. Shutting down gracefully...`,
-  );
-  server.stop();
-  process.exit(0);
+export default {
+  fetch: (request: Request, workerEnv: WorkerEnv): MaybePromise<Response> => {
+    const parsedEnv = getValidatedEnv(workerEnv);
+
+    if (!parsedEnv.success) {
+      const issues = parsedEnv.error.issues.map(
+        issue => `${issue.path.join('.')}: ${issue.message}`,
+      );
+      throw new Error(`Invalid environment variables:\n${issues.join('\n')}`);
+    }
+
+    setD1Binding(workerEnv.CLOUDFLARE_D1_BINDING_NAME);
+    return app.fetch(request) satisfies MaybePromise<Response>;
+  },
 };
-
-process.on('SIGINT', () => shutdown('SIGINT'));
-process.on('SIGTERM', () => shutdown('SIGTERM'));

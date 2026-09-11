@@ -1,47 +1,64 @@
 # https://moonrepo.dev/docs/config/project
-$schema: 'https://moonrepo.dev/schemas/project.json'
+$schema: "https://moonrepo.dev/schemas/project.json"
 
-language: 'typescript'
-layer: 'application'
-stack: 'backend'
+language: "typescript"
+layer: "application"
+stack: "backend"
 
 project:
-  name: 'core'
-  description: 'Cuan backend API powered by Elysia.js'
+  name: "core"
+  description: "Cuan backend API powered by Elysia.js"
 
 tasks:
   dev:
-    command: 'bun run --watch src/index.ts'
+    script: "cp .env .dev.vars && bun run --watch src/index.ts"
     preset: server
+    inputs:
+      - "src/**/*"
+      - "wrangler.toml"
+      - ".env"
+      - ".dev.vars"
 
   build:
-    command: 'bun build src/index.ts --outdir dist --target bun'
+    script: "cp .env .dev.vars && bunx wrangler deploy --dry-run --outdir dist"
     inputs:
-      - 'src/**/*'
+      - "src/**/*"
+      - "wrangler.toml"
+      - ".dev.vars"
     outputs:
-      - 'dist'
+      - "dist"
+
+  deploy:
+    script: "cp .env .dev.vars && bunx wrangler deploy"
+    inputs:
+      - "src/**/*"
+      - "wrangler.toml"
+      - ".dev.vars"
+    options:
+      cache: false
 
   test:
-    command: 'bash scripts/test-with-db.sh'
+    command: "bash scripts/test-with-db.sh"
     env:
-      OPENMODEL_BASE_URL: 'http://localhost:3999'
+      OPENMODEL_BASE_URL: "http://localhost:3999"
     inputs:
-      - 'src/**/*'
-      - 'scripts/test-with-db.sh'
+      - "src/**/*"
+      - "scripts/test-with-db.sh"
 
-  'db-reset':
-    command: 'bash scripts/reset-dev-db.sh'
+  "db-reset":
+    command: "bash scripts/reset-dev-db.sh"
     preset: server
 
-  'db-generate-auth':
-    command: 'better-auth generate'
+  "db-generate-auth":
+    command: "better-auth generate"
 
-  'db-migrate':
-    command: 'bash scripts/db-migrate.sh'
+  "db-migrate":
+    command: "bash scripts/db-migrate.sh"
     preset: server
 
-  'db-push':
-    command: 'bash scripts/db-push.sh'
+  "db-push":
+    command: "bash scripts/db-push.sh"
+
   seed:
-    command: 'bun run scripts/seed.ts'
+    command: "bun run scripts/seed.ts"
     preset: server

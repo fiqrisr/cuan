@@ -1,6 +1,7 @@
 import { openapi } from '@elysia/openapi';
 import { cors } from '@elysiajs/cors';
 import { Elysia } from 'elysia';
+import { CloudflareAdapter } from 'elysia/adapter/cloudflare-worker';
 import { errorHandler } from './middleware/error-handler';
 import { logixlysiaLogger } from './middleware/logger';
 import { AuthOpenAPI, auth } from './modules/auth';
@@ -9,7 +10,9 @@ import { chatController } from './modules/chat/';
 import { financialAccountController } from './modules/financial-account';
 import { transactionController } from './modules/transaction';
 
-export const app = new Elysia()
+export const app = new Elysia({
+  adapter: CloudflareAdapter,
+})
   .use(
     cors({
       origin: true, // Allow all origins (or specify 'http://localhost:5173' for strict dev)
@@ -27,11 +30,14 @@ export const app = new Elysia()
       },
     }),
   )
+  .get('/', () => 'Hello')
   .get('/health', () => ({ status: 'ok' }))
   .mount('/auth', auth.handler)
   .use(chatController)
   .use(financialAccountController)
   .use(categoryController)
   .use(transactionController);
+
+app.compile();
 
 export type App = typeof app;

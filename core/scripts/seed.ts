@@ -36,20 +36,20 @@ const seedAccounts = [
 async function seed() {
   console.log('Seeding categories...');
   let proxy:
-    | PlatformProxy<{ CLOUDFLARE_D1_BINDING_NAME: typeof CLOUDFLARE_D1_BINDING_NAME }>
+    | PlatformProxy<{ CLOUDFLARE_D1_BINDING_NAME: D1Database }>
     | undefined;
 
   try {
-    let d1: typeof CLOUDFLARE_D1_BINDING_NAME | undefined;
+    let d1: D1Database | undefined;
     const globalScope: Record<string, unknown> = globalThis;
     const globalBinding = globalScope.CLOUDFLARE_D1_BINDING_NAME;
     if (globalBinding && typeof globalBinding === 'object' && 'prepare' in globalBinding) {
-      d1 = globalBinding as typeof CLOUDFLARE_D1_BINDING_NAME;
+      d1 = globalBinding as D1Database;
     }
     if (!d1) {
       const configPath = path.resolve(import.meta.dir, '../wrangler.toml');
       proxy = await getPlatformProxy<{
-        CLOUDFLARE_D1_BINDING_NAME: typeof CLOUDFLARE_D1_BINDING_NAME;
+        CLOUDFLARE_D1_BINDING_NAME: D1Database;
       }>({
         configPath,
       });

@@ -5,8 +5,8 @@
   "description": "Cuan backend API powered by Elysia.js",
   "type": "module",
   "scripts": {
-    "dev": "bun run --watch src/index.ts",
-    "build": "bun build src/index.ts --outdir dist --target bun",
+    "dev": "bun run --watch src/dev.ts",
+    "build": "wrangler deploy --dry-run --outdir dist",
     "typecheck": "tsc --noEmit",
     "test": "OPENMODEL_BASE_URL=http://localhost:3999 bash scripts/test-with-db.sh",
     "db:reset": "bash scripts/reset-dev-db.sh",
