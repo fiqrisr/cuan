@@ -29,7 +29,7 @@ tasks:
       - "dist"
 
   deploy:
-    script: "cp .env .dev.vars && bunx wrangler deploy"
+    script: "cp .env .dev.vars && bunx wrangler deploy --secrets-file .env"
     inputs:
       - "src/**/*"
       - "wrangler.toml"
