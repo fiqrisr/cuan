@@ -12,11 +12,8 @@ export OPENMODEL_BASE_URL="${OPENMODEL_BASE_URL:-http://localhost:3999}"
 export OPENMODEL_MODEL="${OPENMODEL_MODEL:-dummy}"
 export NODE_ENV="${NODE_ENV:-test}"
 
-echo "Creating test database and applying migrations..."
-bun run scripts/create-test-db.ts
-
+# Tests connect to an ephemeral in-process D1 database provisioned by
+# tests/setup.ts (loaded via the [test] preload in bunfig.toml): no local
+# wrangler state to create or drop.
 echo "Running tests..."
 bun test
-
-echo "Dropping test database..."
-bun run scripts/drop-test-db.ts
