@@ -81,7 +81,7 @@ async function createTransaction(
     .values({
       userId,
       accountId: accountId as string,
-      type: (data.type as string) ?? 'expense',
+      type: (data.type as 'expense' | 'income') ?? 'expense',
       amount: ((data.amount as number) ?? 25000).toString(),
       currency: (data.currency as string) ?? 'IDR',
       categoryId: cat?.id ?? 0,
