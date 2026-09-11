@@ -16,10 +16,10 @@ import { getPlatformProxy } from 'wrangler';
  * module runs.
  */
 
-type Binding = { CLOUDFLARE_D1_BINDING_NAME: D1Database };
+type Binding = { CLOUDFLARE_D1_BINDING_NAME: typeof CLOUDFLARE_D1_BINDING_NAME };
 
 const scope = globalThis as {
-  CLOUDFLARE_D1_BINDING_NAME?: D1Database;
+  CLOUDFLARE_D1_BINDING_NAME?: typeof CLOUDFLARE_D1_BINDING_NAME;
   __d1TestProxy?: PlatformProxy<Binding>;
 };
 

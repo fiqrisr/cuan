@@ -9,7 +9,6 @@ const commonEnvSchema = z.object({
   BETTER_AUTH_URL: z.url().optional(),
   CLOUDFLARE_ACCOUNT_ID: z.string().min(1),
   CLOUDFLARE_DATABASE_ID: z.string().min(1),
-  CLOUDFLARE_D1_BINDING_NAME: z.custom<D1Database>().optional(),
   CLOUDFLARE_D1_TOKEN: z.string().min(1),
 });
 
