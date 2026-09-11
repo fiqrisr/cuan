@@ -1,4 +1,4 @@
-import { Leaf } from 'lucide-react';
+import { Bot } from 'lucide-react';
 import type { ReactNode } from 'react';
 
 export function AuthLayout({
@@ -20,7 +20,7 @@ export function AuthLayout({
       <div className="relative flex flex-col justify-between px-6 py-10 sm:px-12 lg:w-5/12 lg:px-16 lg:py-14">
         <div className="flex items-center gap-2.5">
           <div className="flex h-9 w-9 items-center justify-center rounded-xl glass-panel border-primary/20 text-primary">
-            <Leaf size={18} strokeWidth={1.75} />
+            <Bot size={18} strokeWidth={1.75} />
           </div>
           <span className="font-serif logo-weight text-2xl tracking-tight text-foreground">
             Cuan

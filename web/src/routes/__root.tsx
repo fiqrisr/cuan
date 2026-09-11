@@ -1,11 +1,11 @@
 import { createRootRoute, Link, Outlet } from '@tanstack/react-router';
 import { TanStackRouterDevtools } from '@tanstack/router-devtools';
-import { Bot, History, LayoutDashboard, Leaf, Moon, Sun, User, Wallet } from 'lucide-react';
+import { Bot, History, LayoutDashboard, Moon, Sun, User, Wallet } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { Footer } from '@/components/footer';
 import { NotFound } from '@/components/not-found';
 import { authClient } from '@/core/auth';
 import { useTheme } from '@/core/theme-context';
-import { useTranslation } from 'react-i18next';
 
 export const Route = createRootRoute({
   notFoundComponent: NotFound,
@@ -43,7 +43,7 @@ export const Route = createRootRoute({
           <aside className="hidden lg:flex flex-col w-60 shrink-0 border-r border-border/10 bg-background/60 backdrop-blur-xl">
             <div className="px-6 pt-7 pb-6 flex items-center gap-2.5">
               <div className="flex h-8 w-8 items-center justify-center rounded-lg glass-panel border-primary/20 text-primary">
-                <Leaf size={16} strokeWidth={2} />
+                <Bot size={16} strokeWidth={2} />
               </div>
               <span className="font-serif logo-weight text-xl tracking-tight text-foreground">
                 Cuan
