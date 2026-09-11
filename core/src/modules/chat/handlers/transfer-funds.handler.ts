@@ -46,10 +46,11 @@ export async function handleTransferFunds(params: TransferFundsParams, userId: s
     throw new BadRequestError("System category 'transfer' not found. Please seed the database.");
   }
 
-  // 4. Perform database updates in a transaction
-  const [sourceTx, destTx] = await db.transaction(async tx => {
+  // 4. Perform database updates atomically via db.batch
+  // (D1 has no interactive transactions)
+  const [sourceRows, destRows] = await db.batch([
     // Insert outgoing transaction
-    const [sTx] = await tx
+    db
       .insert(transactions)
       .values({
         userId,
@@ -61,10 +62,9 @@ export async function handleTransferFunds(params: TransferFundsParams, userId: s
         description: `Transfer to ${destinationAcct.name}`,
         date: new Date(date),
       })
-      .returning();
-
+      .returning(),
     // Insert incoming transaction
-    const [dTx] = await tx
+    db
       .insert(transactions)
       .values({
         userId,
@@ -76,28 +76,26 @@ export async function handleTransferFunds(params: TransferFundsParams, userId: s
         description: `Transfer from ${sourceAcct.name}`,
         date: new Date(date),
       })
-      .returning();
-
+      .returning(),
     // Deduct balance from source account
-    await tx
+    db
       .update(financialAccounts)
       .set({
         balance: sql`${financialAccounts.balance} - ${amount}`,
         updatedAt: new Date(),
       })
-      .where(eq(financialAccounts.id, sourceAcct.id));
-
+      .where(eq(financialAccounts.id, sourceAcct.id)),
     // Add balance to destination account
-    await tx
+    db
       .update(financialAccounts)
       .set({
         balance: sql`${financialAccounts.balance} + ${amount}`,
         updatedAt: new Date(),
       })
-      .where(eq(financialAccounts.id, destinationAcct.id));
-
-    return [sTx, dTx];
-  });
+      .where(eq(financialAccounts.id, destinationAcct.id)),
+  ]);
+  const [sourceTx] = sourceRows;
+  const [destTx] = destRows;
 
   logger.info(
     { event: 'transfer_recorded', sourceTxId: sourceTx.id, destTxId: destTx.id },

@@ -2,7 +2,11 @@ import { and, eq } from 'drizzle-orm';
 import { db, financialAccounts } from '@/db';
 import { BadRequestError, InternalServerError, NotFoundError } from '@/lib/error';
 import { logger } from '@/middleware/logger';
-import type { FinancialAccount, NewFinancialAccount } from './financial-account.schema';
+import type {
+  AccountType,
+  FinancialAccount,
+  NewFinancialAccount,
+} from './financial-account.schema';
 
 export class FinancialAccountService {
   async getByUserId(userId: string): Promise<FinancialAccount[]> {
@@ -63,7 +67,7 @@ export class FinancialAccountService {
   async update(
     id: string,
     userId: string,
-    data: { name?: string; type?: string; isDefault?: boolean },
+    data: { name?: string; type?: AccountType; isDefault?: boolean },
   ): Promise<FinancialAccount> {
     logger.info(
       { event: 'updating_account_db', accountId: id, updates: data },
@@ -75,16 +79,17 @@ export class FinancialAccountService {
     }
 
     if (data.isDefault) {
-      await db.transaction(async tx => {
-        await tx
+      // D1 has no interactive transactions; db.batch is the atomic unit.
+      await db.batch([
+        db
           .update(financialAccounts)
           .set({ isDefault: false, updatedAt: new Date() })
-          .where(eq(financialAccounts.userId, userId));
-        await tx
+          .where(eq(financialAccounts.userId, userId)),
+        db
           .update(financialAccounts)
           .set({ ...data, updatedAt: new Date() })
-          .where(and(eq(financialAccounts.id, id), eq(financialAccounts.userId, userId)));
-      });
+          .where(and(eq(financialAccounts.id, id), eq(financialAccounts.userId, userId))),
+      ]);
     } else {
       await db
         .update(financialAccounts)

@@ -1,4 +1,5 @@
 import { and, count, eq, gte, lte, sql } from 'drizzle-orm';
+import type { BatchItem } from 'drizzle-orm/batch';
 import { db, financialAccounts, transactions } from '@/db';
 import { InternalServerError, NotFoundError } from '@/lib/error';
 import { logger } from '@/middleware/logger';
@@ -118,35 +119,36 @@ export class TransactionService {
     date: Date;
     accountId?: string;
   }): Promise<FormattedTransaction> {
-    return db.transaction(async tx => {
-      const [created] = await tx
-        .insert(transactions)
-        .values({
-          userId: data.userId,
-          type: data.type,
-          amount: data.amount.toString(),
-          currency: data.currency,
-          categoryId: data.categoryId,
-          description: data.description ?? '',
-          date: data.date,
-          accountId: data.accountId || null,
-        })
-        .returning();
+    const insertStmt = db
+      .insert(transactions)
+      .values({
+        userId: data.userId,
+        type: data.type,
+        amount: data.amount.toString(),
+        currency: data.currency,
+        categoryId: data.categoryId,
+        description: data.description ?? '',
+        date: data.date,
+        accountId: data.accountId || null,
+      })
+      .returning();
 
-      if (created.accountId) {
-        const delta = created.type === 'expense' ? -data.amount : data.amount;
-        await tx
-          .update(financialAccounts)
-          .set({ balance: sql`${financialAccounts.balance} + ${delta.toString()}::numeric` })
-          .where(eq(financialAccounts.id, created.accountId));
-      }
-
-      const cat = await tx.query.categories.findFirst({
-        where: (c, { eq }) => eq(c.id, data.categoryId),
-      });
-
-      return formatTransaction(created, cat?.label || null);
+    // D1 has no interactive transactions; db.batch is the atomic unit.
+    const balanceDelta = data.type === 'expense' ? -data.amount : data.amount;
+    const results = data.accountId
+      ? await db.batch([
+          insertStmt,
+          db
+            .update(financialAccounts)
+            .set({ balance: sql`${financialAccounts.balance} + ${balanceDelta}` })
+            .where(eq(financialAccounts.id, data.accountId)),
+        ])
+      : await db.batch([insertStmt]);
+    const [created] = results[0];
+    const cat = await db.query.categories.findFirst({
+      where: (c, { eq }) => eq(c.id, data.categoryId),
     });
+    return formatTransaction(created, cat?.label || null);
   }
 
   async update(
@@ -188,38 +190,46 @@ export class TransactionService {
     if (data.type !== undefined) updateValues.type = data.type;
     if (data.accountId !== undefined) updateValues.accountId = data.accountId;
 
-    await db.transaction(async tx => {
-      await tx
+    // D1 has no interactive transactions; db.batch is the atomic unit.
+    const statements: BatchItem<'sqlite'>[] = [
+      db
         .update(transactions)
         .set(updateValues)
-        .where(and(eq(transactions.id, id), eq(transactions.userId, userId)));
+        .where(and(eq(transactions.id, id), eq(transactions.userId, userId))),
+    ];
 
-      // Reverse old balance impact
-      if (oldAccountId) {
-        const oldDelta = oldType === 'expense' ? oldAmount : -oldAmount;
-        await tx
+    // Reverse old balance impact
+    if (oldAccountId) {
+      const oldDelta = oldType === 'expense' ? oldAmount : -oldAmount;
+      statements.push(
+        db
           .update(financialAccounts)
           .set({
             balance: sql`${financialAccounts.balance} + ${oldDelta}`,
             updatedAt: new Date(),
           })
-          .where(eq(financialAccounts.id, oldAccountId));
-      }
+          .where(eq(financialAccounts.id, oldAccountId)),
+      );
+    }
 
-      // Apply new balance impact
-      const effectiveAccountId = newAccountId;
-      if (effectiveAccountId) {
-        const newDelta = newType === 'expense' ? -newAmount : newAmount;
-        await tx
+    // Apply new balance impact
+    const effectiveAccountId = newAccountId;
+    if (effectiveAccountId) {
+      const newDelta = newType === 'expense' ? -newAmount : newAmount;
+      statements.push(
+        db
           .update(financialAccounts)
           .set({
             balance: sql`${financialAccounts.balance} + ${newDelta}`,
             updatedAt: new Date(),
           })
-          .where(eq(financialAccounts.id, effectiveAccountId));
-      }
-    });
+          .where(eq(financialAccounts.id, effectiveAccountId)),
+      );
+    }
 
+    // db.batch types require a fixed tuple; statement count depends on
+    // whether the transaction moved between accounts.
+    await db.batch(statements as [BatchItem<'sqlite'>, ...BatchItem<'sqlite'>[]]);
     const updated = await this.getById(id, userId);
     if (!updated) throw new InternalServerError('Failed to retrieve updated transaction');
     return updated;
@@ -237,24 +247,28 @@ export class TransactionService {
       throw new NotFoundError('Transaction not found');
     }
 
-    await db.transaction(async tx => {
-      // Reverse balance impact
-      if (existing.accountId) {
-        const amount = Number(existing.amount);
-        const delta = existing.type === 'expense' ? amount : -amount;
-        await tx
+    // D1 has no interactive transactions; db.batch is the atomic unit.
+    const statements: BatchItem<'sqlite'>[] = [
+      db.delete(transactions).where(and(eq(transactions.id, id), eq(transactions.userId, userId))),
+    ];
+
+    // Reverse balance impact
+    if (existing.accountId) {
+      const amount = Number(existing.amount);
+      const delta = existing.type === 'expense' ? amount : -amount;
+      statements.push(
+        db
           .update(financialAccounts)
           .set({
             balance: sql`${financialAccounts.balance} + ${delta}`,
             updatedAt: new Date(),
           })
-          .where(eq(financialAccounts.id, existing.accountId));
-      }
+          .where(eq(financialAccounts.id, existing.accountId)),
+      );
+    }
 
-      await tx
-        .delete(transactions)
-        .where(and(eq(transactions.id, id), eq(transactions.userId, userId)));
-    });
+    // db.batch types require a fixed tuple; the balance statement is optional.
+    await db.batch(statements as [BatchItem<'sqlite'>, ...BatchItem<'sqlite'>[]]);
   }
 
   async getStats(filters: TransactionStatsFilters): Promise<TransactionStats> {
