@@ -29,15 +29,13 @@ const seedUser = {
 };
 
 const seedAccounts = [
-  { name: 'E-wallet', type: 'e-wallet' as const, isDefault: true },
-  { name: 'Bank', type: 'bank' as const, isDefault: false },
+  { name: 'E-wallet', type: 'e-wallet' as const, isDefault: true, balance: '650000' },
+  { name: 'Bank', type: 'bank' as const, isDefault: false, balance: '5400000' },
 ];
 
 async function seed() {
   console.log('Seeding categories...');
-  let proxy:
-    | PlatformProxy<{ CLOUDFLARE_D1_BINDING_NAME: D1Database }>
-    | undefined;
+  let proxy: PlatformProxy<{ CLOUDFLARE_D1_BINDING_NAME: D1Database }> | undefined;
 
   try {
     let d1: D1Database | undefined;
@@ -48,9 +46,7 @@ async function seed() {
     }
     if (!d1) {
       const configPath = path.resolve(import.meta.dir, '../wrangler.toml');
-      proxy = await getPlatformProxy<{
-        CLOUDFLARE_D1_BINDING_NAME: D1Database;
-      }>({
+      proxy = await getPlatformProxy<{ CLOUDFLARE_D1_BINDING_NAME: D1Database }>({
         configPath,
       });
       d1 = proxy.env.CLOUDFLARE_D1_BINDING_NAME;
@@ -64,6 +60,39 @@ async function seed() {
 
     await db.insert(categories).values(data).onConflictDoNothing();
     console.log('Done seeding categories.');
+
+    console.log('Seeding user and accounts...');
+    // Expose the binding so the app's db singleton (used by auth) reuses this proxy.
+    globalScope.CLOUDFLARE_D1_BINDING_NAME = d1;
+    const { auth } = await import('../src/modules/auth');
+
+    const existingUser = await db.query.user.findFirst({
+      where: eq(user.email, seedUser.email),
+    });
+    const userId = existingUser
+      ? existingUser.id
+      : (
+          await auth.api.signUpEmail({
+            body: { email: seedUser.email, password: seedUser.password, name: seedUser.name },
+          })
+        ).user.id;
+
+    await db
+      .insert(financialAccounts)
+      .values(seedAccounts.map(account => ({ ...account, userId })))
+      .onConflictDoNothing();
+
+    // Enforce E-wallet as the single default account for the seeded user.
+    await db
+      .update(financialAccounts)
+      .set({ isDefault: false })
+      .where(eq(financialAccounts.userId, userId));
+    await db
+      .update(financialAccounts)
+      .set({ isDefault: true })
+      .where(and(eq(financialAccounts.userId, userId), eq(financialAccounts.name, 'E-wallet')));
+
+    console.log(`Done seeding user and accounts for ${seedUser.email}.`);
   } finally {
     await proxy?.dispose();
   }
