@@ -10,7 +10,7 @@ Accepted
 We need an authentication system for Cuan that supports:
 - Email/Password sign-in.
 - Session-based authentication via cookies.
-- Direct integration with PostgreSQL via Drizzle ORM.
+- Direct integration with Cloudflare D1 via Drizzle ORM.
 - Framework-agnostic so it can run inside Elysia.js seamlessly.
 - Easy extension to OAuth providers in the future.
 

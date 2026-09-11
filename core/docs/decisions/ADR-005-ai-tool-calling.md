@@ -15,7 +15,7 @@ We need the LLM to function as a two-way financial assistant that can dynamicall
 Refactor the chat system to use the Vercel AI SDK's native **Tool Calling** architecture (`generateText` with `maxSteps`/`stopWhen`).
 
 1. The LLM receives the user prompt and decides which tool to call (`add_transaction`, `query_finances`, `manage_account`).
-2. The backend executes the specific tool, running safe, parameterized Drizzle ORM queries against the PostgreSQL database.
+2. The backend executes the specific tool, running safe, parameterized Drizzle ORM queries against the Cloudflare D1 database.
 3. The raw JSON results (e.g., `{ total: 50000 }`) are returned to the LLM.
 4. The LLM reads the result and formulates a completely natural, conversational response based on those facts.
 

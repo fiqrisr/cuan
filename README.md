@@ -17,14 +17,14 @@ Cuan is organized as a monorepo orchestrated with **[Moonrepo](https://moonrepo.
 
 ```
 .
-├── core/           # Backend REST API (Elysia.js, Drizzle ORM, Better Auth, AI SDK)
+├── core/           # Backend REST API (Elysia.js, Drizzle ORM, Cloudflare D1, Better Auth, AI SDK)
 ├── web/            # Frontend SPA (React 19, Vite, TanStack Router & Query, Tailwind CSS v4)
 ├── landing/        # Marketing Landing Page (Astro 5, Tailwind CSS v4, i18n)
 └── packages/
     └── ui/         # Shared React component library (@cuan/ui, Radix UI, CVA)
 ```
 
-- **Backend (`core`)**: A Bun-native REST API built with **Elysia.js**, **Drizzle ORM** (PostgreSQL), and **Better Auth**. Features an intent-driven AI handler (`openmodel` / `gemini`) for natural language processing, financial account balance management, transaction categorization, and OpenAPI documentation.
+- **Backend (`core`)**: A Bun-native REST API built with **Elysia.js**, **Drizzle ORM** (Cloudflare D1), and **Better Auth**. Features an intent-driven AI handler (`openmodel` / `gemini`) for natural language processing, financial account balance management, transaction categorization, and OpenAPI documentation.
 - **Web App (`web`)**: A single-page application built with **React 19**, **Vite**, **TanStack Router**, **TanStack Query**, **TanStack Table**, **Tailwind CSS v4**, and **Recharts**.
 - **Landing Page (`landing`)**: A fast, SEO-friendly static marketing site built with **Astro 5**, featuring bilingual routing (`/` for Indonesian, `/en` for English), terms, and privacy pages.
 - **Shared UI (`packages/ui`)**: Shared React 19 design system and UI components package (`@cuan/ui`) styled with Tailwind CSS v4.
@@ -33,7 +33,7 @@ Cuan is organized as a monorepo orchestrated with **[Moonrepo](https://moonrepo.
 
 - [Bun](https://bun.sh/) (v1.3.14+)
 - [Moonrepo](https://moonrepo.dev/) (recommended via Proto)
-- [Docker](https://www.docker.com/) & Docker Compose (for local PostgreSQL database)
+- [Wrangler](https://developers.cloudflare.com/workers/wrangler/) (for local Cloudflare D1 database)
 
 ## Getting Started
 
@@ -51,15 +51,11 @@ Copy the example environment file in `core` and adjust the variables as needed:
 cp core/.env.example core/.env
 ```
 
-Ensure your `core/.env` contains your database connection string, Better Auth secret/URL, and your desired AI provider credentials (`openmodel` or `gemini`).
+Ensure your `core/.env` contains your Cloudflare D1 binding, account/database IDs, Better Auth secret/URL, and your desired AI provider credentials (`openmodel` or `gemini`).
 
-### 3. Start Local Database
+### 3. Initialize Local D1 Database
 
-Start the PostgreSQL 15 container using Docker Compose (runs on port `5433` by default):
-
-```bash
-docker compose up -d
-```
+Cloudflare D1 is serverless; there is no local container to start. The first migration will create your local D1 database state via Wrangler.
 
 ### 4. Run Database Migrations & Seeds
 
@@ -94,7 +90,7 @@ The project uses **Biome** for formatting and linting, **Oxlint** for frontend l
 
 ### Running Backend Tests
 
-Backend integration tests run against an isolated, automated PostgreSQL database instance:
+Backend integration tests run against an isolated, in-process Cloudflare D1 database instance:
 
 ```bash
 cd core && bun run test

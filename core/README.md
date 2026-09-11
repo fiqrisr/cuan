@@ -12,14 +12,11 @@ The core backend for Cuan, an AI-powered, chat-centric financial management and 
 2. **Set up Environment:**
    ```bash
    cp .env.example .env
-   # Add your OPENMODEL_API_KEY and DATABASE_URL
+   # Add your OPENMODEL_API_KEY and Cloudflare D1 credentials
    ```
 
-3. **Start Local Database:**
-   (From the monorepo root)
-   ```bash
-   docker compose up -d
-   ```
+3. **Initialize Local D1 Database:**
+   Cloudflare D1 is serverless; there is no local container to start. The first migration will create your local D1 database state via Wrangler.
 
 4. **Run Migrations:**
    ```bash
@@ -37,7 +34,7 @@ The core backend for Cuan, an AI-powered, chat-centric financial management and 
 |---------|-------------|
 | `bun run dev` | Start development server with hot-reload |
 | `bun run build` | Build the application |
-| `bun run test` | Run integration tests (requires Docker for fresh DB) |
+| `bun run test` | Run integration tests (uses an isolated D1 database) |
 | `bun run typecheck` | Run TypeScript type checking |
 | `bun run db:generate` | Generate Drizzle migrations |
 | `bun run db:migrate` | Apply Drizzle migrations |
@@ -49,7 +46,7 @@ The core backend for Cuan, an AI-powered, chat-centric financial management and 
 The backend uses a **feature-module architecture** to keep domains isolated.
 - **Runtime:** Bun 1.3+
 - **Framework:** Elysia.js
-- **Database:** PostgreSQL via Drizzle ORM
+- **Database:** Cloudflare D1 via Drizzle ORM
 - **Authentication:** Better Auth
 
 ### Feature Documentation

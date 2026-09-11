@@ -31,7 +31,7 @@ Used when the user wants to add one or more transactions (expenses or incomes).
 Used for analytical questions about the user's data (e.g., "what's my biggest expense this week?").
 - **Behavior:**
   - The LLM identifies the `queryType` (e.g., `biggest_expense`, `total_spent`, `category_breakdown`) and any `filters`.
-  - The backend executes the real, safe Drizzle ORM query on the PostgreSQL database.
+  - The backend executes the real, safe Drizzle ORM query on the Cloudflare D1 database.
   - The backend returns raw data (e.g. `{ total: 50000 }`) to the LLM.
   - The LLM reads this real data to generate an accurate, conversational response without hallucinating.
 
@@ -53,7 +53,7 @@ Used when the user wants to transfer money between two of their own financial ac
 - **Behavior:**
   - The LLM extracts the `sourceAccount`, `destinationAccount`, `amount`, and `date`.
   - The backend verifies both accounts exist, retrieves the system `transfer` category, and atomically records the transfer as two transaction entries (an expense for the source account and an income for the destination account).
-  - The backend adjusts balances of both accounts atomically inside a database transaction block.
+  - The backend adjusts balances of both accounts atomically inside a D1 `db.batch()` block.
   - The handler returns the updated account balances and recorded transactions, allowing the LLM to format a detailed confirmation response.
 
 ## OpenModel Client

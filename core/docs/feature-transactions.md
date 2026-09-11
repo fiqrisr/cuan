@@ -4,14 +4,14 @@ The Transactions module is responsible for recording the user's financial activi
 
 ## Context & Rationale
 While chat is great for rapid entry, users often need to see a historical list, fix a typo, or delete an accidental entry. We built standard REST endpoints for these because natural language isn't great at targeting a specific historical row for deletion.
-We store all monetary amounts as exact `numeric(12,2)` rather than integer cents to avoid dividing/multiplying by 100 on every request while preserving strict accuracy.
+We store all monetary amounts as `text` (decimal strings) in Cloudflare D1 to preserve exact precision without floating-point truncation.
 
 ## Database Schema (`transactions`)
 - `id`: UUID (Primary Key)
 - `user_id`: UUID (Foreign Key to users)
 - `account_id`: UUID (Foreign Key to `financial_accounts`, Nullable for backwards compatibility with old records)
 - `type`: string (`expense` | `income`)
-- `amount`: numeric(12,2)
+- `amount`: text (decimal string)
 - `currency`: string
 - `category_id`: int (Foreign Key to `categories` table)
 - `description`: string
@@ -25,7 +25,7 @@ New transactions created via chat or the API will always link to an `account_id`
 - Inserting a transaction recalculates the associated account's `balance`.
 - Modifying a transaction's `amount` or `type` calculates the delta and applies it to the account.
 - Deleting a transaction reverses the balance impact on the linked account.
-All balance updates occur atomically within a database transaction.
+All balance updates occur atomically via D1 `db.batch()` (D1 does not support interactive transactions).
 
 ## REST Endpoints (`/api/transactions`)
 
@@ -49,4 +49,4 @@ The `GET /api/transactions` endpoint supports:
 
 - **Dynamic Categories:** Transactions map to `category_id`, which references the `categories` table. Categories can be global (default) or user-specific (custom).
 - **Nullable `account_id`:** `account_id` is nullable in the database for backward compatibility with v1 data (which had no financial accounts). New inserts from the application layer always require an `account_id` or fallback to the user's default account.
-- **Currency Parsing:** Postgres `numeric` values are often returned as strings by the `pg` driver to prevent float truncation in JS. Ensure the API/Client expects strings or handles conversions properly if math is needed on the frontend.
+- **Currency Parsing:** D1 stores monetary values as text (decimal strings). Ensure services parse them with a decimal-safe library and the API/client expects strings, or handles conversions properly if math is needed on the frontend.

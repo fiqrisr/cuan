@@ -12,7 +12,7 @@ The concept of a "default account" was added to preserve the frictionless chat U
 - `name`: string (e.g., "BCA", "GoPay")
 - `type`: string (`bank`, `e-wallet`, `cash`, `other`)
 - `currency`: string (Default: `IDR`)
-- `balance`: numeric(15,2) (Running balance)
+- `balance`: text (decimal string) (Running balance)
 - `is_default`: boolean (Only ONE account per user can be default)
 - **Constraint:** Unique index on `(user_id, name)`.
 
@@ -43,5 +43,5 @@ Deleting an account is blocked if there are any existing transactions linked to 
 
 ## Known Gotchas
 
-- **Atomic Updates Requirement:** Any service that adds, updates, or deletes a transaction MUST recalculate the linked account's balance in the exact same `db.transaction()` block. If a balance falls out of sync, the data is corrupted.
+- **Atomic Updates Requirement:** Any service that adds, updates, or deletes a transaction MUST recalculate the linked account's balance in the exact same `db.batch()` block. If a balance falls out of sync, the data is corrupted.
 - **Default Account Toggle:** When setting an account as default, ensure you clear the default status of all other accounts belonging to that `user_id`. (See `financial-account.service.ts` for the exact Drizzle code).

@@ -16,7 +16,7 @@ We need a system that can understand the user's goal without hallucinating finan
 
 ## Decision
 Implement a **3-Intent AI Classification System** (`add_transaction`, `query`, `manage_account`). 
-Instead of the LLM answering everything directly, the LLM outputs a **structured JSON descriptor** (e.g., `{ intent: 'query', queryType: 'biggest_expense', filters: {...} }`). The backend then executes real SQL queries and formats the response.
+Instead of the LLM answering everything directly, the LLM outputs a **structured JSON descriptor** (e.g., `{ intent: 'query', queryType: 'biggest_expense', filters: {...} }`). The backend then executes real Drizzle ORM queries and formats the response.
 
 ## Alternatives Considered
 
@@ -31,7 +31,7 @@ Instead of the LLM answering everything directly, the LLM outputs a **structured
 - **Rejected:** We want to maintain a chat-centric UX.
 
 ## Consequences
-- **Positive:** We get the UX of a chatbot but the deterministic safety of hard-coded SQL queries. The LLM acts purely as a Natural Language to JSON parser.
+- **Positive:** We get the UX of a chatbot but the deterministic safety of hard-coded Drizzle ORM queries. The LLM acts purely as a Natural Language to JSON parser.
 - **Negative:** Users are restricted to the `queryTypes` we explicitly support. Arbitrary questions ("predict my spending next month") won't work until we build specific handlers for them.
 - **Gotchas:** 
   - The AI prompt must heavily emphasize returning exact category and account names matching the user's DB. 
