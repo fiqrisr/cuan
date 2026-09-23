@@ -38,6 +38,7 @@ tasks:
       - "build"
     inputs:
       - "src/**/*"
+      - ".dev.vars"
     options:
       cache: false
 

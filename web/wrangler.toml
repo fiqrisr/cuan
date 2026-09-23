@@ -5,8 +5,3 @@ pages_build_output_dir = "dist"
 
 [vars]
 VITE_API_URL = "https://core.cuan.fiqri.dev"
-
-[observability.logs]
-enabled = true
-invocation_logs = true
-persist = true
