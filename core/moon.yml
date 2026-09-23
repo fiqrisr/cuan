@@ -11,7 +11,7 @@ project:
 
 tasks:
   dev:
-    script: "cp .env .dev.vars && bun run --watch src/index.ts"
+    script: "cp .env .dev.vars && bunx wrangler dev"
     preset: server
     inputs:
       - "src/**/*"
