@@ -4,6 +4,7 @@ import { drizzle } from 'drizzle-orm/d1';
 import { getPlatformProxy, type PlatformProxy } from 'wrangler';
 import * as schema from '../src/db/schema';
 import { categories, financialAccounts, user } from '../src/db/schema';
+import { createRemoteD1Database, getRemoteDatabaseId } from './d1-http';
 
 const data = [
   { name: 'food-beverage', label: 'Makanan & Minuman' },
@@ -32,6 +33,9 @@ const seedAccounts = [
   { name: 'E-wallet', type: 'e-wallet' as const, isDefault: true, balance: '650000' },
   { name: 'Bank', type: 'bank' as const, isDefault: false, balance: '5400000' },
 ];
+// Run with `--remote` to seed the remote D1 database over the Cloudflare REST
+// API (credentials required in .env) instead of the local wrangler proxy.
+const remote = process.argv.includes('--remote');
 
 async function seed() {
   console.log('Seeding categories...');
@@ -45,11 +49,16 @@ async function seed() {
       d1 = globalBinding as D1Database;
     }
     if (!d1) {
-      const configPath = path.resolve(import.meta.dir, '../wrangler.toml');
-      proxy = await getPlatformProxy<{ CLOUDFLARE_D1_BINDING_NAME: D1Database }>({
-        configPath,
-      });
-      d1 = proxy.env.CLOUDFLARE_D1_BINDING_NAME;
+      if (remote) {
+        d1 = createRemoteD1Database();
+        console.log(`Seeding REMOTE D1 database "cuan" (${getRemoteDatabaseId()})...`);
+      } else {
+        const configPath = path.resolve(import.meta.dir, '../wrangler.toml');
+        proxy = await getPlatformProxy<{ CLOUDFLARE_D1_BINDING_NAME: D1Database }>({
+          configPath,
+        });
+        d1 = proxy.env.CLOUDFLARE_D1_BINDING_NAME;
+      }
     }
 
     if (!d1) {

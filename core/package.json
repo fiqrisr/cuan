@@ -5,15 +5,16 @@
   "description": "Cuan backend API powered by Elysia.js",
   "type": "module",
   "scripts": {
-    "dev": "bun run --watch src/dev.ts",
+    "dev": "wrangler dev",
     "build": "wrangler deploy --dry-run --outdir dist",
     "typecheck": "tsc --noEmit",
     "test": "OPENMODEL_BASE_URL=http://localhost:3999 bash scripts/test-with-db.sh",
     "db:reset": "bash scripts/reset-dev-db.sh",
+    "db:reset:remote": "bash scripts/reset-remote-db.sh",
+    "db:seed": "bun run scripts/seed.ts",
+    "db:seed:remote": "bun run scripts/seed.ts --remote",
     "db:generate-auth": "better-auth generate",
-    "db:migrate": "drizzle-kit migrate",
-    "db:push": "drizzle-kit push",
-    "db:seed": "bun run scripts/seed.ts"
+    "db:migrate": "drizzle-kit migrate"
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^3.0.86",
