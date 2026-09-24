@@ -24,6 +24,11 @@ export const auth = betterAuth({
     minPasswordLength: 8,
   },
   plugins: [openAPI()],
+  advanced: {
+    crossSubDomainCookies: {
+      enabled: true,
+    },
+  },
 });
 
 let _schema: Promise<{ paths: Record<string, unknown>; components: Record<string, unknown> }>;
