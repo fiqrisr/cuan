@@ -13,9 +13,12 @@ export default defineConfig({
     react(),
   ],
   resolve: {
+    dedupe: ['react', 'react-dom'],
     alias: {
       '@': path.resolve(__dirname, './src'),
       '@cuan/ui': path.resolve(__dirname, '../packages/ui/src/index.ts'),
+      react: path.resolve(__dirname, './node_modules/react'),
+      'react-dom': path.resolve(__dirname, './node_modules/react-dom'),
     },
   },
   server: {
