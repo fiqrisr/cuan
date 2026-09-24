@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { api } from '@/core/api';
+import { api } from '@/core/http';
 import type { FinancialAccountListResponse } from '../types';
 
 export function useGetAccountListQuery() {

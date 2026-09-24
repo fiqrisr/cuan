@@ -1,5 +1,5 @@
 import { createFileRoute, redirect } from '@tanstack/react-router';
-import { authClient } from '@/core/auth';
+import { authClient } from '@/core/http';
 import { ProfilePage } from '@/modules/profile';
 
 export const Route = createFileRoute('/profile')({

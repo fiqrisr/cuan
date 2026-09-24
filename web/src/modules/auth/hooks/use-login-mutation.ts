@@ -1,5 +1,5 @@
 import { useMutation } from '@tanstack/react-query';
-import { authClient } from '@/core/auth';
+import { authClient } from '@/core/http';
 
 export function useLoginMutation() {
   const { mutateAsync, isPending, error } = useMutation({

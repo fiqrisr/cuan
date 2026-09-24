@@ -2,7 +2,7 @@ import type React from 'react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import i18n from '@/core/i18n';
 import type { ChatMessage } from '../types';
-import { handleUnauthorized } from '@/core/unauthorized';
+import { handleUnauthorized } from '@/core/http';
 
 export type ChatStreamEvent =
   | { type: 'start'; messageId?: string }

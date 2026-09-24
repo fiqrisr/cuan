@@ -4,7 +4,7 @@ import { Bot, History, LayoutDashboard, Moon, Sun, User, Wallet } from 'lucide-r
 import { useTranslation } from 'react-i18next';
 import { Footer } from '@/components/footer';
 import { NotFound } from '@/components/not-found';
-import { authClient } from '@/core/auth';
+import { authClient } from '@/core/http';
 import { useTheme } from '@/core/theme-context';
 
 export const Route = createRootRoute({

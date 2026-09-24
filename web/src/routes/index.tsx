@@ -1,5 +1,5 @@
 import { createFileRoute, redirect } from '@tanstack/react-router';
-import { authClient } from '@/core/auth';
+import { authClient } from '@/core/http';
 import { DashboardPage } from '@/modules/dashboard/pages/dashboard-page';
 
 export const Route = createFileRoute('/')({

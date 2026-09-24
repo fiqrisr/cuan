@@ -31,7 +31,7 @@ describe('Eden Treaty api 401 integration', () => {
   });
 
   test('3 consecutive 401 responses from treaty api triggers auto-logout and clears session', async () => {
-    // Treaty client wired identically to web/src/core/api.ts
+    // Treaty client wired identically to web/src/core/http/api.ts
     // @ts-expect-error
     const testApi = treaty<App>('http://localhost:5173', {
       fetcher: async () => {

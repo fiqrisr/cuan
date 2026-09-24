@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { api } from '@/core/api';
+import { api } from '@/core/http';
 
 type CreateAccountParams = {
   name: string;

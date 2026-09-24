@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { api } from '@/core/api';
+import { api } from '@/core/http';
 
 export type Category = {
   id: number;
