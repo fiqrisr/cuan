@@ -29,6 +29,7 @@ tasks:
       - "package.json"
       - "tsconfig.*.json"
       - ".env"
+      - ".env.production"
     outputs:
       - "dist"
 
