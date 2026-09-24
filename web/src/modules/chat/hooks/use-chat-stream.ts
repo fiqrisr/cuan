@@ -1,8 +1,15 @@
-import type React from 'react';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import {
+  type Dispatch,
+  type FormEvent,
+  type SetStateAction,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import i18n from '@/core/i18n';
 import type { ChatMessage } from '../types';
-import { handleUnauthorized } from '@/core/http';
+import { API_BASE_URL, handleUnauthorized } from '@/core/http';
 
 export type ChatStreamEvent =
   | { type: 'start'; messageId?: string }
@@ -30,17 +37,18 @@ function parseSSELine(line: string): ChatStreamEvent | null {
   return null;
 }
 
-async function streamChat(
+export async function streamChat(
   message: string,
   locale: string,
   onEvent: (event: ChatStreamEvent) => void,
   signal: AbortSignal,
 ): Promise<void> {
-  const res = await fetch('/api/chat/stream', {
+  const res = await fetch(`${API_BASE_URL}/api/chat/stream`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ message, locale }),
     signal,
+    credentials: 'include',
   });
   handleUnauthorized(res);
   if (!res.ok) {
@@ -88,10 +96,10 @@ async function streamChat(
 type UseChatStreamReturn = {
   messages: ChatMessage[];
   input: string;
-  setInput: React.Dispatch<React.SetStateAction<string>>;
+  setInput: Dispatch<SetStateAction<string>>;
   isLoading: boolean;
   error: string | null;
-  handleSubmit: (e: React.FormEvent) => Promise<void>;
+  handleSubmit: (e: FormEvent) => Promise<void>;
 };
 
 export function useChatStream(): UseChatStreamReturn {
@@ -160,7 +168,7 @@ export function useChatStream(): UseChatStreamReturn {
     }
   }, []);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     const text = input.trim();
     if (!text || isLoading) return;
