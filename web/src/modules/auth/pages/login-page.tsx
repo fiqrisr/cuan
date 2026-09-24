@@ -35,7 +35,11 @@ export function LoginPage() {
   };
 
   return (
-    <AuthLayout title={t('auth.loginTitle')} subtitle={t('auth.loginSubtitle')}>
+    <AuthLayout
+      title={t('auth.loginTitle')}
+      subtitle={t('auth.loginSubtitle')}
+      className="lg:max-w-5xl"
+    >
       <Card className="w-full max-w-sm bg-card/80 backdrop-blur-xl border-border/10 shadow-tint-lg">
         <form onSubmit={handleLogin}>
           <CardHeader className="space-y-1">
