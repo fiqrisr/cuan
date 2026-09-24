@@ -2,6 +2,7 @@ import type React from 'react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import i18n from '@/core/i18n';
 import type { ChatMessage } from '../types';
+import { handleUnauthorized } from '@/core/unauthorized';
 
 export type ChatStreamEvent =
   | { type: 'start'; messageId?: string }
@@ -41,6 +42,7 @@ async function streamChat(
     body: JSON.stringify({ message, locale }),
     signal,
   });
+  handleUnauthorized(res);
   if (!res.ok) {
     const body = await res.text().catch(() => '');
     throw new Error(`Chat request failed (${res.status})${body ? `: ${body}` : ''}`);
