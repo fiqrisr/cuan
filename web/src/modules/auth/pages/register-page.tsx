@@ -10,7 +10,8 @@ import {
 import { Link, useRouter } from '@tanstack/react-router';
 import { Loader2 } from 'lucide-react';
 import { useState } from 'react';
-import { useTranslation } from 'react-i18next';
+import { Trans, useTranslation } from 'react-i18next';
+import { PRIVACY_URL, TERMS_URL } from '@/core/config';
 import { AuthFormField } from '../components/auth-form-field';
 import { AuthLayout } from '../components/auth-layout';
 import { useRegisterMutation } from '../hooks/use-register-mutation';
@@ -106,21 +107,31 @@ export function RegisterPage() {
               required
             />
             <p className="text-xs text-muted-foreground">
-              By registering, you agree to our{' '}
-              <Link
-                to="/"
-                className="underline underline-offset-2 hover:text-primary transition-colors"
-              >
-                Terms of Service
-              </Link>{' '}
-              and{' '}
-              <Link
-                to="/"
-                className="underline underline-offset-2 hover:text-primary transition-colors"
-              >
-                Privacy Policy
-              </Link>
-              .
+              <Trans
+                i18nKey="auth.agreeToTerms"
+                components={{
+                  termsLink: (
+                    <a
+                      href={TERMS_URL}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="underline underline-offset-2 hover:text-primary transition-colors"
+                    >
+                      {t('auth.termsOfService')}
+                    </a>
+                  ),
+                  privacyLink: (
+                    <a
+                      href={PRIVACY_URL}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="underline underline-offset-2 hover:text-primary transition-colors"
+                    >
+                      {t('auth.privacyPolicy')}
+                    </a>
+                  ),
+                }}
+              />
             </p>
           </CardContent>
           <CardFooter className="flex flex-col gap-4">

@@ -28,7 +28,9 @@
     "noResults": "Tidak ada hasil",
     "error": "Terjadi kesalahan",
     "retry": "Coba lagi",
-    "optional": "opsional"
+    "optional": "opsional",
+    "privacy": "Privasi",
+    "terms": "Ketentuan"
   },
   "nav": {
     "dashboard": "Dasbor",
@@ -57,7 +59,10 @@
     "hasAccount": "Sudah punya akun?",
     "loginError": "Email atau kata sandi salah",
     "registerError": "Gagal membuat akun",
-    "welcomeBack": "Selamat datang kembali"
+    "welcomeBack": "Selamat datang kembali",
+    "termsOfService": "Ketentuan Layanan",
+    "privacyPolicy": "Kebijakan Privasi",
+    "agreeToTerms": "Dengan mendaftar, kamu menyetujui <termsLink>Ketentuan Layanan</termsLink> dan <privacyLink>Kebijakan Privasi</privacyLink> kami."
   },
   "dashboard": {
     "title": "Dasbor",

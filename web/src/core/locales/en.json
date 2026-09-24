@@ -28,7 +28,9 @@
     "noResults": "No results",
     "error": "Something went wrong",
     "retry": "Try again",
-    "optional": "optional"
+    "optional": "optional",
+    "privacy": "Privacy",
+    "terms": "Terms"
   },
   "nav": {
     "dashboard": "Dashboard",
@@ -57,7 +59,10 @@
     "hasAccount": "Already have an account?",
     "loginError": "Invalid email or password",
     "registerError": "Could not create your account",
-    "welcomeBack": "Welcome back"
+    "welcomeBack": "Welcome back",
+    "termsOfService": "Terms of Service",
+    "privacyPolicy": "Privacy Policy",
+    "agreeToTerms": "By registering, you agree to our <termsLink>Terms of Service</termsLink> and <privacyLink>Privacy Policy</privacyLink>."
   },
   "dashboard": {
     "title": "Dashboard",
