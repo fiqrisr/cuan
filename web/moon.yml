@@ -33,12 +33,14 @@ tasks:
       - "dist"
 
   deploy:
-    command: "bunx wrangler pages deploy"
+    script: "cp .env .dev.vars && bunx wrangler deploy --secrets-file .env"
+    preset: "server"
     deps:
       - "build"
     inputs:
       - "src/**/*"
       - ".dev.vars"
+      - "wrangler.toml"
     options:
       cache: false
 
