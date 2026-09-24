@@ -33,7 +33,7 @@ tasks:
       - "dist"
 
   deploy:
-    script: "cp .env .dev.vars && bunx wrangler deploy --secrets-file .env"
+    script: "cp .env.production .dev.vars && bunx wrangler deploy --secrets-file .env.production"
     preset: "server"
     deps:
       - "build"
