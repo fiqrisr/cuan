@@ -1,4 +1,13 @@
-import * as React from 'react';
+import {
+  createContext,
+  forwardRef,
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+  type HTMLAttributes,
+} from 'react';
 import { cn } from '../lib/utils';
 
 // ---------------------------------------------------------------------------
@@ -7,18 +16,18 @@ import { cn } from '../lib/utils';
 // ---------------------------------------------------------------------------
 
 function useScrollAnchor() {
-  const scrollRef = React.useRef<HTMLDivElement>(null);
-  const anchorRef = React.useRef<HTMLDivElement>(null);
-  const isAtBottomRef = React.useRef(true);
-  const [showScrollButton, setShowScrollButton] = React.useState(false);
+  const scrollRef = useRef<HTMLDivElement | null>(null);
+  const anchorRef = useRef<HTMLDivElement | null>(null);
+  const isAtBottomRef = useRef(true);
+  const [showScrollButton, setShowScrollButton] = useState(false);
 
-  const scrollToBottom = React.useCallback((behavior: ScrollBehavior = 'smooth') => {
+  const scrollToBottom = useCallback((behavior: ScrollBehavior = 'smooth') => {
     anchorRef.current?.scrollIntoView({ behavior, block: 'end' });
     isAtBottomRef.current = true;
     setShowScrollButton(false);
   }, []);
 
-  React.useEffect(() => {
+  useEffect(() => {
     const el = scrollRef.current;
     if (!el) return;
 
@@ -34,7 +43,7 @@ function useScrollAnchor() {
   }, []);
 
   // Auto-scroll when content grows, only if already at bottom
-  const onContentChange = React.useCallback(() => {
+  const onContentChange = useCallback(() => {
     if (isAtBottomRef.current) {
       anchorRef.current?.scrollIntoView({ behavior: 'instant', block: 'end' });
     }
@@ -51,35 +60,34 @@ type MessageScrollerContextValue = {
   onContentChange: () => void;
 };
 
-const MessageScrollerContext = React.createContext<MessageScrollerContextValue>({
+const MessageScrollerContext = createContext<MessageScrollerContextValue>({
   onContentChange: () => {},
 });
 
 export function useMessageScroller() {
-  return React.useContext(MessageScrollerContext);
+  return useContext(MessageScrollerContext);
 }
 
 // ---------------------------------------------------------------------------
 // MessageScroller
 // ---------------------------------------------------------------------------
 
-export type MessageScrollerProps = React.HTMLAttributes<HTMLDivElement>;
+export type MessageScrollerProps = HTMLAttributes<HTMLDivElement>;
 
-const MessageScroller = React.forwardRef<HTMLDivElement, MessageScrollerProps>(
+const MessageScroller = forwardRef<HTMLDivElement, MessageScrollerProps>(
   ({ className, children, ...props }, ref) => {
     const { scrollRef, anchorRef, showScrollButton, scrollToBottom, onContentChange } =
       useScrollAnchor();
 
     // Merge forwarded ref with internal scrollRef
-    const mergedRef = React.useCallback(
+    const mergedRef = useCallback(
       (node: HTMLDivElement | null) => {
-        (scrollRef as React.MutableRefObject<HTMLDivElement | null>).current = node;
+        scrollRef.current = node;
         if (typeof ref === 'function') ref(node);
         else if (ref) ref.current = node;
       },
       [ref, scrollRef],
     );
-
     return (
       <MessageScrollerContext.Provider value={{ onContentChange }}>
         <div className="relative flex-1 overflow-hidden">
@@ -111,36 +119,35 @@ MessageScroller.displayName = 'MessageScroller';
 // MessageScrollerContent — reports size changes to trigger scroll anchor
 // ---------------------------------------------------------------------------
 
-const MessageScrollerContent = React.forwardRef<
-  HTMLDivElement,
-  React.HTMLAttributes<HTMLDivElement>
->(({ className, children, ...props }, ref) => {
-  const { onContentChange } = useMessageScroller();
-  const innerRef = React.useRef<HTMLDivElement>(null);
+const MessageScrollerContent = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(
+  ({ className, children, ...props }, ref) => {
+    const { onContentChange } = useMessageScroller();
+    const innerRef = useRef<HTMLDivElement | null>(null);
 
-  const mergedRef = React.useCallback(
-    (node: HTMLDivElement | null) => {
-      (innerRef as React.MutableRefObject<HTMLDivElement | null>).current = node;
-      if (typeof ref === 'function') ref(node);
-      else if (ref) ref.current = node;
-    },
-    [ref],
-  );
+    const mergedRef = useCallback(
+      (node: HTMLDivElement | null) => {
+        innerRef.current = node;
+        if (typeof ref === 'function') ref(node);
+        else if (ref) ref.current = node;
+      },
+      [ref],
+    );
 
-  React.useEffect(() => {
-    const el = innerRef.current;
-    if (!el) return;
-    const observer = new ResizeObserver(onContentChange);
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, [onContentChange]);
+    useEffect(() => {
+      const el = innerRef.current;
+      if (!el) return;
+      const observer = new ResizeObserver(onContentChange);
+      observer.observe(el);
+      return () => observer.disconnect();
+    }, [onContentChange]);
 
-  return (
-    <div ref={mergedRef} className={cn('flex flex-col gap-4 p-4', className)} {...props}>
-      {children}
-    </div>
-  );
-});
+    return (
+      <div ref={mergedRef} className={cn('flex flex-col gap-4 p-4', className)} {...props}>
+        {children}
+      </div>
+    );
+  },
+);
 MessageScrollerContent.displayName = 'MessageScrollerContent';
 
 export { MessageScroller, MessageScrollerContent };
