@@ -1,11 +1,19 @@
 import { createRootRoute, Link, Outlet } from '@tanstack/react-router';
-import { TanStackRouterDevtools } from '@tanstack/router-devtools';
 import { Bot, History, LayoutDashboard, Moon, Sun, User, Wallet } from 'lucide-react';
+import { lazy } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Footer } from '@/components/footer';
 import { NotFound } from '@/components/not-found';
 import { authClient } from '@/core/http';
 import { useTheme } from '@/core/theme-context';
+
+const TanStackRouterDevtools = import.meta.env.PROD
+  ? () => null // Render nothing in production
+  : lazy(() =>
+      import('@tanstack/router-devtools').then(res => ({
+        default: res.TanStackRouterDevtools,
+      })),
+    );
 
 export const Route = createRootRoute({
   notFoundComponent: NotFound,
