@@ -1,6 +1,6 @@
 import { createAuthClient } from 'better-auth/react';
-import { API_BASE_URL } from './api';
-import { handleUnauthorized } from './unauthorized';
+import { API_BASE_URL } from './base-url';
+import { handleUnauthorized, setDefaultUnauthorizedAuthClient } from './unauthorized';
 
 export const authClient = createAuthClient({
   baseURL: API_BASE_URL,
@@ -17,3 +17,5 @@ export const authClient = createAuthClient({
     },
   },
 });
+
+setDefaultUnauthorizedAuthClient(authClient);

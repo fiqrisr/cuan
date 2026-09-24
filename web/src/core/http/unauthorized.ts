@@ -1,4 +1,3 @@
-import { authClient as defaultAuthClient } from './auth';
 import { queryClient as defaultQueryClient } from './query-client';
 
 export const DEFAULT_UNAUTHORIZED_THRESHOLD = 3;
@@ -37,7 +36,8 @@ const handledObjects = new WeakSet<object>();
 
 let routerInstance: UnauthorizedRouter | null = null;
 let customLogoutHandler: (() => Promise<void> | void) | null = null;
-let currentAuthClient: UnauthorizedAuthClient = defaultAuthClient;
+let customAuthClient: UnauthorizedAuthClient | null = null;
+let defaultAuthClient: UnauthorizedAuthClient | null = null;
 let currentQueryClient: UnauthorizedQueryClient = defaultQueryClient;
 
 export function getUnauthorizedCount(): number {
@@ -67,12 +67,16 @@ export function setCustomLogoutHandler(handler: (() => Promise<void> | void) | n
   customLogoutHandler = handler;
 }
 
+export function setDefaultUnauthorizedAuthClient(client: UnauthorizedAuthClient | null): void {
+  defaultAuthClient = client;
+}
+
 export function setUnauthorizedAuthClient(client: UnauthorizedAuthClient): void {
-  currentAuthClient = client;
+  customAuthClient = client;
 }
 
 export function resetUnauthorizedAuthClient(): void {
-  currentAuthClient = defaultAuthClient;
+  customAuthClient = null;
 }
 
 export function setUnauthorizedQueryClient(client: UnauthorizedQueryClient): void {
@@ -92,7 +96,10 @@ export async function logoutAndClearSession(options?: LogoutOptions): Promise<vo
 
     // 1. Invalidate session via auth client
     try {
-      await currentAuthClient.signOut();
+      const authClient = customAuthClient ?? defaultAuthClient;
+      if (authClient) {
+        await authClient.signOut();
+      }
     } catch (err) {
       console.error('Error signing out during auto-logout:', err);
     }

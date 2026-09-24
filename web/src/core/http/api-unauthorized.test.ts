@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, mock, type Mock, test } from 'bun:test';
+import { beforeEach, describe, expect, type Mock, mock, test } from 'bun:test';
 import type { App } from '@cuan/core/src/app';
 import { treaty } from '@elysiajs/eden';
 import {

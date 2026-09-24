@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, mock, type Mock, test } from 'bun:test';
+import { beforeEach, describe, expect, type Mock, mock, test } from 'bun:test';
 import {
   DEFAULT_UNAUTHORIZED_THRESHOLD,
   getUnauthorizedCount,
