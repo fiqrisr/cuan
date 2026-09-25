@@ -1,12 +1,17 @@
 import { z } from 'zod';
 
+const optionalUrlSchema = z.preprocess(
+  val => (typeof val === 'string' && val.trim() === '' ? undefined : val),
+  z.url().optional(),
+);
+
 const commonEnvSchema = z.object({
   PORT: z.coerce.number().int().positive().default(3000),
   NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
   LOG_LEVEL: z.enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace']).default('info'),
-  FRONTEND_URL: z.url().optional(),
+  FRONTEND_URL: optionalUrlSchema,
   BETTER_AUTH_SECRET: z.string().min(32),
-  BETTER_AUTH_URL: z.url().optional(),
+  BETTER_AUTH_URL: optionalUrlSchema,
   CLOUDFLARE_ACCOUNT_ID: z.string().min(1),
   CLOUDFLARE_DATABASE_ID: z.string().min(1),
   CLOUDFLARE_D1_TOKEN: z.string().min(1),

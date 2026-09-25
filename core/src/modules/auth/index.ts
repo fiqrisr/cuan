@@ -5,19 +5,37 @@ import { db } from '@/db';
 import { env } from '@/env';
 import { account, session, user, verification } from './auth.schema';
 
+const isDev = env.NODE_ENV === 'development' || env.NODE_ENV === 'test';
+const defaultDevBaseURL = `http://localhost:${env.PORT}`;
+const baseURL =
+  env.BETTER_AUTH_URL && !(isDev && env.BETTER_AUTH_URL.startsWith('https://core.cuan.fiqri.dev'))
+    ? env.BETTER_AUTH_URL
+    : isDev
+      ? defaultDevBaseURL
+      : env.BETTER_AUTH_URL;
+
+const devOrigins = [
+  'http://localhost:5173',
+  'http://127.0.0.1:5173',
+  'http://localhost:3000',
+  'http://127.0.0.1:3000',
+  'http://localhost:4321',
+  'http://127.0.0.1:4321',
+];
+
+const trustedOrigins = [
+  ...new Set([...(isDev ? devOrigins : []), ...(env.FRONTEND_URL ? [env.FRONTEND_URL] : [])]),
+];
+
 export const auth = betterAuth({
   database: drizzleAdapter(db, {
     provider: 'sqlite',
     schema: { user, session, account, verification },
   }),
   basePath: '/api',
-  baseURL: env.BETTER_AUTH_URL,
+  baseURL,
   secret: env.BETTER_AUTH_SECRET,
-  trustedOrigins: env.FRONTEND_URL
-    ? [env.FRONTEND_URL]
-    : env.NODE_ENV === 'development'
-      ? ['http://localhost:5173', 'http://127.0.0.1:5173']
-      : [],
+  trustedOrigins,
   emailAndPassword: {
     enabled: true,
     autoSignIn: true,
@@ -26,7 +44,7 @@ export const auth = betterAuth({
   plugins: [openAPI()],
   advanced: {
     crossSubDomainCookies: {
-      enabled: true,
+      enabled: env.NODE_ENV === 'production',
     },
   },
 });

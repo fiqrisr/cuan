@@ -17,14 +17,29 @@ import { transactionController } from './modules/transaction';
 
 const startedAt = Date.now();
 
+const isAllowedOrigin = (origin: string): boolean => {
+  if (env.NODE_ENV === 'development' || env.NODE_ENV === 'test') {
+    if (/^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin)) {
+      return true;
+    }
+  }
+  if (env.FRONTEND_URL && origin === env.FRONTEND_URL) {
+    return true;
+  }
+  return false;
+};
+
 export const app = new Elysia({
   adapter: CloudflareAdapter,
 })
   .use(
     cors({
-      origin: ['http://localhost:5173', ...(env.FRONTEND_URL ? [env.FRONTEND_URL] : [])],
+      origin: (request: Request) => {
+        const origin = request.headers.get('origin');
+        if (!origin) return false;
+        return isAllowedOrigin(origin);
+      },
       credentials: true,
-      allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
       exposeHeaders: ['X-Request-Id'],
     }),
   )
