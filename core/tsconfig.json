@@ -15,8 +15,15 @@
     "module": "preserve",
     "moduleResolution": "bundler",
     "paths": {
-      "@/*": ["src/*"]
+      "@/*": ["src/*"],
+      "@cuan/elysia-logger": ["../packages/elysia-logger/src/index.ts"],
+      "@cuan/elysia-logger/*": ["../packages/elysia-logger/src/*"]
     },
     "types": ["./worker-configuration.d.ts"]
-  }
+  },
+  "references": [
+    {
+      "path": "../packages/elysia-logger"
+    }
+  ]
 }

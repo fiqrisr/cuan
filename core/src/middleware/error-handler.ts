@@ -1,6 +1,6 @@
+import { logger } from '@cuan/elysia-logger';
 import { Elysia } from 'elysia';
 import { AppError } from '../lib/error';
-import { logger } from '../lib/logger';
 
 export const errorHandler = new Elysia({ name: 'error-handler' }).onError(
   { as: 'global' },

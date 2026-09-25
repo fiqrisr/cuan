@@ -1,3 +1,4 @@
+import { metrics, requestContext } from '@cuan/elysia-logger';
 import { openapi } from '@elysia/openapi';
 import { cors } from '@elysiajs/cors';
 import { sql } from 'drizzle-orm';
@@ -6,9 +7,7 @@ import { CloudflareAdapter } from 'elysia/adapter/cloudflare-worker';
 import { HealthResponseDto, type HealthServiceStatus, RootResponseDto } from './app.dto';
 import { db } from './db';
 import { env } from './env';
-import { metrics } from './lib/metrics';
 import { errorHandler } from './middleware/error-handler';
-import { requestContext } from './middleware/request-context';
 import { AuthOpenAPI, auth } from './modules/auth';
 import { categoryController } from './modules/category';
 import { chatController } from './modules/chat/';

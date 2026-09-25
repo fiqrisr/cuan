@@ -25,6 +25,7 @@
     "better-auth": "^1.6.20",
     "drizzle-orm": "^0.45.2",
     "elysia": "^1.4.29",
+    "@cuan/elysia-logger": "workspace:*",
     "wrangler": "^4.129.0",
     "zod": "^4.4.3"
   },

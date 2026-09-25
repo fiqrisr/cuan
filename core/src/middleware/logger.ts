@@ -4,4 +4,4 @@ export {
   type LogLevel,
   logger,
   rootLogger,
-} from '@/lib/logger';
+} from '@cuan/elysia-logger';
