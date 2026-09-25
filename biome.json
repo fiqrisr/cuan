@@ -20,6 +20,7 @@
       "!**/.agent",
       "!**/*.css",
       "!**/routeTree.gen.ts",
+      "!**/worker-configuration.d.ts",
       "!landing/**/*.astro",
       "!landing/.astro"
     ]
