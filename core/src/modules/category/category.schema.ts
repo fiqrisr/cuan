@@ -1,5 +1,5 @@
 import { relations, sql } from 'drizzle-orm';
-import { index, sqliteTable, integer, text, uniqueIndex } from 'drizzle-orm/sqlite-core';
+import { index, integer, sqliteTable, text, uniqueIndex } from 'drizzle-orm/sqlite-core';
 import { user } from '@/modules/auth/auth.schema';
 import { transactions } from '@/modules/transaction/transaction.schema';
 

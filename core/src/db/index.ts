@@ -1,5 +1,5 @@
-import { drizzle } from 'drizzle-orm/d1';
 import type { AnyD1Database, DrizzleD1Database } from 'drizzle-orm/d1';
+import { drizzle } from 'drizzle-orm/d1';
 import * as schema from './schema';
 
 type D1Binding = AnyD1Database;
