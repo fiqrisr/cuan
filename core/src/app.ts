@@ -6,8 +6,9 @@ import { CloudflareAdapter } from 'elysia/adapter/cloudflare-worker';
 import { HealthResponseDto, type HealthServiceStatus, RootResponseDto } from './app.dto';
 import { db } from './db';
 import { env } from './env';
+import { metrics } from './lib/metrics';
 import { errorHandler } from './middleware/error-handler';
-import { logixlysiaLogger } from './middleware/logger';
+import { requestContext } from './middleware/request-context';
 import { AuthOpenAPI, auth } from './modules/auth';
 import { categoryController } from './modules/category';
 import { chatController } from './modules/chat/';
@@ -24,9 +25,10 @@ export const app = new Elysia({
       origin: ['http://localhost:5173', ...(env.FRONTEND_URL ? [env.FRONTEND_URL] : [])],
       credentials: true,
       allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
+      exposeHeaders: ['X-Request-Id'],
     }),
   )
-  .use(logixlysiaLogger)
+  .use(requestContext)
   .use(errorHandler)
   .use(
     openapi({
@@ -104,6 +106,13 @@ export const app = new Elysia({
       },
     },
   )
+  .get('/metrics', () => metrics.getSnapshot(), {
+    detail: {
+      tags: ['System'],
+      summary: 'Metrics',
+      description: 'Exposes in-memory RED and AI metrics snapshot',
+    },
+  })
   .mount('/auth', auth.handler)
   .use(chatController)
   .use(financialAccountController)
