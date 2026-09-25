@@ -1,7 +1,7 @@
 # Repository Guidelines
 
 ## Project Overview
-Cuan is a monorepo application containing a backend API (`core`), a frontend SPA (`web`), a marketing landing page (`landing`), and a shared UI component library (`packages/ui`). The backend is an Elysia.js REST API running on Cloudflare Workers / Bun that processes natural language chats into structured financial transactions using AI tool calling.
+Cuan is a monorepo application containing a backend API (`core`), a frontend SPA (`web`), a marketing landing page (`landing`), a shared UI component library (`packages/ui`), and a shared structured logger and metrics package (`packages/elysia-logger`). The backend is an Elysia.js REST API running on Cloudflare Workers / Bun that processes natural language chats into structured financial transactions using AI tool calling.
 
 ## Architecture & Data Flow
 The monorepo uses **Moonrepo** for task orchestration and **Bun** as the primary runtime and package manager.
@@ -15,6 +15,7 @@ The monorepo uses **Moonrepo** for task orchestration and **Bun** as the primary
 - **Frontend (`web`)**: A React 19 SPA built with Vite, TanStack Router (file-based routing with automatic code-splitting), TanStack Query v5, TanStack Table, Recharts for data visualization, Tailwind CSS v4, Eden Treaty (`@elysiajs/eden`) for type-safe API communication, and the shared `@cuan/ui` package. It uses `better-auth/react` for session management and native `bun:test` for testing.
 - **Landing Page (`landing`)**: A fast, SEO-friendly static marketing site built with Astro and React, featuring Tailwind CSS v4, native Astro i18n (`id`/`en`), Vercel Analytics / Speed Insights, and Satori Open Graph image generation.
 - **Shared UI (`packages/ui`)**: Shared React 19 design system and UI components package (`@cuan/ui`) built on **Radix UI** primitives and **shadcn** component patterns for accessibility by default, using CVA, Tailwind CSS v4, and bundled with tsup.
+- **Shared Logger & Metrics (`packages/elysia-logger`)**: Zero-dependency structured logging, correlation ID (`X-Request-Id`) propagation, error classification, and in-memory RED and AI metrics package (`@cuan/elysia-logger`) built for Elysia.js services running on Cloudflare Workers and Bun.
 - **Database**: **Cloudflare D1** (SQLite). Local development uses **Wrangler** to manage local D1 SQLite state under `.wrangler/state/v3/d1/cuan`. No Docker container or PostgreSQL service is needed.
 
 ## Core Domain Concepts & Gotchas
@@ -34,6 +35,7 @@ The monorepo uses **Moonrepo** for task orchestration and **Bun** as the primary
 - `web/`: React 19 frontend workspace.
 - `landing/`: Astro marketing landing page workspace.
 - `packages/ui/`: Shared React component library and design system built with shadcn base components and Radix UI accessible primitives, used by `web` and `landing`.
+- `packages/elysia-logger/`: Zero-dependency structured logging, correlation ID propagation, and in-memory RED and AI metrics library (`@cuan/elysia-logger`) for Elysia.js.
 - `.moon/`: Moonrepo toolchains, inherited tasks, and workspace configurations.
 
 ## Development Commands
@@ -54,7 +56,7 @@ The monorepo uses **Moonrepo** for task orchestration and **Bun** as the primary
 - **Async/Await**: Data flow relies heavily on native `async/await`. AI streaming uses Vercel AI SDK `streamText` SSE streaming.
 - **Dependency Injection**: No formal IoC container. Dependencies are instantiated directly and exported as singletons (e.g., `export const chatService = new ChatService()`).
 - **Formatting Rules**: Enforced by **Biome**. 2 spaces, 100 character line limit, single quotes, and trailing commas.
-- **Git Commits**: Must use Conventional Commits. The scope **MUST** match the targeted project or package name (e.g., `feat(core): ...`, `fix(web): ...`, `chore(landing): ...`, `style(ui): ...`).
+- **Git Commits**: Must use Conventional Commits. The scope **MUST** match the targeted project or package name (e.g., `feat(core): ...`, `fix(web): ...`, `chore(landing): ...`, `style(ui): ...`, `feat(logger): ...`).
 
 - **Types**: Put all type definitions into their own type file, e.g., `chat.types.ts`. Import the types to the file that uses it. ALWAYS use `type` instead of `interface`.
 - **DTOs**: Put all Data Transfer Objects (DTOs) into their own DTO file using Elysia's TypeBox (`t`), e.g., `chat.dto.ts`. Name DTOs explicitly like `CreateFinancialAccountRequestDto` and `CreateFinancialAccountResponseDto`. Always create explicit DTOs for both requests and responses.

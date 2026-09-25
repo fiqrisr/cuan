@@ -21,13 +21,15 @@ Cuan is organized as a monorepo orchestrated with **[Moonrepo](https://moonrepo.
 ├── web/            # Frontend SPA (React 19, Vite, TanStack Router & Query, Tailwind CSS v4, Eden Treaty)
 ├── landing/        # Marketing Landing Page (Astro, Tailwind CSS v4, i18n)
 └── packages/
-    └── ui/         # Shared React component library (@cuan/ui, Radix UI, shadcn patterns, CVA, Tailwind CSS v4)
+    ├── ui/             # Shared React component library (@cuan/ui, Radix UI, shadcn patterns, CVA, Tailwind CSS v4)
+    └── elysia-logger/  # Zero-dependency structured logger, correlation ID & RED metrics (@cuan/elysia-logger)
 ```
 
 - **Backend (`core`)**: A Bun-native REST API built with **Elysia.js**, running on Cloudflare Workers or Bun with **Cloudflare D1** via **Drizzle ORM** (SQLite dialect). Features an AI tool-calling engine powered by the **Vercel AI SDK** (`@ai-sdk/openai`, `@ai-sdk/anthropic`, `@ai-sdk/google`) for natural language financial actions (transactions, transfers, queries, account/category management), atomic running balance calculations (`db.batch()`), and **Better Auth** session security.
 - **Web App (`web`)**: A modern single-page application built with **React 19**, **Vite**, **TanStack Router** (file-based routing with automatic code-splitting), **TanStack Query v5**, **Elysia Eden Treaty** (end-to-end type-safe API client), **TanStack Table**, **Recharts**, **Tailwind CSS v4**, and real-time streaming AI chat via `@ai-sdk/react`. Deployable to Cloudflare Pages/Workers via Wrangler.
 - **Landing Page (`landing`)**: A fast, SEO-friendly static marketing site built with **Astro** and **React**, featuring native bilingual routing (`/` for Indonesian, `/en` for English), Vercel Analytics/Speed Insights, and Open Graph image generation with Satori.
 - **Shared UI (`packages/ui`)**: Shared React 19 design system and UI components package (`@cuan/ui`) bundled with **tsup**, built on **Radix UI** primitives and **shadcn** base component architecture for accessibility by default (buttons, dialogs, dropdowns, inputs, labels, separators, tabs, tooltips, avatars, cards, tables, badges, skeletons), using **class-variance-authority** (CVA) and styled with **Tailwind CSS v4**.
+- **Elysia Logger (`packages/elysia-logger`)**: Zero-dependency structured logging, correlation ID (`X-Request-Id`) propagation, error classification, and in-memory RED and AI metrics package (`@cuan/elysia-logger`) built for Elysia.js services running on Cloudflare Workers and Bun.
 
 ## Prerequisites
 
