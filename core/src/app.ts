@@ -12,6 +12,7 @@ import { AuthOpenAPI, auth } from './modules/auth';
 import { categoryController } from './modules/category';
 import { chatController } from './modules/chat/';
 import { financialAccountController } from './modules/financial-account';
+import { telemetryController } from './modules/telemetry';
 import { transactionController } from './modules/transaction';
 
 const startedAt = Date.now();
@@ -131,7 +132,8 @@ export const app = new Elysia({
   .use(chatController)
   .use(financialAccountController)
   .use(categoryController)
-  .use(transactionController);
+  .use(transactionController)
+  .use(telemetryController);
 
 app.compile();
 
