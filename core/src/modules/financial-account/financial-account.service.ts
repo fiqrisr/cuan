@@ -1,7 +1,8 @@
 import { and, eq } from 'drizzle-orm';
 import { db, financialAccounts } from '@/db';
 import { BadRequestError, InternalServerError, NotFoundError } from '@/lib/error';
-import { logger } from '@/middleware/logger';
+import { logger } from '@/lib/logger';
+import { metrics } from '@/lib/metrics';
 import type {
   AccountType,
   FinancialAccount,
@@ -61,6 +62,18 @@ export class FinancialAccountService {
       .values({ ...rest, balance, isDefault })
       .returning();
 
+    logger.info(
+      {
+        event: 'financial_account_created',
+        accountId: created.id,
+        userId: rest.userId,
+        name: created.name,
+        type: created.type,
+        isDefault: created.isDefault,
+      },
+      'Financial account created',
+    );
+
     return created;
   }
 
@@ -69,10 +82,6 @@ export class FinancialAccountService {
     userId: string,
     data: { name?: string; type?: AccountType; isDefault?: boolean },
   ): Promise<FinancialAccount> {
-    logger.info(
-      { event: 'updating_account_db', accountId: id, updates: data },
-      'running account update logic',
-    );
     const existing = await this.getById(id, userId);
     if (!existing) {
       throw new NotFoundError('Account not found');
@@ -80,6 +89,7 @@ export class FinancialAccountService {
 
     if (data.isDefault) {
       // D1 has no interactive transactions; db.batch is the atomic unit.
+      const startBatch = performance.now();
       await db.batch([
         db
           .update(financialAccounts)
@@ -90,20 +100,41 @@ export class FinancialAccountService {
           .set({ ...data, updatedAt: new Date() })
           .where(and(eq(financialAccounts.id, id), eq(financialAccounts.userId, userId))),
       ]);
+      const batchDurationMs = Math.round(performance.now() - startBatch);
+      metrics.recordD1Batch(2, batchDurationMs);
+
+      logger.info(
+        {
+          event: 'financial_account_updated',
+          accountId: id,
+          userId,
+          isDefault: true,
+          batchDurationMs,
+        },
+        'Financial account updated with default status toggle via atomic batch',
+      );
     } else {
       await db
         .update(financialAccounts)
         .set({ ...data, updatedAt: new Date() })
         .where(and(eq(financialAccounts.id, id), eq(financialAccounts.userId, userId)));
-    }
 
+      logger.info(
+        {
+          event: 'financial_account_updated',
+          accountId: id,
+          userId,
+          updates: Object.keys(data),
+        },
+        'Financial account updated',
+      );
+    }
     const updated = await this.getById(id, userId);
     if (!updated) throw new InternalServerError('Failed to retrieve updated account');
     return updated;
   }
 
   async remove(id: string, userId: string): Promise<void> {
-    logger.info({ event: 'removing_account_db', accountId: id }, 'running account remove logic');
     const existing = await this.getById(id, userId);
     if (!existing) {
       throw new NotFoundError('Account not found');
@@ -125,6 +156,10 @@ export class FinancialAccountService {
     await db
       .delete(financialAccounts)
       .where(and(eq(financialAccounts.id, id), eq(financialAccounts.userId, userId)));
+    logger.info(
+      { event: 'financial_account_deleted', accountId: id, userId },
+      'Financial account deleted',
+    );
   }
 
   async adjustBalance(accountId: string, delta: number): Promise<void> {

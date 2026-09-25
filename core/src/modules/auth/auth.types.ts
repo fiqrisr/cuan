@@ -1,3 +1,5 @@
+import type { Logger } from '@/lib/logger';
+
 export type AuthContext = {
   user: {
     id: string;
@@ -18,4 +20,5 @@ export type AuthContext = {
     createdAt: Date;
     updatedAt: Date;
   };
+  log?: Logger;
 };

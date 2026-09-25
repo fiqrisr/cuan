@@ -2,7 +2,8 @@ import { and, count, eq, gte, lte, sql } from 'drizzle-orm';
 import type { BatchItem } from 'drizzle-orm/batch';
 import { db, financialAccounts, transactions } from '@/db';
 import { InternalServerError, NotFoundError } from '@/lib/error';
-import { logger } from '@/middleware/logger';
+import { logger } from '@/lib/logger';
+import { metrics } from '@/lib/metrics';
 import type { Transaction } from './transaction.schema';
 import type {
   FormattedTransaction,
@@ -135,6 +136,7 @@ export class TransactionService {
 
     // D1 has no interactive transactions; db.batch is the atomic unit.
     const balanceDelta = data.type === 'expense' ? -data.amount : data.amount;
+    const startBatch = performance.now();
     const results = data.accountId
       ? await db.batch([
           insertStmt,
@@ -144,7 +146,22 @@ export class TransactionService {
             .where(eq(financialAccounts.id, data.accountId)),
         ])
       : await db.batch([insertStmt]);
+    const batchDurationMs = Math.round(performance.now() - startBatch);
+    metrics.recordD1Batch(data.accountId ? 2 : 1, batchDurationMs);
     const [created] = results[0];
+
+    logger.info(
+      {
+        event: 'transaction_created',
+        transactionId: created.id,
+        userId: data.userId,
+        type: data.type,
+        amount: data.amount,
+        accountId: data.accountId,
+        batchDurationMs,
+      },
+      'Transaction created and account balance updated via atomic batch',
+    );
     const cat = await db.query.categories.findFirst({
       where: (c, { eq }) => eq(c.id, data.categoryId),
     });
@@ -163,10 +180,6 @@ export class TransactionService {
       accountId?: string;
     },
   ): Promise<FormattedTransaction> {
-    logger.info(
-      { event: 'updating_transaction_db', transactionId: id },
-      'running transaction update logic',
-    );
     const existing = await db.query.transactions.findFirst({
       where: (tx, { and, eq }) => and(eq(tx.id, id), eq(tx.userId, userId)),
     });
@@ -229,17 +242,28 @@ export class TransactionService {
 
     // db.batch types require a fixed tuple; statement count depends on
     // whether the transaction moved between accounts.
+    const startBatch = performance.now();
     await db.batch(statements as [BatchItem<'sqlite'>, ...BatchItem<'sqlite'>[]]);
+    const batchDurationMs = Math.round(performance.now() - startBatch);
+    metrics.recordD1Batch(statements.length, batchDurationMs);
+
+    logger.info(
+      {
+        event: 'transaction_updated',
+        transactionId: id,
+        userId,
+        statementCount: statements.length,
+        batchDurationMs,
+        effectiveAccountId,
+      },
+      'Transaction updated and account balance adjusted via atomic batch',
+    );
     const updated = await this.getById(id, userId);
     if (!updated) throw new InternalServerError('Failed to retrieve updated transaction');
     return updated;
   }
 
   async remove(id: string, userId: string): Promise<void> {
-    logger.info(
-      { event: 'removing_transaction_db', transactionId: id },
-      'running transaction remove logic',
-    );
     const existing = await db.query.transactions.findFirst({
       where: (tx, { and, eq }) => and(eq(tx.id, id), eq(tx.userId, userId)),
     });
@@ -268,7 +292,21 @@ export class TransactionService {
     }
 
     // db.batch types require a fixed tuple; the balance statement is optional.
+    const startBatch = performance.now();
     await db.batch(statements as [BatchItem<'sqlite'>, ...BatchItem<'sqlite'>[]]);
+    const batchDurationMs = Math.round(performance.now() - startBatch);
+    metrics.recordD1Batch(statements.length, batchDurationMs);
+
+    logger.info(
+      {
+        event: 'transaction_deleted',
+        transactionId: id,
+        userId,
+        statementCount: statements.length,
+        batchDurationMs,
+      },
+      'Transaction deleted and account balance adjusted via atomic batch',
+    );
   }
 
   async getStats(filters: TransactionStatsFilters): Promise<TransactionStats> {

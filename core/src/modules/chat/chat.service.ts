@@ -1,6 +1,8 @@
 import { generateText, stepCountIs, streamText } from 'ai';
+import { env } from '@/env';
 import { getLanguageModel } from '@/lib/ai-provider';
-import { logger } from '../../middleware/logger';
+import { logger } from '@/lib/logger';
+import { metrics } from '@/lib/metrics';
 import { categoryService } from '../category/category.service';
 import { getSystemPrompt } from './chat.prompt';
 import { buildChatTools } from './chat.tools';
@@ -14,6 +16,10 @@ export class ChatService {
     const categories = await categoryService.getUserCategories(userId);
     const categoriesInfo = categories.map(c => `- ${c.name} (${c.label})`).join('\n');
 
+    const start = performance.now();
+    const model =
+      env.AI_PROVIDER === 'gemini' ? (env.GEMINI_MODEL ?? 'gemini') : env.OPENMODEL_MODEL;
+
     const aiResponse = await generateText({
       model: getLanguageModel(),
       tools,
@@ -21,11 +27,19 @@ export class ChatService {
       system: getSystemPrompt(categoriesInfo, locale),
       prompt: message,
     });
+    const durationMs = Math.round(performance.now() - start);
 
-    logger.info(
-      { event: 'chat_generated', steps: aiResponse.steps?.length ?? 1 },
-      'generated chat response',
-    );
+    const inputTokens = aiResponse.usage?.inputTokens ?? 0;
+    const outputTokens = aiResponse.usage?.outputTokens ?? 0;
+    const totalTokens = aiResponse.usage?.totalTokens ?? inputTokens + outputTokens;
+
+    metrics.recordAiGeneration({
+      model,
+      inputTokens,
+      outputTokens,
+      totalTokens,
+      durationMs,
+    });
 
     let intent = 'unknown';
     let transactions: SavedTransaction[] | undefined;
@@ -37,6 +51,9 @@ export class ChatService {
 
     if (aiResponse.toolResults && aiResponse.toolResults.length > 0) {
       for (const res of aiResponse.toolResults) {
+        const isError =
+          typeof res.output === 'object' && res.output !== null && 'error' in res.output;
+        metrics.recordAiToolExecution(res.toolName, Boolean(isError));
         if (res.toolName === 'add_transaction') {
           intent = 'add_transaction';
           const data = res.output as { savedTransactions: SavedTransaction[] };
@@ -60,6 +77,24 @@ export class ChatService {
         }
       }
     }
+    logger.info(
+      {
+        event: 'ai_chat_completed',
+        userId,
+        provider: env.AI_PROVIDER,
+        model,
+        intent,
+        durationMs,
+        tokens: {
+          input: inputTokens,
+          output: outputTokens,
+          total: totalTokens,
+        },
+        steps: aiResponse.steps?.length ?? 1,
+        toolCount: aiResponse.toolResults?.length ?? 0,
+      },
+      `AI chat processed: intent=${intent} tokens=${totalTokens} duration=${durationMs}ms`,
+    );
 
     return {
       intent,
@@ -80,12 +115,46 @@ export class ChatService {
     const categories = await categoryService.getUserCategories(userId);
     const categoriesInfo = categories.map(c => `- ${c.name} (${c.label})`).join('\n');
 
+    const start = performance.now();
+    const model =
+      env.AI_PROVIDER === 'gemini' ? (env.GEMINI_MODEL ?? 'gemini') : env.OPENMODEL_MODEL;
+
     return streamText({
       model: getLanguageModel(),
       tools,
       stopWhen: stepCountIs(3),
       system: getSystemPrompt(categoriesInfo, locale),
       prompt: message,
+      onError({ error }) {
+        logger.error(
+          { event: 'ai_stream_failed', userId, provider: env.AI_PROVIDER, model, err: error },
+          'AI chat stream interrupted',
+        );
+      },
+      onFinish({ usage }) {
+        const durationMs = Math.round(performance.now() - start);
+        const inputTokens = usage?.inputTokens ?? 0;
+        const outputTokens = usage?.outputTokens ?? 0;
+        const totalTokens = usage?.totalTokens ?? inputTokens + outputTokens;
+        metrics.recordAiGeneration({
+          model,
+          inputTokens,
+          outputTokens,
+          totalTokens,
+          durationMs,
+        });
+        logger.info(
+          {
+            event: 'ai_stream_finished',
+            userId,
+            provider: env.AI_PROVIDER,
+            model,
+            durationMs,
+            tokens: usage,
+          },
+          `AI chat stream completed in ${durationMs}ms`,
+        );
+      },
     }).toUIMessageStreamResponse();
   }
 }
