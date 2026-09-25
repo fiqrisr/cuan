@@ -4,6 +4,7 @@ import { lazy } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Footer } from '@/components/footer';
 import { NotFound } from '@/components/not-found';
+import { RootErrorFallback } from '@/components/root-error-fallback';
 import { authClient } from '@/core/http';
 import { useTheme } from '@/core/theme-context';
 
@@ -17,6 +18,7 @@ const TanStackRouterDevtools = import.meta.env.PROD
 
 export const Route = createRootRoute({
   notFoundComponent: NotFound,
+  errorComponent: RootErrorFallback,
   component: function RootComponent() {
     const { data: session } = authClient.useSession();
     const showNav = !!session;

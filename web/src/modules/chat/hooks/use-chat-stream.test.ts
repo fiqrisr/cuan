@@ -43,7 +43,9 @@ describe('streamChat', () => {
     expect(capturedUrl).toBe(`${API_BASE_URL}/api/chat/stream`);
     expect(capturedInit?.method).toBe('POST');
     expect(capturedInit?.credentials).toBe('include');
-    expect(capturedInit?.headers).toEqual({ 'Content-Type': 'application/json' });
+    expect(capturedInit?.headers).toMatchObject({ 'Content-Type': 'application/json' });
+    const requestHeaders = (capturedInit?.headers ?? {}) as Record<string, string>;
+    expect(requestHeaders['x-request-id']).toBeDefined();
     expect(JSON.parse(capturedInit?.body as string)).toEqual({
       message: 'test message',
       locale: 'en',

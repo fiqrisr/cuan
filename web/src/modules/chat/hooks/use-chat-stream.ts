@@ -9,6 +9,7 @@ import {
 } from 'react';
 import { API_BASE_URL, handleUnauthorized } from '@/core/http';
 import i18n from '@/core/i18n';
+import { generateRequestId, HEADER_REQUEST_ID, telemetry } from '@/core/telemetry';
 import type { ChatMessage } from '../types';
 
 export type ChatStreamEvent =
@@ -43,53 +44,107 @@ export async function streamChat(
   onEvent: (event: ChatStreamEvent) => void,
   signal: AbortSignal,
 ): Promise<void> {
-  const res = await fetch(`${API_BASE_URL}/api/chat/stream`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ message, locale }),
-    signal,
-    credentials: 'include',
+  const startTime = performance.now();
+  const requestId = generateRequestId();
+  let firstChunkReceived = false;
+  let eventCount = 0;
+
+  telemetry.addBreadcrumb({
+    category: 'chat',
+    message: 'chat_stream_started',
+    data: { requestId },
+    level: 'info',
   });
-  handleUnauthorized(res);
-  if (!res.ok) {
-    const body = await res.text().catch(() => '');
-    throw new Error(`Chat request failed (${res.status})${body ? `: ${body}` : ''}`);
-  }
-  if (!res.body) throw new Error('No response body from server');
+  telemetry.recordEvent('chat_stream_started', { requestId }, 'info', requestId);
 
-  const reader = res.body.getReader();
-  const decoder = new TextDecoder();
-  let buffer = '';
+  try {
+    const res = await fetch(`${API_BASE_URL}/api/chat/stream`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        [HEADER_REQUEST_ID]: requestId,
+      },
+      body: JSON.stringify({ message, locale }),
+      signal,
+      credentials: 'include',
+    });
+    handleUnauthorized(res);
+    if (!res.ok) {
+      const body = await res.text().catch(() => '');
+      throw new Error(`Chat request failed (${res.status})${body ? `: ${body}` : ''}`);
+    }
+    if (!res.body) throw new Error('No response body from server');
 
-  while (true) {
-    const { value, done } = await reader.read();
-    if (done) break;
-    buffer += decoder.decode(value, { stream: true });
+    const reader = res.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = '';
 
-    const newlineIdx = buffer.lastIndexOf('\n\n');
-    if (newlineIdx === -1) continue;
+    const dispatchEvent = (event: ChatStreamEvent) => {
+      if (!firstChunkReceived) {
+        firstChunkReceived = true;
+        const ttft = Math.round(performance.now() - startTime);
+        telemetry.recordMetric('chat_stream_ttft', ttft, 'ms');
+      }
+      eventCount++;
+      onEvent(event);
+    };
 
-    const completeChunk = buffer.slice(0, newlineIdx);
-    buffer = buffer.slice(newlineIdx + 2);
+    while (true) {
+      const { value, done } = await reader.read();
+      if (done) break;
+      buffer += decoder.decode(value, { stream: true });
 
-    for (const chunk of completeChunk.split('\n\n')) {
-      const lines = chunk.split('\n');
-      for (const line of lines) {
-        const event = parseSSELine(line.trim());
-        if (event) onEvent(event);
+      const newlineIdx = buffer.lastIndexOf('\n\n');
+      if (newlineIdx === -1) continue;
+
+      const completeChunk = buffer.slice(0, newlineIdx);
+      buffer = buffer.slice(newlineIdx + 2);
+
+      for (const chunk of completeChunk.split('\n\n')) {
+        const lines = chunk.split('\n');
+        for (const line of lines) {
+          const event = parseSSELine(line.trim());
+          if (event) dispatchEvent(event);
+        }
       }
     }
-  }
 
-  const remaining = buffer.trim();
-  if (remaining) {
-    for (const chunk of remaining.split('\n\n')) {
-      const lines = chunk.split('\n');
-      for (const line of lines) {
-        const event = parseSSELine(line.trim());
-        if (event) onEvent(event);
+    const remaining = buffer.trim();
+    if (remaining) {
+      for (const chunk of remaining.split('\n\n')) {
+        const lines = chunk.split('\n');
+        for (const line of lines) {
+          const event = parseSSELine(line.trim());
+          if (event) dispatchEvent(event);
+        }
       }
     }
+
+    const duration = Math.round(performance.now() - startTime);
+    telemetry.recordMetric('chat_stream_duration', duration, 'ms');
+    telemetry.recordEvent(
+      'chat_stream_completed',
+      { duration, eventCount, requestId },
+      'info',
+      requestId,
+    );
+  } catch (err) {
+    const duration = Math.round(performance.now() - startTime);
+    if (signal.aborted || (err instanceof Error && err.name === 'AbortError')) {
+      telemetry.recordEvent('chat_stream_aborted', { duration, requestId }, 'info', requestId);
+    } else {
+      telemetry.captureException(err, {
+        requestId,
+        metadata: { context: 'chat_stream', duration, eventCount },
+      });
+      telemetry.recordEvent(
+        'chat_stream_failed',
+        { duration, error: String(err), requestId },
+        'error',
+        requestId,
+      );
+    }
+    throw err;
   }
 }
 

@@ -1,3 +1,4 @@
+import { generateRequestId, HEADER_REQUEST_ID, telemetry } from '../telemetry';
 import { queryClient as defaultQueryClient } from './query-client';
 
 export const DEFAULT_UNAUTHORIZED_THRESHOLD = 3;
@@ -93,6 +94,11 @@ export async function logoutAndClearSession(options?: LogoutOptions): Promise<vo
 
   try {
     resetUnauthorizedCount();
+    telemetry.recordEvent(
+      'auth_auto_logout_triggered',
+      { threshold: unauthorizedThreshold },
+      'warn',
+    );
 
     // 1. Invalidate session via auth client
     try {
@@ -231,13 +237,32 @@ export function setupUnauthorizedFetchInterceptor(): () => void {
 
   const originalFetch = globalObj.fetch;
   const wrappedFetch = (async (...args: Parameters<typeof originalFetch>): Promise<Response> => {
-    const response = await originalFetch(...args);
+    const modifiedArgs = [...args] as Parameters<typeof originalFetch>;
+    const input = modifiedArgs[0];
+    const init = modifiedArgs[1] ? { ...modifiedArgs[1] } : {};
+
+    if (typeof input === 'string' || (typeof URL !== 'undefined' && input instanceof URL)) {
+      const headers = new Headers(init.headers);
+      if (!headers.get(HEADER_REQUEST_ID)) {
+        headers.set(HEADER_REQUEST_ID, generateRequestId());
+      }
+      init.headers = headers;
+      modifiedArgs[1] = init;
+    } else if (typeof Request !== 'undefined' && input instanceof Request) {
+      if (!input.headers.get(HEADER_REQUEST_ID)) {
+        const headers = new Headers(input.headers);
+        headers.set(HEADER_REQUEST_ID, generateRequestId());
+        modifiedArgs[0] = new Request(input, { headers });
+      }
+    }
+
+    const response = await originalFetch(...modifiedArgs);
     const url =
-      typeof args[0] === 'string'
-        ? args[0]
-        : args[0] instanceof Request
-          ? args[0].url
-          : String(args[0]);
+      typeof input === 'string'
+        ? input
+        : typeof Request !== 'undefined' && input instanceof Request
+          ? input.url
+          : String(input);
 
     if (!url.includes('/sign-in') && !url.includes('/sign-out')) {
       handleUnauthorized(response);

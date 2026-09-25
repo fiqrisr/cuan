@@ -28,7 +28,8 @@
     "react-dom": "^19.2.7",
     "react-i18next": "^17.0.12",
     "recharts": "^3.9.2",
-    "tailwindcss": "^4.3.1"
+    "tailwindcss": "^4.3.1",
+    "web-vitals": "^6.2.2"
   },
   "devDependencies": {
     "@tanstack/router-devtools": "^1.167.0",
