@@ -81,13 +81,13 @@ export function SpendingTrend({ daily }: Props) {
 
   // Tooltip component
   const CustomTooltip = ({ active, payload, label }: TrendTooltipProps) => {
-    if (active && payload && payload.length) {
+    if (active && payload?.length) {
       return (
         <div className="bg-popover border border-border/10 p-3 rounded-lg shadow-tint text-sm min-w-[200px]">
           <p className="font-semibold text-foreground mb-3">{formatDateLabel(label as string)}</p>
           <div className="flex flex-col gap-2">
             {payload.map((entry, index) => (
-              <div key={index} className="flex justify-between items-center gap-4">
+              <div key={entry.name ?? index} className="flex justify-between items-center gap-4">
                 <div className="flex items-center gap-1.5">
                   <div
                     className="w-2.5 h-2.5 rounded-full"

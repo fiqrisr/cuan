@@ -46,7 +46,7 @@ export function CategoryBreakdown({ categories }: Props) {
   const sortedCategories = [...categories].sort((a, b) => Number(b.amount) - Number(a.amount));
 
   const CustomTooltip = ({ active, payload }: CategoryTooltipProps) => {
-    if (active && payload && payload.length) {
+    if (active && payload?.length) {
       const data = payload[0].payload as CategoryItem;
       return (
         <div className="bg-popover border border-border/10 p-3 rounded-lg shadow-tint text-sm min-w-[150px]">
@@ -105,9 +105,9 @@ export function CategoryBreakdown({ categories }: Props) {
                     animationDuration={1000}
                     animationBegin={200}
                   >
-                    {sortedCategories.map((_, index) => (
+                    {sortedCategories.map((entry, index) => (
                       <Cell
-                        key={`cell-${index}`}
+                        key={`cell-${entry.label || index}`}
                         fill={CHART_COLORS[index % CHART_COLORS.length]}
                         stroke="var(--background)"
                         strokeWidth={2}
@@ -122,7 +122,10 @@ export function CategoryBreakdown({ categories }: Props) {
             {/* Independent Custom Legend */}
             <ul className="flex flex-col gap-2 max-h-[160px] overflow-y-auto pr-2 w-full mt-2">
               {sortedCategories.map((entry, index) => (
-                <li key={`item-${index}`} className="flex items-center justify-between text-sm">
+                <li
+                  key={`item-${entry.label || index}`}
+                  className="flex items-center justify-between text-sm"
+                >
                   <div className="flex items-center gap-2 overflow-hidden mr-2">
                     <span
                       className="w-3 h-3 rounded-full shrink-0"

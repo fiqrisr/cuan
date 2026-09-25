@@ -2,9 +2,9 @@ import { Badge, Button, Card, CardContent, CardHeader, CardTitle, Input, Skeleto
 import { Check, Globe, LogOut, Monitor, Moon, Pencil, Sun, Trash2, User, X } from 'lucide-react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { ConfirmModal } from '@/components/confirm-modal';
 import { authClient } from '@/core/http';
 import { useTheme } from '@/core/theme-context';
-import { ConfirmModal } from '@/components/confirm-modal';
 import { useCreateCategoryMutation } from '../hooks/use-create-category-mutation';
 import { useDeleteCategoryMutation } from '../hooks/use-delete-category-mutation';
 import { useGetCategoriesQuery } from '../hooks/use-get-categories-query';

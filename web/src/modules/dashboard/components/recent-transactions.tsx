@@ -33,7 +33,7 @@ export function RecentTransactions({ transactions }: Props) {
             </div>
           </div>
         ) : (
-          <ul role="list" className="flex flex-col gap-2">
+          <ul className="flex flex-col gap-2">
             {recent.map(tx => (
               <li
                 key={tx.id}

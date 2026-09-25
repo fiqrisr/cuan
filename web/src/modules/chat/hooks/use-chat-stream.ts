@@ -7,9 +7,9 @@ import {
   useRef,
   useState,
 } from 'react';
+import { API_BASE_URL, handleUnauthorized } from '@/core/http';
 import i18n from '@/core/i18n';
 import type { ChatMessage } from '../types';
-import { API_BASE_URL, handleUnauthorized } from '@/core/http';
 
 export type ChatStreamEvent =
   | { type: 'start'; messageId?: string }

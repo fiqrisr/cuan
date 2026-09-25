@@ -1,5 +1,6 @@
 import { Bot, Sparkles } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+
 type ChatEmptyStateProps = {
   onSuggestion: (text: string) => void;
 };
