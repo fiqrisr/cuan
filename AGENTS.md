@@ -14,7 +14,7 @@ The monorepo uses **Moonrepo** for task orchestration and **Bun** as the primary
 
 - **Frontend (`web`)**: A React 19 SPA built with Vite, TanStack Router (file-based routing with automatic code-splitting), TanStack Query v5, TanStack Table, Recharts for data visualization, Tailwind CSS v4, Eden Treaty (`@elysiajs/eden`) for type-safe API communication, and the shared `@cuan/ui` package. It uses `better-auth/react` for session management and native `bun:test` for testing.
 - **Landing Page (`landing`)**: A fast, SEO-friendly static marketing site built with Astro and React, featuring Tailwind CSS v4, native Astro i18n (`id`/`en`), Vercel Analytics / Speed Insights, and Satori Open Graph image generation.
-- **Shared UI (`packages/ui`)**: Shared React 19 design system and UI components package (`@cuan/ui`) built with Radix UI, CVA, Tailwind CSS v4, and bundled with tsup.
+- **Shared UI (`packages/ui`)**: Shared React 19 design system and UI components package (`@cuan/ui`) built on **Radix UI** primitives and **shadcn** component patterns for accessibility by default, using CVA, Tailwind CSS v4, and bundled with tsup.
 - **Database**: **Cloudflare D1** (SQLite). Local development uses **Wrangler** to manage local D1 SQLite state under `.wrangler/state/v3/d1/cuan`. No Docker container or PostgreSQL service is needed.
 
 ## Core Domain Concepts & Gotchas
@@ -33,7 +33,7 @@ The monorepo uses **Moonrepo** for task orchestration and **Bun** as the primary
 - `core/tests/`: Integration tests for the backend (using ephemeral in-process D1 proxy).
 - `web/`: React 19 frontend workspace.
 - `landing/`: Astro marketing landing page workspace.
-- `packages/ui/`: Shared React component library and design system used by `web` and `landing`.
+- `packages/ui/`: Shared React component library and design system built with shadcn base components and Radix UI accessible primitives, used by `web` and `landing`.
 - `.moon/`: Moonrepo toolchains, inherited tasks, and workspace configurations.
 
 ## Development Commands
@@ -58,6 +58,7 @@ The monorepo uses **Moonrepo** for task orchestration and **Bun** as the primary
 
 - **Types**: Put all type definitions into their own type file, e.g., `chat.types.ts`. Import the types to the file that uses it. ALWAYS use `type` instead of `interface`.
 - **DTOs**: Put all Data Transfer Objects (DTOs) into their own DTO file using Elysia's TypeBox (`t`), e.g., `chat.dto.ts`. Name DTOs explicitly like `CreateFinancialAccountRequestDto` and `CreateFinancialAccountResponseDto`. Always create explicit DTOs for both requests and responses.
+- **UI Components & Accessibility**: Base components in `@cuan/ui` follow shadcn patterns on top of Radix UI primitives (`@radix-ui/react-*`), providing WCAG 2.1 AA accessibility by default (keyboard navigation, focus rings, ARIA attributes, focus trap, and screen reader announcements). Always prefer these shared primitives over ad-hoc modals or unstyled HTML controls.
 
 ## Important Files
 - `core/src/app.ts`: Elysia app definition, global error handling, and route mounting.
