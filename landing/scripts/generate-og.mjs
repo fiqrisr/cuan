@@ -1,7 +1,7 @@
 import fs from 'node:fs/promises';
-import satori from 'satori';
-import { Resvg } from '@resvg/resvg-js';
 import path from 'node:path';
+import { Resvg } from '@resvg/resvg-js';
+import satori from 'satori';
 
 async function generateOgImage() {
   const fontReq = await fetch(
