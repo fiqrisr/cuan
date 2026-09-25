@@ -12,6 +12,7 @@ projects:
   web: 'web'
   landing: 'landing'
   ui: 'packages/ui'
+  elysia-logger: 'packages/elysia-logger'
 
 vcs:
   client: 'git'

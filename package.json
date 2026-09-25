@@ -10,7 +10,8 @@
     "core",
     "web",
     "landing",
-    "packages/ui"
+    "packages/ui",
+    "packages/elysia-logger"
   ],
   "scripts": {
     "format": "biome format --write .",

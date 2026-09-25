@@ -51,6 +51,17 @@
         "satori": "^0.33.4",
       },
     },
+    "packages/elysia-logger": {
+      "name": "@cuan/elysia-logger",
+      "version": "1.0.0",
+      "devDependencies": {
+        "elysia": "^1.4.29",
+        "typescript": "^5.7.2",
+      },
+      "peerDependencies": {
+        "elysia": ">=1.0.0",
+      },
+    },
     "packages/ui": {
       "name": "@cuan/ui",
       "version": "1.0.0",
@@ -332,6 +343,8 @@
     "@cspotcode/source-map-support": ["@cspotcode/source-map-support@0.8.1", "", { "dependencies": { "@jridgewell/trace-mapping": "0.3.9" } }, "sha512-IchNf6dN4tHoMFIn/7OE8LWZ19Y6q/67Bmf6vnGREv8RSbBVb9LPJxEcnwrcwX6ixSvaiGoomAUvu4YSxXrVgw=="],
 
     "@cuan/core": ["@cuan/core@workspace:core"],
+
+    "@cuan/elysia-logger": ["@cuan/elysia-logger@workspace:packages/elysia-logger"],
 
     "@cuan/ui": ["@cuan/ui@workspace:packages/ui"],
 
