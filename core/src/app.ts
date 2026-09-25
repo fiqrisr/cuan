@@ -41,7 +41,7 @@ export const app = new Elysia({
     () => ({
       name: 'cuan-core',
       version: '0.0.0',
-      description: 'Cuan backend API',
+      description: 'Cuan backend API powered by Elysia.js',
       environment: env.NODE_ENV ?? 'development',
       health: '/health',
       timestamp: new Date().toISOString(),
