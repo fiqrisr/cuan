@@ -63,6 +63,17 @@
         "elysia": ">=1.0.0",
       },
     },
+    "packages/elysia-rate-limiter": {
+      "name": "@cuan/elysia-rate-limiter",
+      "version": "1.0.0",
+      "devDependencies": {
+        "elysia": "^1.4.29",
+        "typescript": "^5.7.2",
+      },
+      "peerDependencies": {
+        "elysia": ">=1.0.0",
+      },
+    },
     "packages/ui": {
       "name": "@cuan/ui",
       "version": "1.0.0",
@@ -347,6 +358,8 @@
     "@cuan/core": ["@cuan/core@workspace:core"],
 
     "@cuan/elysia-logger": ["@cuan/elysia-logger@workspace:packages/elysia-logger"],
+
+    "@cuan/elysia-rate-limiter": ["@cuan/elysia-rate-limiter@workspace:packages/elysia-rate-limiter"],
 
     "@cuan/ui": ["@cuan/ui@workspace:packages/ui"],
 

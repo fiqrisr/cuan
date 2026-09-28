@@ -13,7 +13,7 @@ projects:
   landing: 'landing'
   ui: 'packages/ui'
   elysia-logger: 'packages/elysia-logger'
-
+  elysia-rate-limiter: 'packages/elysia-rate-limiter'
 vcs:
   client: 'git'
   defaultBranch: 'main'

@@ -13,6 +13,9 @@
       "path": "./packages/elysia-logger"
     },
     {
+      "path": "./packages/elysia-rate-limiter"
+    },
+    {
       "path": "./packages/ui"
     },
     {

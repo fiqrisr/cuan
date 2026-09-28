@@ -11,7 +11,8 @@
     "web",
     "landing",
     "packages/ui",
-    "packages/elysia-logger"
+    "packages/elysia-logger",
+    "packages/elysia-rate-limiter"
   ],
   "scripts": {
     "format": "biome format --write .",
