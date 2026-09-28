@@ -57,12 +57,16 @@ export function AccountCard({ account }: AccountCardProps) {
   return (
     <>
       <div
-        className={`relative flex flex-col justify-between p-5 rounded-2xl border bg-card text-card-foreground shadow-sm transition-all hover:shadow-md ${account.isDefault ? 'border-primary/30 ring-1 ring-primary/20' : 'border-border/10'}`}
+        className={`relative flex flex-col justify-between p-5 rounded-2xl border bg-card text-card-foreground shadow-sm transition-all hover:shadow-md ${
+          account.isDefault
+            ? 'border-primary/50 ring-1 ring-primary/30'
+            : 'border-border hover:border-border-strong'
+        }`}
       >
         <div>
           <div className="flex items-start justify-between gap-4 mb-4">
             <div className="flex items-center gap-3 min-w-0 flex-1">
-              <div className="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center shrink-0">
+              <div className="w-10 h-10 rounded-xl bg-primary/10 border border-primary/20 text-primary flex items-center justify-center shrink-0">
                 <Wallet size={18} strokeWidth={1.75} />
               </div>
 

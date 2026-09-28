@@ -43,40 +43,41 @@ export const Route = createRootRoute({
     ];
 
     return (
-      <div className="flex flex-col lg:flex-row h-dvh overflow-hidden bg-background text-foreground grain">
+      <div className="flex flex-col lg:flex-row h-dvh overflow-hidden bg-background text-foreground grain lg:p-2 lg:gap-2">
         <a href="#main-content" className="skip-link">
           {t('common.skipToContent')}
         </a>
 
-        {/* Desktop sidebar */}
+        {/* Desktop sidebar - Borderless rail on canvas */}
         {showNav && (
-          <aside className="hidden lg:flex flex-col w-60 shrink-0 border-r border-border/10 bg-background/60 backdrop-blur-xl">
-            <div className="px-6 pt-7 pb-6 flex items-center gap-2.5">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg glass-panel border-primary/20 text-primary">
-                <Bot size={16} strokeWidth={2} />
+          <aside className="hidden lg:flex flex-col w-60 shrink-0 bg-transparent text-sidebar-foreground z-10 select-none py-1">
+            <div className="px-6 pt-7 pb-6 flex items-center gap-3">
+              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10 border border-primary/25 text-primary shadow-sm">
+                <Bot size={18} strokeWidth={2} />
               </div>
               <span className="font-serif logo-weight text-xl tracking-tight text-foreground">
                 Cuan
               </span>
             </div>
-            <nav aria-label="Main" className="flex-1 px-3 py-2 flex flex-col gap-1">
+            <nav aria-label="Main" className="flex-1 px-3 py-2 flex flex-col gap-1.5">
               {navItems.map(({ to, icon: Icon, label }) => (
                 <Link
                   key={to}
                   to={to}
-                  className="group flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-muted-foreground transition-all hover:bg-muted hover:text-foreground [&.active]:bg-primary/[0.08] [&.active]:text-primary"
+                  className="group relative flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm font-medium text-muted-foreground transition-all duration-150 hover:bg-muted/70 hover:text-foreground [&.active]:bg-primary/12 [&.active]:text-primary [&.active]:font-semibold"
                   activeProps={{ className: 'active' }}
                 >
+                  <span className="hidden group-[.active]:block absolute left-0 top-1.5 bottom-1.5 w-1 rounded-r bg-primary" />
                   <Icon
                     size={18}
-                    strokeWidth={1.75}
-                    className="transition-transform group-hover:scale-105"
+                    strokeWidth={1.8}
+                    className="transition-transform group-hover:scale-105 shrink-0"
                   />
-                  {label}
+                  <span>{label}</span>
                 </Link>
               ))}
             </nav>
-            <div className="px-5 py-4 border-t border-border/10 flex items-center justify-between mt-auto">
+            <div className="px-5 py-3 border-t border-border/40 flex items-center justify-between mt-auto">
               <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
                 {t('profile.theme')}
               </span>
@@ -92,8 +93,14 @@ export const Route = createRootRoute({
           </aside>
         )}
 
-        {/* Content area */}
-        <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
+        {/* Inset Content / Workspace area */}
+        <div
+          className={`flex-1 flex flex-col min-h-0 overflow-hidden ${
+            showNav
+              ? 'lg:rounded-2xl lg:border lg:border-border bg-workspace text-foreground shadow-sm card-inner-highlight'
+              : 'bg-background'
+          }`}
+        >
           <main
             id="main-content"
             className="flex-1 flex flex-col min-h-0 overflow-hidden relative z-0"
@@ -108,13 +115,17 @@ export const Route = createRootRoute({
             <div className="lg:hidden fixed bottom-6 left-0 right-0 z-50 flex justify-center pointer-events-none px-4">
               <nav
                 aria-label="Mobile"
-                className="pointer-events-auto bg-background/80 backdrop-blur-2xl border border-border/15 shadow-2xl flex justify-between items-center px-2 py-2 rounded-full w-full max-w-[400px] relative"
+                className="pointer-events-auto bg-card/95 backdrop-blur-2xl border border-border shadow-2xl flex justify-between items-center px-2 py-2 rounded-full w-full max-w-[400px] relative card-inner-highlight"
               >
                 {navItems.map(({ to, icon: Icon, label, isPrimary }) => (
                   <Link
                     key={to}
                     to={to}
-                    className={`flex flex-col items-center justify-center p-2 transition-all active:scale-95 flex-1 relative min-w-0 rounded-full ${isPrimary ? 'text-primary-foreground -mt-5 bg-primary shadow-lg shadow-primary/30 h-14 w-14 flex-none' : 'text-muted-foreground hover:text-foreground'}`}
+                    className={`flex flex-col items-center justify-center p-2 transition-all active:scale-95 flex-1 relative min-w-0 rounded-full ${
+                      isPrimary
+                        ? 'text-primary-foreground -mt-5 bg-primary shadow-lg shadow-primary/30 h-14 w-14 flex-none'
+                        : 'text-muted-foreground hover:text-foreground'
+                    }`}
                   >
                     {({ isActive }) => (
                       <>
@@ -124,7 +135,9 @@ export const Route = createRootRoute({
                         <Icon
                           size={isPrimary ? 24 : 20}
                           strokeWidth={isPrimary ? 2.5 : 2}
-                          className={`relative z-10 transition-transform ${isActive && !isPrimary ? 'text-primary scale-110' : ''} ${isPrimary && isActive ? 'scale-110' : ''}`}
+                          className={`relative z-10 transition-transform ${
+                            isActive && !isPrimary ? 'text-primary scale-110' : ''
+                          } ${isPrimary && isActive ? 'scale-110' : ''}`}
                         />
                         <span className="sr-only">{label}</span>
                       </>

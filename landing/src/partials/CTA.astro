@@ -11,19 +11,25 @@ const t = landingTranslations[locale];
 const APP_URL = 'https://app.cuan.fiqri.dev';
 ---
 
-<section class="border-t border-border">
-  <div class="mx-auto max-w-5xl px-5 py-24 sm:px-6 sm:py-32">
-    <h2 class="headline-md max-w-2xl text-foreground">
-      {t.cta.heading}
-    </h2>
-    <p class="body-lg prose-short mt-6 text-muted-foreground">
-      {t.cta.subtitle}
-    </p>
-    <a
-      href={APP_URL}
-      class={buttonVariants({ variant: 'default', className: 'label-caps mt-10 px-8 py-4 shadow-tint' })}
+<section class="border-t border-border bg-card/25 py-12 sm:py-20">
+  <div class="mx-auto max-w-5xl px-5 sm:px-6">
+    <div
+      class="relative overflow-hidden rounded-3xl border border-primary/25 bg-gradient-to-b from-card via-card to-card/90 p-8 sm:p-14 shadow-2xl card-inner-highlight flex flex-col items-center text-center"
     >
-      {t.cta.button}
-    </a>
+      <div class="absolute -top-24 left-1/2 -translate-x-1/2 w-96 h-48 bg-primary/10 rounded-full blur-3xl pointer-events-none" />
+      <span class="label-caps text-primary tracking-widest font-semibold uppercase text-xs mb-3">Get Started</span>
+      <h2 class="headline-md max-w-2xl text-foreground relative z-10">
+        {t.cta.heading}
+      </h2>
+      <p class="body-lg prose-short mt-4 text-muted-foreground relative z-10 max-w-xl">
+        {t.cta.subtitle}
+      </p>
+      <a
+        href={APP_URL}
+        class={buttonVariants({ variant: 'default', className: 'label-caps mt-8 px-8 py-4 rounded-full shadow-lg hover:shadow-primary/20 transition-all active:scale-[0.98] relative z-10' })}
+      >
+        {t.cta.button}
+      </a>
+    </div>
   </div>
 </section>

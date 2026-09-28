@@ -11,14 +11,24 @@ const t = landingTranslations[locale];
 
 <section id="how-it-works" class="ambient-glow-bottom border-t border-border">
   <div class="mx-auto max-w-5xl px-5 py-24 sm:px-6 sm:py-32">
-    <p class="label-caps mb-4 text-primary">{t.howItWorks.label}</p>
-    <h2 class="headline-md max-w-2xl text-foreground">{t.howItWorks.heading}</h2>
-    <ol class="mt-16 grid gap-y-12 sm:grid-cols-3 sm:gap-x-8 sm:gap-y-0 sm:divide-x sm:divide-border/30">
+    <div class="flex flex-col gap-2">
+      <span class="label-caps text-primary tracking-widest font-semibold uppercase text-xs">{t.howItWorks.label}</span>
+      <h2 class="headline-md max-w-2xl text-foreground">{t.howItWorks.heading}</h2>
+    </div>
+    <ol class="mt-16 grid gap-6 sm:grid-cols-3">
       {
-        t.howItWorks.steps.map((s) => (
-          <li class="sm:px-8 sm:first:pl-0 sm:last:pr-0">
-            <h3 class="headline-sm text-foreground">{s.title}</h3>
-            <p class="body-md mt-3 text-muted-foreground">{s.body}</p>
+        t.howItWorks.steps.map((s, idx) => (
+          <li class="relative rounded-2xl border border-border bg-card p-6 sm:p-7 shadow-sm transition-all hover:border-border-strong card-inner-highlight flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between mb-5">
+                <span class="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10 border border-primary/20 text-primary font-mono text-sm font-semibold">
+                  0{idx + 1}
+                </span>
+                <span class="text-xs font-mono text-muted-foreground/50">STEP</span>
+              </div>
+              <h3 class="headline-sm text-foreground">{s.title}</h3>
+              <p class="body-md mt-3 text-muted-foreground leading-relaxed">{s.body}</p>
+            </div>
           </li>
         ))
       }

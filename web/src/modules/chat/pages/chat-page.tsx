@@ -7,7 +7,7 @@ export function ChatPage() {
   const { messages, input, setInput, isLoading, error, handleSubmit } = useChatStream();
 
   return (
-    <div className="flex flex-col h-full bg-background">
+    <div className="flex flex-col h-full bg-workspace">
       <ChatHeader isLoading={isLoading} />
       <ChatMessageList messages={messages} error={error} onSuggestion={setInput} />
       <ChatInput value={input} onChange={setInput} onSubmit={handleSubmit} isLoading={isLoading} />

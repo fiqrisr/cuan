@@ -76,7 +76,7 @@ export function TransactionsPage({ accountId }: { accountId?: string }) {
       <div className="px-5 pt-10 pb-28 lg:pb-10 sm:px-8 lg:px-16 xl:px-20 max-w-360 mx-auto w-full flex flex-col gap-8">
         {/* Header & Search */}
         <div className="flex flex-col gap-4">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 pb-2 border-b border-border/10">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 pb-4 border-b border-border">
             <div>
               <h1 className="display-lg-mobile lg:headline-md text-foreground">{title}</h1>
               <p className="body-md text-muted-foreground mt-2 prose-short">{description}</p>
@@ -120,7 +120,7 @@ export function TransactionsPage({ accountId }: { accountId?: string }) {
                   className={`whitespace-nowrap px-4 py-1.5 rounded-full text-xs font-medium transition-all duration-200 cursor-pointer ${
                     isSelected
                       ? 'bg-primary text-primary-foreground shadow-tint'
-                      : 'bg-muted/40 text-muted-foreground border border-border/10 hover:bg-muted/60'
+                      : 'bg-muted text-muted-foreground border border-border hover:bg-muted/80 hover:text-foreground'
                   }`}
                 >
                   {category}

@@ -15,6 +15,7 @@
     }
   ],
   "compilerOptions": {
+    "ignoreDeprecations": "6.0",
     "outDir": "../.moon/cache/types/web",
     "baseUrl": ".",
     "paths": {

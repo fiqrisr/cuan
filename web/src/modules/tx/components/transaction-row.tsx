@@ -110,7 +110,7 @@ export function TransactionRow({ transaction: tx }: Props) {
 
   if (isEditing) {
     return (
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 py-3 px-3 -mx-3 bg-muted/20 rounded-xl border border-border/10">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 py-3 px-3 bg-muted/40 rounded-xl border border-border">
         <div className="flex flex-col gap-2 w-full sm:w-auto flex-1">
           <Input
             value={description}
@@ -155,13 +155,13 @@ export function TransactionRow({ transaction: tx }: Props) {
 
   return (
     <>
-      <div className="group flex items-center justify-between gap-4 py-3 sm:py-4 px-2 sm:px-4 -mx-2 sm:-mx-4 hover:bg-muted/30 transition-colors rounded-xl">
+      <div className="group flex items-center justify-between gap-4 py-3 sm:py-3.5 px-3 sm:px-4 rounded-xl border border-transparent hover:border-border hover:bg-muted/40 transition-all">
         <div className="flex items-center gap-3.5 min-w-0 flex-1">
           <div
             className={`w-10 h-10 rounded-xl shrink-0 flex items-center justify-center border ${
               isIncome
-                ? 'bg-primary/5 text-primary border-primary/10'
-                : 'bg-muted/30 text-muted-foreground border-border/10'
+                ? 'bg-primary/15 text-primary border-primary/25'
+                : 'bg-muted text-muted-foreground border-border'
             }`}
           >
             <Icon size={16} strokeWidth={1.75} />

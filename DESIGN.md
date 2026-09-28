@@ -1,53 +1,47 @@
 ---
 name: Obsidian & Emerald
 colors:
-  surface: "#111413"
-  surface-dim: "#111413"
+  background: "#0a0d0c"
+  sidebar: "#0e1311"
+  workspace: "#121715"
+  card: "#181e1b"
+  surface: "#181e1b"
+  surface-dim: "#0e1311"
   surface-bright: "#373a38"
-  surface-container-lowest: "#0c0f0d"
-  surface-container-low: "#1a1c1b"
-  surface-container: "#1a1c1b"
-  surface-container-high: "#282a29"
-  surface-container-highest: "#333534"
-  on-surface: "#e2e3e0"
-  on-surface-variant: "#c4c7c4"
-  inverse-surface: "#e2e3e0"
-  inverse-on-surface: "#2f312f"
-  outline: "#8e928f"
+  surface-container-lowest: "#0a0d0c"
+  surface-container-low: "#0e1311"
+  surface-container: "#121715"
+  surface-container-high: "#181e1b"
+  surface-container-highest: "#222a26"
+  on-surface: "#e6e9e6"
+  on-surface-variant: "#c8cec8"
+  inverse-surface: "#e6e9e6"
+  inverse-on-surface: "#1c221e"
+  outline: "#8c938f"
   outline-variant: "#444845"
   surface-tint: "#9fd1ba"
   primary: "#9fd1ba"
-  on-primary: "#023828"
-  primary-container: "#1f4f3d"
-  on-primary-container: "#8ec0a9"
-  inverse-primary: "#1f4f3d"
-  secondary: "#1a1c1b"
-  on-secondary: "#c4c7c4"
-  secondary-container: "#1a1c1b"
-  on-secondary-container: "#c4c7c4"
+  on-primary: "#022b1f"
+  primary-container: "#19382b"
+  on-primary-container: "#b2e4ce"
+  inverse-primary: "#194a37"
+  secondary: "#1e2622"
+  on-secondary: "#c8cec8"
+  secondary-container: "#1e2622"
+  on-secondary-container: "#c8cec8"
   tertiary: "#9fd1ba"
-  on-tertiary: "#023828"
-  tertiary-container: "#1f4f3d"
-  on-tertiary-container: "#8ec0a9"
-  error: "#c97b84"
-  on-error: "#3f1014"
+  on-tertiary: "#022b1f"
+  tertiary-container: "#19382b"
+  on-tertiary-container: "#b2e4ce"
+  error: "#d47e88"
+  on-error: "#380d12"
   error-container: "#7c3a43"
   on-error-container: "#ffdcdb"
-  primary-fixed: "#e2e3e0"
-  primary-fixed-dim: "#c6c7c4"
-  on-primary-fixed: "#1a1c1b"
-  on-primary-fixed-variant: "#454746"
-  secondary-fixed: "#bbeed5"
-  secondary-fixed-dim: "#9fd1ba"
-  on-secondary-fixed: "#002116"
-  on-secondary-fixed-variant: "#1f4f3d"
-  tertiary-fixed: "#e3e2e0"
-  tertiary-fixed-dim: "#c7c6c5"
-  on-tertiary-fixed: "#1a1c1b"
-  on-tertiary-fixed-variant: "#464746"
-  background: "#111413"
-  on-background: "#e2e3e0"
-  surface-variant: "#333534"
+  border: "rgba(255, 255, 255, 0.10)"
+  border-subtle: "rgba(255, 255, 255, 0.05)"
+  border-strong: "rgba(255, 255, 255, 0.18)"
+  border-accent: "rgba(159, 209, 186, 0.35)"
+  message-bubble-border: "rgba(255, 255, 255, 0.14)"
 typography:
   display-lg:
     fontFamily: Playfair Display
@@ -131,14 +125,15 @@ The visual style blends **Minimalism** with **Glassmorphism** and a touch of ana
 
 The palette is restricted to a triad of prestige tones.
 
-- **Primary (Refined Emerald):** A low-saturation, jewel-toned green (`#9fd1ba` in dark mode, `#1f4f3d` in light mode) used for primary actions, active navigation, income indicators, and growth signals. It signifies wealth and stability without being garish.
-- **Surface (Deep Obsidian / Soft Parchment):** The core "void" of the interface is a deep, textured obsidian (`#111413`) in dark mode and a soft luxury parchment (`#fcfbf9`) in light mode. This is not a flat black or sterile white; it provides the foundation for depth and warmth.
-- **Text (Off-White/Parchment on Dark, Deep Obsidian on Light):** Primary text uses `on-surface` colors that reduce eye strain compared to pure white or black and add a paper-like, tactile quality.
-- **Destructive (Muted Rose):** A desaturated burgundy-rose (`#c97b84`) for errors and destructive actions. It communicates urgency without the harshness of pure red.
-- **Neutral:** Mid-tone greys with slight olive undertones are used for borders, secondary labels, and inactive states to maintain the organic, sophisticated feel.
+- **Primary (Refined Emerald):** A low-saturation, jewel-toned green (`#9fd1ba` in dark mode, `#194a37` in light mode) used for primary actions, active navigation, income indicators, and growth signals. It signifies wealth and stability without being garish.
+- **Base Canvas (Deep Obsidian / Soft Stone):** The core desk/foundation layer is a deep, textured obsidian (`#0a0d0c`) in dark mode and a crisp, soft stone (`#f0f2ef`) in light mode.
+- **Workspace Surface (Charcoal / Pure White):** The active work canvas is elevated above the base canvas (`#121715` in dark mode, `#ffffff` in light mode).
+- **Elevated Cards & Modules:** Solid surfaces (`#181e1b` in dark mode, `#ffffff` in light mode) with top inner highlights and crisp perimeter borders.
+- **Semantic Borders:** Explicit contrast boundaries without compounding opacity (`border-subtle` at 5%, `border` at 10%, `border-strong` at 18%, `border-accent` at 35%).
+- **Theme-Adaptive Borders:** AI chat response bubbles use `--message-bubble-border`, which renders a crisp hairline (`rgba(255, 255, 255, 0.14)`) in dark mode to separate from the dark canvas, and `transparent` in light mode to prevent unsightly white halos.
+- **Destructive (Muted Rose):** A desaturated burgundy-rose (`#d47e88`) for errors and destructive actions.
 
-Light mode inverts the relationship: the emerald deepens to `#1f4f3d` for buttons and emphasis, while surfaces shift to warm parchment tones. Both modes share the same shadow tint derived from the primary emerald hue.
-
+Light mode inverts the luminance scale: the emerald deepens to `#194a37` for buttons and emphasis, while surfaces shift to pure white cards floating on a soft neutral stone background.
 ## Typography
 
 Typography in this design system is used as a primary decorative element.
@@ -151,26 +146,24 @@ Typography in this design system is used as a primary decorative element.
 
 ## Layout & Spacing
 
-The layout follows a **Fixed Grid** philosophy on desktop to ensure a controlled, gallery-like presentation of financial data. Content is centered within a 1440px container with generous outer margins (64px on desktop, scaling to 80px on very wide screens, and 20px on mobile).
-
-The spacing rhythm is intentionally "loose." Where standard SaaS apps might use 16px of padding, this design system uses 24px or 32px to signal luxury. Dashboard pages use a consistent vertical stack rhythm (`stack-lg: 48px`, `stack-md: 24px`) between sections.
-
-- **Desktop:** 12-column grid with wide 24px gutters.
-- **Mobile:** 4-column grid. Large headlines scale down significantly to avoid awkward line breaks, and margins tighten to 20px to maximize the utility of the smaller viewport.
-- **Alignment:** All elements should align to a strictly enforced 8px baseline grid to maintain the "professional depth" and structural integrity required for financial trust.
+The layout follows an **Inset Studio Frame** philosophy on desktop:
+- **Desktop Shell:** The outer window is a continuous base canvas with uniform $8\text{px}$ perimeter spacing (`lg:p-2 lg:gap-2`).
+- **Sidebar Rail:** The desktop sidebar rests borderless directly on the canvas (`bg-transparent border-r-0`), eliminating dual-border visual clutter. Navigation links float on the desk with subtle active pills and accent marker tabs.
+- **Floating Workspace Canvas:** The main application view sits inside an inset container with rounded corners and a hairline perimeter border (`lg:rounded-2xl lg:border lg:border-border bg-workspace shadow-sm`). The footer is enclosed neatly at the base of this card.
+- **Mobile Floating Dock:** Mobile navigation floats as a centered dock capsule (`rounded-full border border-border bg-card/95 backdrop-blur-2xl shadow-2xl`).
+- **Landing Floating Island Nav:** The marketing site features a detached pill navbar (`max-w-4xl mx-auto rounded-full border border-border bg-card/85 backdrop-blur-xl shadow-lg`) with an integrated theme toggle and clean 28px native app icon.
+- **Landing Mobile Device Preview:** The hero product preview renders as a smartphone device chassis with dynamic island, status bar, and home swipe indicator.
 - **Accessibility:** A hidden skip-to-content link is provided for keyboard users, and visible focus rings are required on all interactive elements.
-
 ## Elevation & Depth
 
-Depth is communicated through **Glassmorphism**, **Tonal Layering**, and **Texture** rather than generic black shadows.
+Depth is communicated through a disciplined **4-Tier Elevation System**, **Inner Highlights**, and **Semantic Borders** rather than flat vectors or heavy drop shadows:
 
-1. **Base Layer:** The Deep Obsidian (`#111413`) or Soft Parchment (`#fcfbf9`) background.
-2. **Surface Layer:** Semi-transparent surfaces (opacity 40–60%) with a 20px backdrop-blur. This creates a "smoked glass" effect that allows background colors or charts to peek through.
-3. **Texture Layer:** A fixed, pointer-events-none grain overlay at very low opacity (4% dark, 2.5% light) adds subtle analog texture across the entire interface.
-4. **Outlines:** Instead of heavy shadows, use 1px solid borders in a slightly lighter charcoal or a very faint Emerald tint (10% opacity). This creates "ghost borders" that define shape through light rather than weight.
-5. **Shadows:** When shadows are used, they are tinted with the primary emerald hue (`shadow-tint`, `shadow-tint-lg`) rather than pure black, so they blend with the palette.
-6. **Interactive Depth:** Upon hover, an element's backdrop-blur should increase, and its border-opacity should double. Cards may also lift slightly (`translateY(-1px)`). Avoid aggressive "lifting" effects; instead, let elements become more luminous.
-
+1. **Level 0 (Base Canvas):** Deep Obsidian (`#0a0d0c`) or Soft Stone (`#f0f2ef`) desk base.
+2. **Level 1 (Sidebar Rail):** Borderless rail (`#0e1311` dark, `#e7eae5` light) resting on the canvas.
+3. **Level 2 (Workspace Canvas):** Dedicated inset work surface (`#121715` dark, `#ffffff` light) with rounded corners.
+4. **Level 3 (Elevated Cards & Dialogs):** Solid elevated surfaces (`#181e1b` dark, `#ffffff` light) with a 1px top highlight (`card-inner-highlight`) and crisp semantic border (`border border-border`).
+5. **Semantic Outlines:** Clear borders without compounding alpha multipliers (`border` at 10% white in dark / 9% black in light; `border-strong` at 18%).
+6. **Shadows:** Soft ambient shadows (`shadow-sm`, `shadow-md`, `shadow-2xl`) with primary emerald tinting (`shadow-tint`).
 ## Shapes
 
 The shape language is disciplined and architectural. A "Soft" roundedness is applied to all UI components to prevent the interface from feeling sharp or aggressive, while maintaining the precision of a professional financial tool.
@@ -185,8 +178,8 @@ The shape language is disciplined and architectural. A "Soft" roundedness is app
 
 - **Buttons:** Primary buttons use a solid Refined Emerald fill with Off-White text. Secondary buttons use a "Ghost" style: a 1px border with no fill. All buttons have a minimum width, a visible focus ring, and an active pressed state (`scale(0.98)`).
 - **Inputs:** Fields are defined only by a bottom border (1px Tertiary at 30% opacity) until focused, at which point the border glows with a subtle Emerald tint. This mimics high-end stationery.
-- **Cards:** Use the glassmorphic style described in Elevation, with a tinted shadow and a 1px border. Cards are rounded-xl by default. Card descriptions should be sentence case in a small, medium-weight font — not all-caps.
-- **Chips/Badges:** Small, rectangular with a 2px radius. Use a 10% Emerald fill for positive indicators and a 10% Grey fill for neutral ones. Text may use `label-caps` for status badges.
-- **Data Visualizations:** Charts use a monochromatic emerald scale rather than a rainbow palette. Lines are thin (1.5pt) and area fills, when used, fade into the background. The Emerald accent is reserved for the most important data series.
-- **Lists:** Transaction lists should have generous vertical padding (16px) and be separated by subtle dividers. Empty states are composed with an icon, helpful copy, and a clear call to action rather than a bare message.
-- **Navigation:** The desktop sidebar is a narrow glass panel with active-state emerald highlights. The mobile bottom bar uses the same tint system. The footer is minimal, focusing on main paths and legally required links (Privacy, Terms).
+- **Cards:** Solid elevated cards with a 1px border (`border-border`), subtle top highlight (`card-inner-highlight`), and hover micro-interaction (`hover:-translate-y-0.5 hover:shadow-md`). Cards avoid continuous GPU backdrop-blur repaints.
+- **Chips/Badges:** High-contrast capsules with solid or tinted fills and matching hairline borders (`border-primary/25`, `border-border/30`).
+- **Chat Bubbles:** User messages use an emerald-tinted accent capsule (`bg-accent text-accent-foreground border border-primary/25`). AI messages use `ai-message-gradient` with a theme-adaptive border (`rgba(255, 255, 255, 0.14)` in dark mode, `transparent` in light mode).
+- **Data Visualizations:** Charts use a monochromatic emerald scale rather than a rainbow palette. Lines are thin (1.5pt) and area fills fade into the card background.
+- **Navigation:** Desktop sidebar is a borderless rail with active indicator tabs (`[&.active]:bg-primary/12 [&.active]:text-primary`). Mobile dock floats as a centered rounded capsule.

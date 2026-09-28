@@ -22,7 +22,11 @@
     "noFallthroughCasesInSwitch": true,
 
     "paths": {
-      "@/*": ["./src/*", "../core/src/*"]
+      "@/*": ["./src/*", "../core/src/*"],
+      "@cuan/core": ["../core/src/index.ts"],
+      "@cuan/core/*": ["../core/src/*"],
+      "@cuan/ui": ["../packages/ui/src/index.ts"],
+      "@cuan/ui/*": ["../packages/ui/src/*"]
     }
   },
   "include": ["src"]
