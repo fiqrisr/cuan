@@ -12,15 +12,26 @@ export const api = treaty<App>(API_BASE_URL, {
     credentials: 'include',
   },
   onRequest: (path: string, options: RequestInit) => {
-    const headers = new Headers(options.headers);
-    let requestId = headers.get(HEADER_REQUEST_ID);
+    let requestId: string | null = null;
 
-    if (!requestId) {
-      requestId = generateRequestId();
-      headers.set(HEADER_REQUEST_ID, requestId);
-      options.headers = headers;
+    if (options.headers instanceof Headers) {
+      requestId = options.headers.get(HEADER_REQUEST_ID);
+      if (!requestId) {
+        requestId = generateRequestId();
+        options.headers.set(HEADER_REQUEST_ID, requestId);
+      }
+    } else {
+      const headersRecord: Record<string, string> = Array.isArray(options.headers)
+        ? Object.fromEntries(options.headers)
+        : (options.headers as Record<string, string>) || {};
+
+      requestId = headersRecord[HEADER_REQUEST_ID] || headersRecord['x-request-id'] || null;
+      if (!requestId) {
+        requestId = generateRequestId();
+        headersRecord[HEADER_REQUEST_ID] = requestId;
+      }
+      options.headers = headersRecord;
     }
-
     telemetry.addBreadcrumb({
       category: 'http',
       message: `${options.method ?? 'GET'} ${path}`,
