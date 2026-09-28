@@ -57,11 +57,7 @@ export function RegisterPage() {
   };
 
   return (
-    <AuthLayout
-      title={t('auth.registerTitle')}
-      subtitle={t('auth.registerSubtitle')}
-      className="lg:max-w-5xl"
-    >
+    <AuthLayout title={t('auth.registerTitle')} subtitle={t('auth.registerSubtitle')}>
       <Card className="w-full max-w-sm bg-card/80 backdrop-blur-xl border-border/10 shadow-tint-lg">
         <form onSubmit={handleRegister}>
           <CardHeader className="space-y-1">

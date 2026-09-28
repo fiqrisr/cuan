@@ -20,7 +20,7 @@ export function AuthLayout({
       <div className="pointer-events-none fixed inset-0 -z-10 ambient-glow-bottom opacity-60" />
       {/* Content wrapper */}
       <div
-        className={cn('mx-auto flex w-full flex-1 flex-col lg:flex-row lg:max-w-5xl', className)}
+        className={cn('mx-auto flex w-full flex-1 flex-col lg:flex-row lg:max-w-7xl', className)}
       >
         {/* Left panel — brand */}
         <div className="relative flex flex-col justify-between px-6 py-10 sm:px-12 lg:w-5/12 lg:px-16 lg:py-14">
