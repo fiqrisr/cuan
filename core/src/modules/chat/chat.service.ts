@@ -41,7 +41,7 @@ export class ChatService {
       durationMs,
     });
 
-    let intent = 'unknown';
+    let intent = 'out_of_scope';
     let transactions: SavedTransaction[] | undefined;
     let queryResult: unknown;
     let account: unknown;

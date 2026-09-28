@@ -382,6 +382,58 @@ describe('POST /api/chat', () => {
     expect(Number(destDb?.balance)).toBe(30000);
   });
 
+  it('handles off-topic requests without calling tools or creating transactions', async () => {
+    currentMockResponse = {
+      text: 'Maaf, saya hanya bisa membantu pencatatan dan pengelolaan keuangan pribadi di Cuan. Anda bisa mencatat transaksi, transfer antar akun, atau melihat ringkasan keuangan.',
+    };
+
+    const cookies = await signUpAndGetCookies(`chat-offtopic-${Date.now()}@example.com`);
+    await createAccount(cookies, 'Cash');
+
+    const response = await chat(cookies, 'tuliskan kode python untuk game ular');
+
+    expect(response.status).toBe(200);
+    const body = (await response.json()) as ChatResponse;
+    expect(body.data.intent).toBe('out_of_scope');
+    expect(body.data.transactions).toBeUndefined();
+    expect(body.data.reply).toContain('hanya bisa membantu pencatatan dan pengelolaan keuangan');
+
+    // Ensure no transactions were created in DB
+    const allTx = await db.query.transactions.findMany();
+    expect(allTx.length).toBe(0);
+  });
+
+  it('records transaction when description contains tech/entertainment keywords', async () => {
+    currentMockResponse = {
+      toolToCall: 'add_transaction',
+      args: {
+        transactions: [
+          {
+            type: 'expense',
+            amount: 150000,
+            currency: 'IDR',
+            category: 'food-beverage',
+            description: 'Buku pemrograman Python',
+            date: '2026-06-25T08:00:00.000Z',
+          },
+        ],
+      },
+      text: 'Pengeluaran Buku pemrograman Python Rp150.000 berhasil dicatat.',
+    };
+
+    const cookies = await signUpAndGetCookies(`chat-valid-desc-${Date.now()}@example.com`);
+    await createAccount(cookies, 'Cash');
+
+    const response = await chat(cookies, 'beli buku pemrograman python 150rb');
+
+    expect(response.status).toBe(201);
+    const body = (await response.json()) as ChatResponse;
+    expect(body.data.intent).toBe('add_transaction');
+    expect(body.data.transactions?.length).toBe(1);
+    expect(body.data.transactions?.[0].amount).toBe(150000);
+    expect(body.data.transactions?.[0].description).toBe('Buku pemrograman Python');
+  });
+
   it('returns 401 without auth', async () => {
     const response = await app.handle(
       new Request('http://localhost/api/chat', {
