@@ -43,6 +43,7 @@ export async function streamChat(
   locale: string,
   onEvent: (event: ChatStreamEvent) => void,
   signal: AbortSignal,
+  history?: { role: 'user' | 'assistant'; content: string }[],
 ): Promise<void> {
   const startTime = performance.now();
   const requestId = generateRequestId();
@@ -64,8 +65,11 @@ export async function streamChat(
         'Content-Type': 'application/json',
         [HEADER_REQUEST_ID]: requestId,
       },
-      body: JSON.stringify({ message, locale }),
-      signal,
+      body: JSON.stringify({
+        message,
+        locale,
+        ...(history && history.length > 0 ? { history } : {}),
+      }),
       credentials: 'include',
     });
     handleUnauthorized(res);
@@ -155,6 +159,7 @@ type UseChatStreamReturn = {
   isLoading: boolean;
   error: string | null;
   handleSubmit: (e: FormEvent) => Promise<void>;
+  clearChat: () => Promise<void>;
 };
 export function applyChatStreamEvent(message: ChatMessage, event: ChatStreamEvent): ChatMessage {
   switch (event.type) {
@@ -217,13 +222,50 @@ export function applyChatStreamEvent(message: ChatMessage, event: ChatStreamEven
       return message;
   }
 }
-
 export function useChatStream(): UseChatStreamReturn {
   const [input, setInput] = useState('');
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const abortRef = useRef<AbortController | null>(null);
+
+  useEffect(() => {
+    let isMounted = true;
+    async function loadSavedMessages() {
+      try {
+        const res = await fetch(`${API_BASE_URL}/api/chat/messages`, {
+          credentials: 'include',
+        });
+        handleUnauthorized(res);
+        if (res.ok) {
+          const json = await res.json();
+          if (isMounted && Array.isArray(json.data)) {
+            const formatted: ChatMessage[] = json.data.map(
+              (m: {
+                id: string;
+                role: 'user' | 'assistant' | 'system';
+                content: string;
+                toolCalls?: string | null;
+              }) => ({
+                id: m.id,
+                role: m.role,
+                content: m.content,
+                toolCalls: m.toolCalls ? JSON.parse(m.toolCalls) : [],
+                isStreaming: false,
+              }),
+            );
+            setMessages(formatted);
+          }
+        }
+      } catch {
+        // Ignore loading errors on initial mount
+      }
+    }
+    loadSavedMessages();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   const applyEvent = useCallback((id: string, event: ChatStreamEvent) => {
     setMessages(prev => prev.map(m => (m.id === id ? applyChatStreamEvent(m, event) : m)));
@@ -232,7 +274,6 @@ export function useChatStream(): UseChatStreamReturn {
       setError(event.errorText);
     }
   }, []);
-
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     const text = input.trim();
@@ -252,17 +293,25 @@ export function useChatStream(): UseChatStreamReturn {
       isStreaming: true,
     };
 
+    const history = messages
+      .filter(m => !m.isStreaming && Boolean(m.content))
+      .slice(-20)
+      .map(m => ({ role: m.role as 'user' | 'assistant', content: m.content }));
+
     setMessages(prev => [...prev, userMsg, aiMsg]);
     setInput('');
     setError(null);
     setIsLoading(true);
 
     try {
-      await streamChat(text, i18n.language, evt => applyEvent(aiMsgId, evt), controller.signal);
-    } catch (err) {
-      if (err instanceof Error && err.name === 'AbortError') return;
-      const msg = err instanceof Error ? err.message : 'Something went wrong';
-      setError(msg);
+      await streamChat(
+        text,
+        i18n.language,
+        evt => applyEvent(aiMsgId, evt),
+        controller.signal,
+        history,
+      );
+    } catch {
       setMessages(prev => prev.filter(m => m.id !== aiMsgId));
     } finally {
       setIsLoading(false);
@@ -282,7 +331,22 @@ export function useChatStream(): UseChatStreamReturn {
     }
   };
 
+  const clearChat = useCallback(async () => {
+    abortRef.current?.abort();
+    try {
+      await fetch(`${API_BASE_URL}/api/chat/messages`, {
+        method: 'DELETE',
+        credentials: 'include',
+      });
+      setMessages([]);
+      setError(null);
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'Failed to clear chat';
+      setError(msg);
+    }
+  }, []);
+
   useEffect(() => () => abortRef.current?.abort(), []);
 
-  return { messages, input, setInput, isLoading, error, handleSubmit };
+  return { messages, input, setInput, isLoading, error, handleSubmit, clearChat };
 }
