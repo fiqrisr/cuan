@@ -5,7 +5,7 @@ import { useGetAccountListQuery } from '@/modules/account/hooks/use-get-account-
 import { useGetTransactionListQuery } from '@/modules/tx/hooks/use-get-transaction-list-query';
 import { CategoryBreakdown } from '../components/category-breakdown';
 import { RecentTransactions } from '../components/recent-transactions';
-import { SpendingTrend } from '../components/spending-trend';
+import { SpendingTrend, type SpendingTrendFilter } from '../components/spending-trend';
 import { SummaryCards } from '../components/summary-cards';
 import { useGetDashboardStatsQuery } from '../hooks/use-get-dashboard-stats-query';
 
@@ -13,7 +13,7 @@ export function DashboardPage() {
   const { t } = useTranslation();
   const [range, setRange] = useState('30d');
   const [accountId, setAccountId] = useState('');
-
+  const [trendFilter, setTrendFilter] = useState<SpendingTrendFilter>('all');
   const { data: accountsData, isLoading: accountsLoading } = useGetAccountListQuery();
   const accounts = accountsData?.data ?? [];
 
@@ -158,10 +158,16 @@ export function DashboardPage() {
               totalExpense={stats.summary.totalExpense}
               netSavings={stats.summary.netSavings}
               savingsRate={stats.summary.savingsRate}
+              activeFilter={trendFilter}
+              onFilterChange={setTrendFilter}
             />
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-              <SpendingTrend daily={stats.daily} />
+              <SpendingTrend
+                daily={stats.daily}
+                filter={trendFilter}
+                onFilterChange={setTrendFilter}
+              />
               <CategoryBreakdown categories={stats.categories} />
             </div>
 
