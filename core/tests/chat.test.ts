@@ -61,6 +61,7 @@ import { db } from '@/db';
 import {
   account,
   categories,
+  chatMessages,
   financialAccounts,
   session,
   transactions,
@@ -71,6 +72,7 @@ import { auth } from '@/modules/auth';
 import type { ChatResponse } from '@/modules/chat/chat.service';
 
 async function clearDatabase(): Promise<void> {
+  await db.delete(chatMessages);
   await db.delete(transactions);
   await db.delete(financialAccounts);
   await db.delete(categories);

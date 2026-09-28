@@ -1,4 +1,5 @@
 export * from './chat.controller';
 export * from './chat.dto';
+export * from './chat.schema';
 export * from './chat.service';
 export * from './chat.types';

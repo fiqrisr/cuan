@@ -14,7 +14,8 @@
     "db:seed": "bun run scripts/seed.ts",
     "db:seed:remote": "bun run scripts/seed.ts --remote",
     "db:generate-auth": "better-auth generate",
-    "db:migrate": "drizzle-kit migrate"
+    "db:migrate": "drizzle-kit migrate",
+    "db:migrate:local": "wrangler d1 migrations apply cuan --local"
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^3.0.86",

@@ -1,16 +1,20 @@
 import { tool } from 'ai';
 import { z } from 'zod';
 import {
+  deleteTransactionSchema,
   extractedTransactionSchema,
   manageAccountActionSchema,
   queryFiltersSchema,
   transferFundsSchema,
+  updateTransactionSchema,
 } from './chat.ai-schema';
 import { handleAddTransaction } from './handlers/add-transaction.handler';
+import { handleDeleteTransaction } from './handlers/delete-transaction.handler';
 import { handleManageAccount } from './handlers/manage-account.handler';
 import { handleManageCategory } from './handlers/manage-category.handler';
 import { handleQuery } from './handlers/query.handler';
 import { handleTransferFunds } from './handlers/transfer-funds.handler';
+import { handleUpdateTransaction } from './handlers/update-transaction.handler';
 
 const addTransactionParams = z.object({
   transactions: z
@@ -74,5 +78,19 @@ export const buildChatTools = (userId: string) => ({
     description: 'Transfer funds between two financial accounts.',
     inputSchema: transferFundsSchema,
     execute: async (args: z.infer<typeof transferFundsSchema>) => handleTransferFunds(args, userId),
+  }),
+  update_transaction: tool({
+    description:
+      "Update or correct an existing transaction (e.g., mistyped amount, category, account, or description). Can target a specific transaction ID or the user's most recent transaction.",
+    inputSchema: updateTransactionSchema,
+    execute: async (args: z.infer<typeof updateTransactionSchema>) =>
+      handleUpdateTransaction(args, userId),
+  }),
+  delete_transaction: tool({
+    description:
+      'Delete or cancel a recorded transaction (e.g. user says "cancel that", "delete last expense", "undo"). Can target a specific transaction ID or the user\'s most recent transaction.',
+    inputSchema: deleteTransactionSchema,
+    execute: async (args: z.infer<typeof deleteTransactionSchema>) =>
+      handleDeleteTransaction(args, userId),
   }),
 });

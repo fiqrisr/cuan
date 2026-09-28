@@ -7,6 +7,8 @@ export type ChatResult = {
   accounts?: unknown[];
   categories?: unknown;
   transfer?: SavedTransfer;
+  updatedTransaction?: unknown;
+  deletedTransaction?: unknown;
 };
 
 export type SavedTransfer = {

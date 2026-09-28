@@ -59,3 +59,50 @@ export const transferFundsSchema = z.object({
       'ISO 8601 string of the transfer date. Resolve relative times using the provided current time.',
     ),
 });
+
+export const updateTransactionSchema = z.object({
+  transactionId: z
+    .string()
+    .optional()
+    .describe(
+      'The UUID of the transaction to update if known from context/previous turns, or omit to target the most recent transaction.',
+    ),
+  amount: z
+    .union([z.number(), z.string()])
+    .transform(value => {
+      const parsed = typeof value === 'string' ? Number(value) : value;
+      if (Number.isNaN(parsed) || parsed <= 0) {
+        throw new Error('amount must be a positive number');
+      }
+      return parsed;
+    })
+    .optional()
+    .describe('The corrected or updated amount of the transaction.'),
+  category: z.string().optional().describe('The updated category name if being changed.'),
+  accountName: z
+    .string()
+    .optional()
+    .describe('The updated financial account name if being changed.'),
+  description: z.string().min(1).optional().describe('The updated description of the transaction.'),
+  date: z
+    .string()
+    .optional()
+    .describe('The updated ISO 8601 date string of the transaction if being changed.'),
+  type: z
+    .enum(['expense', 'income'])
+    .optional()
+    .describe('Whether the transaction type should be changed to expense or income.'),
+});
+
+export const deleteTransactionSchema = z.object({
+  transactionId: z
+    .string()
+    .optional()
+    .describe(
+      'The UUID of the transaction to delete/cancel if known from context, or omit to delete the most recent transaction.',
+    ),
+  reason: z
+    .string()
+    .optional()
+    .describe('Optional reason or note why the transaction is being cancelled or deleted.'),
+});
