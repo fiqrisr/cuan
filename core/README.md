@@ -20,7 +20,8 @@ The core backend for Cuan, an AI-powered, chat-centric financial management and 
 
 4. **Run Migrations:**
    ```bash
-   bun run db:migrate
+   bun run db:migrate:local # Apply migrations to local D1
+   bun run db:migrate       # Apply migrations to remote D1
    ```
 
 5. **Start Dev Server:**
@@ -37,7 +38,8 @@ The core backend for Cuan, an AI-powered, chat-centric financial management and 
 | `bun run test` | Run integration tests (uses an isolated D1 database) |
 | `bun run typecheck` | Run TypeScript type checking |
 | `bun run db:generate` | Generate Drizzle migrations |
-| `bun run db:migrate` | Apply Drizzle migrations |
+| `bun run db:migrate:local` | Apply Drizzle migrations to local D1 |
+| `bun run db:migrate` | Apply Drizzle migrations to remote D1 |
 | `bun run db:push` | Push schema changes directly (dev only) |
 | `bun run db:seed` | Seed default categories |
 
@@ -50,7 +52,7 @@ The backend uses a **feature-module architecture** to keep domains isolated.
 - **Authentication:** Better Auth
 
 ### Feature Documentation
-- **[Chat Interface](docs/feature-chat.md):** AI intent routing (`add_transaction`, `query`, `manage_account`).
+- **[Chat Interface](docs/feature-chat.md):** 7-intent AI tool calling, multi-turn conversational memory, in-chat transaction correction, and persistent message history.
 - **[Financial Accounts](docs/feature-financial-accounts.md):** Account management and default account logic.
 - **[Transactions](docs/feature-transactions.md):** Transaction CRUD and atomic account balance linkage.
 - **[Authentication](docs/feature-auth.md):** Email/password auth, sessions, and route guards.
@@ -63,3 +65,4 @@ We document our significant technical decisions to capture context, constraints,
 - [ADR-002: Use Better Auth for Authentication](docs/decisions/ADR-002-use-better-auth.md)
 - [ADR-003: AI Intent Routing System](docs/decisions/ADR-003-ai-intent-routing.md)
 - [ADR-004: Money Storage and Atomic Balances](docs/decisions/ADR-004-money-storage.md)
+- [ADR-005: Use LLM Tool Calling for Chat Intents](docs/decisions/ADR-005-ai-tool-calling.md)

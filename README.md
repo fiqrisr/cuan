@@ -6,7 +6,7 @@ Cuan is a modern personal finance tracking application that processes natural la
 
 ## Key Features
 
-- **AI-Powered Financial Assistant**: Log transactions, transfer funds, query spending habits, and manage accounts & categories via natural language or real-time streaming chat (powered by the Vercel AI SDK with tool calling, supporting OpenModel / OpenAI / Anthropic / DeepSeek and Google Gemini).
+- **AI-Powered Financial Assistant**: Log transactions, correct typos or cancel entries conversationally, transfer funds, query spending habits, and manage accounts & categories with multi-turn conversational memory and persistent chat history (powered by the Vercel AI SDK with 7-intent tool calling, supporting OpenModel / OpenAI / Anthropic / DeepSeek and Google Gemini).
 - **Multi-Account Tracking**: Maintain real-time balances across bank accounts, e-wallets, cash, and credit cards with atomic balance recalculations stored as exact decimal strings in Cloudflare D1.
 - **Financial Analytics & Dashboard**: Visualize spending trends, category breakdowns, and recent activity with interactive charts (Recharts) and structured data tables (TanStack Table).
 - **Bilingual & Localization**: Full English and Indonesian (`id`/`en`) support across the web application (i18next) and marketing landing page (Astro i18n).
@@ -27,7 +27,7 @@ Cuan is organized as a monorepo orchestrated with **[Moonrepo](https://moonrepo.
     └── elysia-logger/  # Zero-dependency structured logger, correlation ID & RED metrics (@cuan/elysia-logger)
 ```
 
-- **Backend (`core`)**: A Bun-native REST API built with **Elysia.js**, running on Cloudflare Workers or Bun with **Cloudflare D1** via **Drizzle ORM** (SQLite dialect). Features an AI tool-calling engine powered by the **Vercel AI SDK** (`@ai-sdk/openai`, `@ai-sdk/anthropic`, `@ai-sdk/google`) for natural language financial actions (transactions, transfers, queries, account/category management), atomic running balance calculations (`db.batch()`), and **Better Auth** session security.
+- **Backend (`core`)**: A Bun-native REST API built with **Elysia.js**, running on Cloudflare Workers or Bun with **Cloudflare D1** via **Drizzle ORM** (SQLite dialect). Features an AI tool-calling engine powered by the **Vercel AI SDK** (`@ai-sdk/openai`, `@ai-sdk/anthropic`, `@ai-sdk/google`) for natural language financial actions (recording, updating, and deleting transactions, transfers, queries, account/category management), multi-turn conversational memory, persistent chat history in D1 with 30-message rolling retention pruning, atomic running balance calculations (`db.batch()`), and **Better Auth** session security.
 - **Web App (`web`)**: A modern single-page application built with **React 19**, **Vite**, **TanStack Router** (file-based routing with automatic code-splitting), **TanStack Query v5**, **Elysia Eden Treaty** (end-to-end type-safe API client), **TanStack Table**, **Recharts**, **Tailwind CSS v4**, and real-time streaming AI chat via `@ai-sdk/react`. Deployable to Cloudflare Pages/Workers via Wrangler.
 - **Landing Page (`landing`)**: A fast, SEO-friendly static marketing site built with **Astro** and **React**, featuring native bilingual routing (`/` for Indonesian, `/en` for English), Vercel Analytics/Speed Insights, and Open Graph image generation with Satori.
 - **Shared UI (`packages/ui`)**: Shared React 19 design system and UI components package (`@cuan/ui`) bundled with **tsup**, built on **Radix UI** primitives and **shadcn** base component architecture for accessibility by default (buttons, dialogs, dropdowns, inputs, labels, separators, tabs, tooltips, avatars, cards, tables, badges, skeletons), using **class-variance-authority** (CVA) and styled with **Tailwind CSS v4**.
@@ -70,8 +70,8 @@ Cloudflare D1 runs locally through Wrangler without needing a local container or
 cd core && bun run db:reset
 
 # Or apply migrations directly:
-cd core && bun run db:migrate
-
+cd core && bun run db:migrate:local # For local D1
+cd core && bun run db:migrate       # For remote D1
 # Seed sample user, accounts, and transactions (optional):
 cd core && bun run db:seed
 ```
