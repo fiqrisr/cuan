@@ -173,7 +173,11 @@ export function TransactionRow({ transaction: tx }: Props) {
               </span>
               <button
                 type="button"
-                onClick={() => setIsEditing(true)}
+                onClick={() => {
+                  setDescription(tx.description);
+                  setAmount(tx.amount.toString());
+                  setIsEditing(true);
+                }}
                 className="text-muted-foreground hover:text-foreground opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity p-0.5"
                 aria-label={t('common.edit')}
               >

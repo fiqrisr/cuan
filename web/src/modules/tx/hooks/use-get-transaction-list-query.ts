@@ -14,7 +14,7 @@ export function useGetTransactionListQuery(filters?: { accountId?: string }) {
         },
       });
       if (res.error) throw res.error;
-      return res.data as TransactionListResponse;
+      return res.data as unknown as TransactionListResponse;
     },
   });
 }
