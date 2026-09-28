@@ -81,7 +81,7 @@ export function DashboardPage() {
     <div className="flex flex-col flex-1 min-h-0 overflow-y-auto">
       <div className="px-5 pt-10 pb-28 lg:pb-10 sm:px-8 lg:px-16 xl:px-20 max-w-[1440px] mx-auto w-full flex flex-col gap-10">
         {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6 pb-3 border-b border-border/10">
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6 pb-4 border-b border-border">
           <div>
             <h1 className="display-lg-mobile lg:display-lg text-foreground">
               {t('dashboard.title')}
@@ -95,7 +95,7 @@ export function DashboardPage() {
             <select
               value={accountId}
               onChange={e => setAccountId(e.target.value)}
-              className="h-10 px-0 py-1 bg-transparent border-0 border-b border-tertiary/30 text-sm font-medium focus:outline-none focus:border-primary text-foreground shrink-0 rounded-none cursor-pointer transition-colors duration-200"
+              className="h-10 px-2 py-1 bg-card/60 border border-border text-sm font-medium focus:outline-none focus:border-primary text-foreground shrink-0 rounded-lg cursor-pointer transition-colors duration-200"
             >
               <option value="" className="bg-card text-foreground">
                 {t('accounts.title')} ({t('common.total')})
@@ -110,7 +110,7 @@ export function DashboardPage() {
             <select
               value={range}
               onChange={e => setRange(e.target.value)}
-              className="h-10 px-0 py-1 bg-transparent border-0 border-b border-tertiary/30 text-sm font-medium focus:outline-none focus:border-primary text-foreground shrink-0 rounded-none cursor-pointer transition-colors duration-200"
+              className="h-10 px-2 py-1 bg-card/60 border border-border text-sm font-medium focus:outline-none focus:border-primary text-foreground shrink-0 rounded-lg cursor-pointer transition-colors duration-200"
             >
               <option value="7d" className="bg-card text-foreground">
                 {t('common.thisWeek')}

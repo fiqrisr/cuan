@@ -37,7 +37,7 @@ export function RecentTransactions({ transactions }: Props) {
             {recent.map(tx => (
               <li
                 key={tx.id}
-                className="flex items-center justify-between p-3 rounded-lg bg-muted/20 hover:bg-muted/40 transition-colors border border-border/5 group"
+                className="flex items-center justify-between p-3.5 rounded-lg bg-muted/30 hover:bg-muted/70 transition-all border border-border/40 hover:border-border group"
               >
                 <div className="flex items-center gap-4 min-w-0">
                   <div className="text-muted-foreground text-xs shrink-0 data-mono w-12 text-center leading-tight">
@@ -64,7 +64,7 @@ export function RecentTransactions({ transactions }: Props) {
         )}
 
         {recent.length > 0 && (
-          <div className="mt-4 pt-4 border-t border-border/10 flex justify-end">
+          <div className="mt-4 pt-4 border-t border-border flex justify-end">
             <Link
               to="/transactions"
               className="text-xs font-medium text-primary hover:underline underline-offset-4 transition-colors"

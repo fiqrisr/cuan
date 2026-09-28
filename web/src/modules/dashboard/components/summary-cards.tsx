@@ -66,22 +66,26 @@ export function SummaryCards({
             : tone === 'destructive'
               ? 'text-destructive'
               : 'text-foreground';
-        const iconColor =
+        const badgeStyle =
           tone === 'primary'
-            ? 'text-primary'
+            ? 'bg-primary/12 text-primary border border-primary/25'
             : tone === 'destructive'
-              ? 'text-destructive'
-              : 'text-muted-foreground';
+              ? 'bg-destructive/12 text-destructive border border-destructive/25'
+              : 'bg-muted text-muted-foreground border border-border';
 
         return (
           <Card
             key={title}
-            className="group transition-all duration-200 hover:-translate-y-0.5 hover:shadow-tint"
+            className="group relative transition-all duration-200 hover:-translate-y-0.5 hover:border-border-strong hover:shadow-md"
           >
             <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
-              <CardTitle className="text-xs font-medium text-muted-foreground">{title}</CardTitle>
-              <div className={`p-1.5 rounded-md bg-muted/30 ${iconColor}`}>
-                <Icon size={16} strokeWidth={1.75} />
+              <CardTitle className="text-xs font-medium text-muted-foreground tracking-wide uppercase">
+                {title}
+              </CardTitle>
+              <div
+                className={`p-2 rounded-lg ${badgeStyle} transition-transform group-hover:scale-105`}
+              >
+                <Icon size={16} strokeWidth={2} />
               </div>
             </CardHeader>
             <CardContent>
