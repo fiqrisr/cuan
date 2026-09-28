@@ -1,5 +1,7 @@
 # Cuan
 
+![Cuan Hero](images/cuan-hero.png)
+
 Cuan is a modern personal finance tracking application that processes natural language chat messages into structured financial transactions using AI. Track daily expenses, manage multi-account balances, categorize spending, and visualize financial trends effortlessly.
 
 ## Key Features
