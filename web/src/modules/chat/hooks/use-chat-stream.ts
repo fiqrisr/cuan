@@ -156,6 +156,67 @@ type UseChatStreamReturn = {
   error: string | null;
   handleSubmit: (e: FormEvent) => Promise<void>;
 };
+export function applyChatStreamEvent(message: ChatMessage, event: ChatStreamEvent): ChatMessage {
+  switch (event.type) {
+    case 'text-delta':
+      return { ...message, content: message.content + event.delta };
+
+    case 'reasoning-start':
+      return {
+        ...message,
+        reasoning: message.reasoning ?? '',
+        reasoningId: event.id,
+      };
+
+    case 'reasoning-delta':
+      return {
+        ...message,
+        reasoning: (message.reasoning ?? '') + event.delta,
+      };
+
+    case 'tool-input-start': {
+      const calls = message.toolCalls || [];
+      const exists = calls.some(c => c.id === event.toolCallId);
+      return {
+        ...message,
+        toolCalls: exists
+          ? calls.map(c =>
+              c.id === event.toolCallId ? { ...c, name: event.toolName, status: 'running' } : c,
+            )
+          : [...calls, { id: event.toolCallId, name: event.toolName, status: 'running' }],
+      };
+    }
+
+    case 'tool-output-available': {
+      const calls = message.toolCalls || [];
+      return {
+        ...message,
+        toolCalls: calls.map(c => (c.id === event.toolCallId ? { ...c, status: 'done' } : c)),
+      };
+    }
+
+    case 'finish': {
+      return {
+        ...message,
+        isStreaming: false,
+      };
+    }
+
+    case 'error': {
+      const calls = message.toolCalls || [];
+      return {
+        ...message,
+        isStreaming: false,
+        toolCalls: calls.map(c =>
+          c.status === 'running' ? { ...c, status: 'error' as const } : c,
+        ),
+      };
+    }
+
+    default:
+      return message;
+  }
+}
 
 export function useChatStream(): UseChatStreamReturn {
   const [input, setInput] = useState('');
@@ -165,58 +226,7 @@ export function useChatStream(): UseChatStreamReturn {
   const abortRef = useRef<AbortController | null>(null);
 
   const applyEvent = useCallback((id: string, event: ChatStreamEvent) => {
-    setMessages(prev =>
-      prev.map(m => {
-        if (m.id !== id) return m;
-        if (event.type === 'start-step') {
-          return { ...m, content: '', reasoning: '' };
-        }
-
-        if (event.type === 'text-delta') {
-          return { ...m, content: m.content + event.delta };
-        }
-
-        if (event.type === 'reasoning-start') {
-          return { ...m, reasoning: '', reasoningId: event.id };
-        }
-
-        if (event.type === 'reasoning-delta') {
-          return { ...m, reasoning: (m.reasoning ?? '') + event.delta };
-        }
-
-        if (event.type === 'tool-input-start') {
-          const calls = m.toolCalls || [];
-          return {
-            ...m,
-            toolCalls: [
-              ...calls,
-              { id: event.toolCallId, name: event.toolName, status: 'running' },
-            ],
-          };
-        }
-
-        if (event.type === 'tool-output-available') {
-          const calls = m.toolCalls || [];
-          return {
-            ...m,
-            toolCalls: calls.map(c => (c.id === event.toolCallId ? { ...c, status: 'done' } : c)),
-          };
-        }
-
-        if (event.type === 'finish' || event.type === 'error') {
-          const calls = m.toolCalls || [];
-          return {
-            ...m,
-            isStreaming: false,
-            toolCalls: calls.map(c =>
-              c.status === 'running' ? { ...c, status: 'done' as const } : c,
-            ),
-          };
-        }
-
-        return m;
-      }),
-    );
+    setMessages(prev => prev.map(m => (m.id === id ? applyChatStreamEvent(m, event) : m)));
 
     if (event.type === 'error') {
       setError(event.errorText);
@@ -263,7 +273,7 @@ export function useChatStream(): UseChatStreamReturn {
                 ...m,
                 isStreaming: false,
                 toolCalls: (m.toolCalls || []).map(c =>
-                  c.status === 'running' ? { ...c, status: 'done' as const } : c,
+                  c.status === 'running' ? { ...c, status: 'error' as const } : c,
                 ),
               }
             : m,
