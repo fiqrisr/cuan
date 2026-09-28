@@ -5,25 +5,25 @@ export const FormattedTransactionDto = t.Object({
   userId: t.String(),
   accountId: t.Union([t.String(), t.Null()]),
   type: t.String(),
-  amount: t.String(),
+  amount: t.Number(),
   currency: t.String(),
-  categoryId: t.Union([t.Number(), t.Null()]),
+  categoryId: t.Number(),
+  category: t.Union([t.String(), t.Null()]),
   description: t.String(),
   date: t.String(),
-  createdAt: t.Union([t.Date(), t.Null()]),
-  updatedAt: t.Union([t.Date(), t.Null()]),
+  createdAt: t.String(),
+  updatedAt: t.String(),
 });
 
 export const CreateTransactionRequestDto = t.Object({
   type: t.Union([t.Literal('expense'), t.Literal('income')]),
-  amount: t.Number({ minimum: 0 }),
+  amount: t.Numeric({ minimum: 0 }),
   currency: t.Optional(t.String()),
-  categoryId: t.Number(),
+  categoryId: t.Numeric(),
   description: t.Optional(t.String()),
   date: t.String(),
-  accountId: t.Optional(t.String({ format: 'uuid' })),
+  accountId: t.Optional(t.Union([t.String({ format: 'uuid' }), t.Null()])),
 });
-
 export type CreateTransactionRequest = typeof CreateTransactionRequestDto.static;
 
 export const ListTransactionsRequestDto = t.Object({
@@ -41,18 +41,18 @@ export const ListTransactionsRequestDto = t.Object({
 export type ListTransactionsRequest = typeof ListTransactionsRequestDto.static;
 
 export const UpdateTransactionRequestDto = t.Object({
-  amount: t.Optional(t.Number({ minimum: 0 })),
+  amount: t.Optional(t.Numeric({ minimum: 0 })),
   description: t.Optional(t.String({ minLength: 1 })),
-  categoryId: t.Optional(t.Number()),
+  categoryId: t.Optional(t.Numeric()),
   date: t.Optional(t.String()),
   type: t.Optional(t.Union([t.Literal('expense'), t.Literal('income')])),
-  accountId: t.Optional(t.String({ format: 'uuid' })),
+  accountId: t.Optional(t.Union([t.String({ format: 'uuid' }), t.Null()])),
 });
 
 export type UpdateTransactionRequest = typeof UpdateTransactionRequestDto.static;
 
 export const ListTransactionsResponseDto = t.Object({
-  data: t.Array(t.Any()),
+  data: t.Array(FormattedTransactionDto),
   meta: t.Object({
     total: t.Number(),
     page: t.Number(),
@@ -63,10 +63,8 @@ export const ListTransactionsResponseDto = t.Object({
 export type ListTransactionsResponse = typeof ListTransactionsResponseDto.static;
 
 export const TransactionResponseDto = t.Object({
-  data: t.Any(),
+  data: FormattedTransactionDto,
 });
-
-export type TransactionResponse = typeof TransactionResponseDto.static;
 
 export const GetTransactionStatsRequestDto = t.Object({
   from: t.Optional(t.String()),

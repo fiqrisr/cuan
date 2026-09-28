@@ -180,9 +180,282 @@ describe('Transactions API', () => {
       }),
     );
     expect(response.status).toBe(200);
-    const body = (await response.json()) as { data: { amount: number; description: string } };
+    const resJson = await response.json();
+    expect(resJson).toBeDefined();
+    const body = resJson as { data: { amount: number; description: string } };
     expect(body.data.amount).toBe(50000);
     expect(body.data.description).toBe('Updated coffee');
+
+    const acctRes = await app.handle(
+      new Request('http://localhost/api/financial-accounts', {
+        headers: { Cookie: cookies },
+      }),
+    );
+    const acctJson = await acctRes.json();
+    const acctData = acctJson as { data: Array<{ id: string; balance: number }> };
+    const updatedAcct = acctData.data.find(a => a.id === acct.id);
+    // initial was 1,000,000; old expense was 25,000, new expense is 50,000
+    // oldDelta = +25,000, newDelta = -50,000 => balance should be 975,000
+    expect(updatedAcct?.balance).toBe(975000);
+  });
+
+  it('updates only description without changing amount or balance', async () => {
+    const cookies = await getAuthCookies(`tx-update-desc-${Date.now()}@example.com`);
+    const acct = await createAccount(cookies, 'TestBank');
+    const tx = await createTransaction(cookies, {
+      accountId: acct.id,
+      amount: 25000,
+    });
+
+    const response = await app.handle(
+      new Request(`http://localhost/api/transactions/${tx.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json', Cookie: cookies },
+        body: JSON.stringify({ description: 'Only description updated' }),
+      }),
+    );
+    expect(response.status).toBe(200);
+    const resJson = await response.json();
+    const body = resJson as { data: { amount: number; description: string } };
+    expect(body.data.amount).toBe(25000);
+    expect(body.data.description).toBe('Only description updated');
+  });
+
+  it('updates only amount', async () => {
+    const cookies = await getAuthCookies(`tx-update-amt-${Date.now()}@example.com`);
+    const acct = await createAccount(cookies, 'TestBank');
+    const tx = await createTransaction(cookies, {
+      accountId: acct.id,
+      amount: 25000,
+    });
+
+    const response = await app.handle(
+      new Request(`http://localhost/api/transactions/${tx.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json', Cookie: cookies },
+        body: JSON.stringify({ amount: 75000 }),
+      }),
+    );
+    expect(response.status).toBe(200);
+    const resJson = await response.json();
+    const body = resJson as { data: { amount: number; description: string } };
+    expect(body.data.amount).toBe(75000);
+  });
+
+  it('updates transaction with date and categoryId', async () => {
+    const cookies = await getAuthCookies(`tx-update-date-${Date.now()}@example.com`);
+    const acct = await createAccount(cookies, 'TestBank');
+    const tx = await createTransaction(cookies, {
+      accountId: acct.id,
+      amount: 25000,
+    });
+
+    const newDate = '2026-09-25T10:00:00.000Z';
+    const response = await app.handle(
+      new Request(`http://localhost/api/transactions/${tx.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json', Cookie: cookies },
+        body: JSON.stringify({ date: newDate }),
+      }),
+    );
+    expect(response.status).toBe(200);
+    const resJson = await response.json();
+    const body = resJson as { data: { date: string } };
+    expect(body.data.date).toBe(new Date(newDate).toISOString());
+  });
+
+  it('updates transaction moving from one account to another', async () => {
+    const cookies = await getAuthCookies(`tx-update-accts-${Date.now()}@example.com`);
+    const acct1 = await createAccount(cookies, 'Bank1');
+    const acct2 = await createAccount(cookies, 'Bank2');
+    const tx = await createTransaction(cookies, {
+      accountId: acct1.id,
+      amount: 25000,
+      type: 'expense',
+    });
+
+    const response = await app.handle(
+      new Request(`http://localhost/api/transactions/${tx.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json', Cookie: cookies },
+        body: JSON.stringify({ accountId: acct2.id }),
+      }),
+    );
+    expect(response.status).toBe(200);
+    const resJson = await response.json();
+    const body = resJson as { data: { accountId: string } };
+    expect(body.data.accountId).toBe(acct2.id);
+  });
+
+  it('updates transaction created without account (accountId null)', async () => {
+    const cookies = await getAuthCookies(`tx-no-acct-${Date.now()}@example.com`);
+    const whoami = await auth.handler(
+      new Request('http://localhost/api/get-session', {
+        headers: { Cookie: cookies },
+      }),
+    );
+    const sessionData = (await whoami.json()) as { user: { id: string } };
+    const userId = sessionData.user.id;
+    let cat = await db.query.categories.findFirst({
+      where: (c, { eq }) => eq(c.name, 'coffee'),
+    });
+    if (!cat) {
+      const [newCat] = await db
+        .insert(categories)
+        .values({ name: 'coffee', label: 'Coffee' })
+        .returning();
+      cat = newCat;
+    }
+    const [row] = await db
+      .insert(transactions)
+      .values({
+        userId,
+        accountId: null,
+        type: 'expense',
+        amount: '25000',
+        currency: 'IDR',
+        categoryId: cat.id,
+        description: 'No account coffee',
+        date: new Date(),
+      })
+      .returning();
+
+    const response = await app.handle(
+      new Request(`http://localhost/api/transactions/${row.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json', Cookie: cookies },
+        body: JSON.stringify({ amount: 30000, description: 'Updated no account' }),
+      }),
+    );
+    expect(response.status).toBe(200);
+    const resJson = await response.json();
+    const body = resJson as {
+      data: { amount: number; description: string; accountId: string | null };
+    };
+    expect(body.data.amount).toBe(30000);
+    expect(body.data.description).toBe('Updated no account');
+    expect(body.data.accountId).toBeNull();
+  });
+
+  it('unlinks an account from a transaction and refunds balance', async () => {
+    const cookies = await getAuthCookies(`tx-unlink-${Date.now()}@example.com`);
+    const acct = await createAccount(cookies, 'TestBank');
+    const tx = await createTransaction(cookies, {
+      accountId: acct.id,
+      amount: 25000,
+      type: 'expense',
+    });
+
+    const response = await app.handle(
+      new Request(`http://localhost/api/transactions/${tx.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json', Cookie: cookies },
+        body: JSON.stringify({ accountId: null }),
+      }),
+    );
+    expect(response.status).toBe(200);
+    const resJson = await response.json();
+    const body = resJson as { data: { accountId: string | null } };
+    expect(body.data.accountId).toBeNull();
+
+    // Balance should be refunded by +25,000 (from 1,000,000 to 1,025,000)
+    const acctRes = await app.handle(
+      new Request('http://localhost/api/financial-accounts', {
+        headers: { Cookie: cookies },
+      }),
+    );
+    const acctJson = await acctRes.json();
+    const acctData = acctJson as { data: Array<{ id: string; balance: number }> };
+    const updatedAcct = acctData.data.find(a => a.id === acct.id);
+    expect(updatedAcct?.balance).toBe(1025000);
+  });
+
+  it('updates transaction type from expense to income and adjusts balance', async () => {
+    const cookies = await getAuthCookies(`tx-flip-${Date.now()}@example.com`);
+    const acct = await createAccount(cookies, 'TestBank');
+    const tx = await createTransaction(cookies, {
+      accountId: acct.id,
+      amount: 25000,
+      type: 'expense',
+    });
+
+    const response = await app.handle(
+      new Request(`http://localhost/api/transactions/${tx.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json', Cookie: cookies },
+        body: JSON.stringify({ type: 'income' }),
+      }),
+    );
+    expect(response.status).toBe(200);
+    const resJson = await response.json();
+    const body = resJson as { data: { type: string } };
+    expect(body.data.type).toBe('income');
+
+    // Initial was 1,000,000. Old expense was -25,000 impact. New income is +25,000 impact.
+    // Net delta = +25,000 - (-25,000) = +50,000. Balance becomes 1,050,000.
+    const acctRes = await app.handle(
+      new Request('http://localhost/api/financial-accounts', {
+        headers: { Cookie: cookies },
+      }),
+    );
+    const acctJson = await acctRes.json();
+    const acctData = acctJson as { data: Array<{ id: string; balance: number }> };
+    const updatedAcct = acctData.data.find(a => a.id === acct.id);
+    expect(updatedAcct?.balance).toBe(1050000);
+  });
+
+  it('returns 404 when updating with non-existent accountId', async () => {
+    const cookies = await getAuthCookies(`tx-bad-acct-${Date.now()}@example.com`);
+    const acct = await createAccount(cookies, 'TestBank');
+    const tx = await createTransaction(cookies, {
+      accountId: acct.id,
+      amount: 25000,
+    });
+
+    const response = await app.handle(
+      new Request(`http://localhost/api/transactions/${tx.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json', Cookie: cookies },
+        body: JSON.stringify({ accountId: '00000000-0000-0000-0000-000000000000' }),
+      }),
+    );
+    expect(response.status).toBe(404);
+  });
+
+  it('returns 404 when updating with non-existent categoryId', async () => {
+    const cookies = await getAuthCookies(`tx-bad-cat-${Date.now()}@example.com`);
+    const acct = await createAccount(cookies, 'TestBank');
+    const tx = await createTransaction(cookies, {
+      accountId: acct.id,
+      amount: 25000,
+    });
+
+    const response = await app.handle(
+      new Request(`http://localhost/api/transactions/${tx.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json', Cookie: cookies },
+        body: JSON.stringify({ categoryId: 999999 }),
+      }),
+    );
+    expect(response.status).toBe(404);
+  });
+
+  it('returns 400 when updating with invalid date format', async () => {
+    const cookies = await getAuthCookies(`tx-bad-date-${Date.now()}@example.com`);
+    const acct = await createAccount(cookies, 'TestBank');
+    const tx = await createTransaction(cookies, {
+      accountId: acct.id,
+      amount: 25000,
+    });
+
+    const response = await app.handle(
+      new Request(`http://localhost/api/transactions/${tx.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json', Cookie: cookies },
+        body: JSON.stringify({ date: 'not-a-valid-date' }),
+      }),
+    );
+    expect(response.status).toBe(400);
   });
 
   it('deletes a transaction', async () => {

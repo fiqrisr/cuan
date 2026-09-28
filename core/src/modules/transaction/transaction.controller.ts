@@ -50,7 +50,7 @@ export const transactionController = new Elysia({ prefix: '/api/transactions' })
         categoryId: body.categoryId,
         description: body.description,
         date: new Date(body.date),
-        accountId: body.accountId,
+        accountId: body.accountId ?? undefined,
       });
       set.status = 201;
       return { data: created };
@@ -120,7 +120,9 @@ export const transactionController = new Elysia({ prefix: '/api/transactions' })
       auth: true,
       params: t.Object({ id: t.String({ format: 'uuid' }) }),
       body: UpdateTransactionRequestDto,
-      response: TransactionResponseDto,
+      response: {
+        200: TransactionResponseDto,
+      },
     },
   )
   .delete(

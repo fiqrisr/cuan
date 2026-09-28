@@ -1,7 +1,7 @@
 import { and, count, eq, gte, lte, sql } from 'drizzle-orm';
 import type { BatchItem } from 'drizzle-orm/batch';
 import { db, financialAccounts, transactions } from '@/db';
-import { InternalServerError, NotFoundError } from '@/lib/error';
+import { BadRequestError, InternalServerError, NotFoundError } from '@/lib/error';
 import { logger } from '@/lib/logger';
 import { metrics } from '@/lib/metrics';
 import type { Transaction } from './transaction.schema';
@@ -177,7 +177,7 @@ export class TransactionService {
       categoryId?: number;
       date?: string;
       type?: 'expense' | 'income';
-      accountId?: string;
+      accountId?: string | null;
     },
   ): Promise<FormattedTransaction> {
     const existing = await db.query.transactions.findFirst({
@@ -187,19 +187,55 @@ export class TransactionService {
       throw new NotFoundError('Transaction not found');
     }
 
-    // Calculate balance adjustments if amount or type changed
+    // Validate and process new amount/type
     const oldAmount = Number(existing.amount);
-    const newAmount = data.amount ?? oldAmount;
+    const newAmount = data.amount !== undefined ? Number(data.amount) : oldAmount;
+    if (Number.isNaN(newAmount) || newAmount < 0) {
+      throw new BadRequestError('Invalid amount');
+    }
+
     const oldType = existing.type;
     const newType = data.type ?? oldType;
+
     const oldAccountId = existing.accountId;
-    const newAccountId = data.accountId ?? oldAccountId;
+    const newAccountId = data.accountId !== undefined ? data.accountId : oldAccountId;
+
+    // Validate account if changing/setting
+    if (newAccountId) {
+      const acct = await db.query.financialAccounts.findFirst({
+        where: (fa, { and, eq }) => and(eq(fa.id, newAccountId), eq(fa.userId, userId)),
+      });
+      if (!acct) {
+        throw new NotFoundError('Financial account not found');
+      }
+    }
+
+    // Validate category if changing
+    if (data.categoryId !== undefined) {
+      const catId = Number(data.categoryId);
+      const cat = await db.query.categories.findFirst({
+        where: (c, { eq, and, or, isNull }) =>
+          and(eq(c.id, catId), or(eq(c.userId, userId), isNull(c.userId))),
+      });
+      if (!cat) {
+        throw new NotFoundError('Category not found');
+      }
+    }
+
+    // Validate date if changing
+    let parsedDate: Date | undefined;
+    if (data.date !== undefined) {
+      parsedDate = new Date(data.date);
+      if (Number.isNaN(parsedDate.getTime())) {
+        throw new BadRequestError('Invalid date format');
+      }
+    }
 
     const updateValues: Record<string, unknown> = { updatedAt: new Date() };
-    if (data.amount !== undefined) updateValues.amount = data.amount.toString();
+    if (data.amount !== undefined) updateValues.amount = newAmount.toString();
     if (data.description !== undefined) updateValues.description = data.description;
-    if (data.categoryId !== undefined) updateValues.categoryId = data.categoryId;
-    if (data.date !== undefined) updateValues.date = new Date(data.date);
+    if (data.categoryId !== undefined) updateValues.categoryId = Number(data.categoryId);
+    if (parsedDate !== undefined) updateValues.date = parsedDate;
     if (data.type !== undefined) updateValues.type = data.type;
     if (data.accountId !== undefined) updateValues.accountId = data.accountId;
 
@@ -211,37 +247,54 @@ export class TransactionService {
         .where(and(eq(transactions.id, id), eq(transactions.userId, userId))),
     ];
 
-    // Reverse old balance impact
-    if (oldAccountId) {
-      const oldDelta = oldType === 'expense' ? oldAmount : -oldAmount;
-      statements.push(
-        db
-          .update(financialAccounts)
-          .set({
-            balance: sql`${financialAccounts.balance} + ${oldDelta}`,
-            updatedAt: new Date(),
-          })
-          .where(eq(financialAccounts.id, oldAccountId)),
-      );
+    if (oldAccountId === newAccountId) {
+      // Account didn't change - compute net delta on the same account
+      if (oldAccountId) {
+        const oldImpact = oldType === 'expense' ? -oldAmount : oldAmount;
+        const newImpact = newType === 'expense' ? -newAmount : newAmount;
+        const netDelta = newImpact - oldImpact;
+
+        if (netDelta !== 0) {
+          statements.push(
+            db
+              .update(financialAccounts)
+              .set({
+                balance: sql`${financialAccounts.balance} + ${netDelta}`,
+                updatedAt: new Date(),
+              })
+              .where(eq(financialAccounts.id, oldAccountId)),
+          );
+        }
+      }
+    } else {
+      // Account changed - reverse old impact on oldAccountId and apply new impact on newAccountId
+      if (oldAccountId) {
+        const oldDelta = oldType === 'expense' ? oldAmount : -oldAmount;
+        statements.push(
+          db
+            .update(financialAccounts)
+            .set({
+              balance: sql`${financialAccounts.balance} + ${oldDelta}`,
+              updatedAt: new Date(),
+            })
+            .where(eq(financialAccounts.id, oldAccountId)),
+        );
+      }
+
+      if (newAccountId) {
+        const newDelta = newType === 'expense' ? -newAmount : newAmount;
+        statements.push(
+          db
+            .update(financialAccounts)
+            .set({
+              balance: sql`${financialAccounts.balance} + ${newDelta}`,
+              updatedAt: new Date(),
+            })
+            .where(eq(financialAccounts.id, newAccountId)),
+        );
+      }
     }
 
-    // Apply new balance impact
-    const effectiveAccountId = newAccountId;
-    if (effectiveAccountId) {
-      const newDelta = newType === 'expense' ? -newAmount : newAmount;
-      statements.push(
-        db
-          .update(financialAccounts)
-          .set({
-            balance: sql`${financialAccounts.balance} + ${newDelta}`,
-            updatedAt: new Date(),
-          })
-          .where(eq(financialAccounts.id, effectiveAccountId)),
-      );
-    }
-
-    // db.batch types require a fixed tuple; statement count depends on
-    // whether the transaction moved between accounts.
     const startBatch = performance.now();
     await db.batch(statements as [BatchItem<'sqlite'>, ...BatchItem<'sqlite'>[]]);
     const batchDurationMs = Math.round(performance.now() - startBatch);
@@ -254,7 +307,7 @@ export class TransactionService {
         userId,
         statementCount: statements.length,
         batchDurationMs,
-        effectiveAccountId,
+        effectiveAccountId: newAccountId,
       },
       'Transaction updated and account balance adjusted via atomic batch',
     );
