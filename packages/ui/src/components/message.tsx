@@ -7,12 +7,13 @@ import { cn } from '../lib/utils';
 // ---------------------------------------------------------------------------
 
 const messageBubbleVariants = cva(
-  'relative max-w-[85%] rounded-[20px] p-5 text-sm leading-relaxed break-words border shadow-sm',
+  'relative max-w-[85%] rounded-[20px] p-5 text-sm leading-relaxed break-words',
   {
     variants: {
       variant: {
-        sent: 'bg-accent text-accent-foreground border-primary/20 rounded-tr-sm',
-        received: 'ai-message-gradient border-border/20 text-foreground rounded-tl-sm',
+        sent: 'bg-accent text-accent-foreground border border-primary/25 rounded-tr-sm shadow-xs',
+        received:
+          'ai-message-gradient text-foreground rounded-tl-sm border border-message-bubble-border shadow-none',
       },
     },
     defaultVariants: {

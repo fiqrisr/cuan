@@ -1,11 +1,20 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
 @theme {
   --color-border: var(--border);
+  --color-border-subtle: var(--border-subtle);
+  --color-border-strong: var(--border-strong);
+  --color-border-accent: var(--border-accent);
   --color-input: var(--input);
   --color-ring: var(--ring);
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-workspace: var(--workspace);
 
   --color-primary: var(--primary);
   --color-primary-foreground: var(--primary-foreground);
@@ -32,7 +41,7 @@
   --color-surface-muted: var(--surface-muted);
   --color-body-strong: var(--body-strong);
   --color-success: var(--success);
-
+  --color-message-bubble-border: var(--message-bubble-border);
   --radius-lg: var(--radius-lg-val);
   --radius-md: var(--radius-md-val);
   --radius-sm: var(--radius-sm-val);
@@ -48,111 +57,142 @@
 
 @layer base {
   :root {
-    /* Obsidian & Emerald Dark Theme */
-    --background: #111413;
-    --foreground: #e2e3e0;
+    /* Base Canvas (Level 0) - Deep Rich Obsidian */
+    --background: #0a0d0c;
+    --foreground: #e6e9e6;
 
-    --card: #1a1c1b;
-    --card-foreground: #e2e3e0;
+    /* Structural Sidebar (Level 1) - Dark Rail */
+    --sidebar: #0e1311;
+    --sidebar-foreground: #d2d7d3;
+    --sidebar-border: rgba(255, 255, 255, 0.08);
 
-    --popover: #171a19;
-    --popover-foreground: #e2e3e0;
+    /* Main Workspace Canvas (Level 2) */
+    --workspace: #121715;
+
+    /* Elevated Cards & Panels (Level 3) */
+    --card: #181e1b;
+    --card-foreground: #e6e9e6;
+
+    --popover: #181e1b;
+    --popover-foreground: #e6e9e6;
 
     --primary: #9fd1ba;
-    --primary-foreground: #023828;
+    --primary-foreground: #022b1f;
 
-    --secondary: #1a1c1b;
-    --secondary-foreground: #c4c7c4;
+    --secondary: #1e2622;
+    --secondary-foreground: #c8cec8;
 
-    --muted: #1a1c1b;
-    --muted-foreground: #8e928f;
+    --muted: #171d1a;
+    --muted-foreground: #8c938f;
 
-    --accent: #1f4f3d;
-    --accent-foreground: #8ec0a9;
+    --accent: #19382b;
+    --accent-foreground: #b2e4ce;
 
     --tertiary: #9fd1ba;
 
-    --destructive: #c97b84;
-    --destructive-foreground: #3f1014;
+    --destructive: #d47e88;
+    --destructive-foreground: #380d12;
 
-    --border: rgba(159, 209, 186, 0.1);
-    --input: rgba(159, 209, 186, 0.1);
+    /* Semantic Borders */
+    --border: rgba(255, 255, 255, 0.10);
+    --border-subtle: rgba(255, 255, 255, 0.05);
+    --border-strong: rgba(255, 255, 255, 0.18);
+    --border-accent: rgba(159, 209, 186, 0.35);
+
+    --input: rgba(255, 255, 255, 0.12);
     --ring: #9fd1ba;
 
-    --radius-sm-val: 0.125rem;
-    --radius-val: 0.25rem;
+    --radius-sm-val: 0.25rem;
+    --radius-val: 0.375rem;
     --radius-md-val: 0.5rem;
     --radius-lg-val: 0.75rem;
     --radius-xl-val: 1rem;
     --radius-2xl-val: 1.5rem;
 
-    --surface-muted: #1a1c1b;
-    --body-strong: #e2e3e0;
+    --surface-muted: #171d1a;
+    --body-strong: #f0f3f0;
     --success: #9fd1ba;
 
-    --glass-bg: rgba(26, 28, 27, 0.5);
-    --glass-border: rgba(159, 209, 186, 0.1);
-    --glass-bg-hover: rgba(26, 28, 27, 0.65);
-    --glass-border-hover: rgba(159, 209, 186, 0.2);
+    --glass-bg: rgba(24, 30, 27, 0.75);
+    --glass-border: rgba(255, 255, 255, 0.10);
+    --glass-bg-hover: rgba(30, 38, 34, 0.9);
+    --glass-border-hover: rgba(159, 209, 186, 0.25);
     --ai-message-gradient: radial-gradient(
       ellipse at top left,
-      rgba(31, 79, 61, 0.22) 0%,
-      rgba(26, 28, 27, 0.35) 55%,
-      rgba(17, 20, 19, 0.2) 100%
+      rgba(31, 79, 61, 0.28) 0%,
+      rgba(24, 30, 27, 0.6) 55%,
+      rgba(14, 19, 17, 0.3) 100%
     );
 
     --shadow-color: 159 209 186;
     --shadow-tint: rgba(159, 209, 186, 0.08);
+    --message-bubble-border: rgba(255, 255, 255, 0.14);
   }
 
   .light {
-    --background: #fcfbf9;
+    /* Base Canvas (Level 0) - Crisp Soft Stone Canvas */
+    --background: #f0f2ef;
     --foreground: #111413;
 
-    --card: #f4f2ee;
+    /* Structural Sidebar (Level 1) - Subtle Neutral Rail */
+    --sidebar: #e7eae5;
+    --sidebar-foreground: #1c221e;
+    --sidebar-border: rgba(0, 0, 0, 0.08);
+
+    /* Main Workspace Canvas (Level 2) - Pure Clean White */
+    --workspace: #ffffff;
+
+    /* Elevated Cards & Panels (Level 3) */
+    --card: #ffffff;
     --card-foreground: #111413;
 
-    --popover: #f4f2ee;
+    --popover: #ffffff;
     --popover-foreground: #111413;
 
-    --primary: #1f4f3d;
-    --primary-foreground: #fcfbf9;
+    --primary: #194a37;
+    --primary-foreground: #f6faf7;
 
-    --secondary: #eae8e4;
-    --secondary-foreground: #333534;
+    --secondary: #e2e6e1;
+    --secondary-foreground: #222824;
 
-    --muted: #eae8e4;
-    --muted-foreground: #6b6f6c;
+    --muted: #e7ebe6;
+    --muted-foreground: #5a615d;
 
-    --accent: #e2ede8;
-    --accent-foreground: #1f4f3d;
+    --accent: #daf0e5;
+    --accent-foreground: #133f2e;
 
-    --tertiary: #1f4f3d;
+    --tertiary: #194a37;
 
-    --destructive: #9c4a52;
-    --destructive-foreground: #fffafa;
+    --destructive: #b33946;
+    --destructive-foreground: #fff5f6;
 
-    --border: rgba(31, 79, 61, 0.1);
-    --input: rgba(31, 79, 61, 0.1);
-    --ring: #1f4f3d;
+    /* Semantic Borders */
+    --border: rgba(0, 0, 0, 0.09);
+    --border-subtle: rgba(0, 0, 0, 0.04);
+    --border-strong: rgba(0, 0, 0, 0.18);
+    --border-accent: rgba(25, 74, 55, 0.30);
 
-    --surface-muted: #eae8e4;
+    --input: rgba(0, 0, 0, 0.12);
+    --ring: #194a37;
+
+    --surface-muted: #e7ebe6;
     --body-strong: #111413;
-    --success: #1f4f3d;
+    --success: #194a37;
 
-    --glass-bg: rgba(244, 242, 238, 0.6);
-    --glass-border: rgba(31, 79, 61, 0.08);
-    --glass-bg-hover: rgba(244, 242, 238, 0.85);
-    --glass-border-hover: rgba(31, 79, 61, 0.15);
+    --glass-bg: rgba(255, 255, 255, 0.85);
+    --glass-border: rgba(0, 0, 0, 0.08);
+    --glass-bg-hover: rgba(255, 255, 255, 0.98);
+    --glass-border-hover: rgba(25, 74, 55, 0.22);
     --ai-message-gradient: radial-gradient(
       ellipse at top left,
       rgba(31, 79, 61, 0.06) 0%,
-      rgba(234, 232, 228, 0.4) 55%,
-      rgba(252, 251, 249, 0.2) 100%
+      rgba(232, 236, 233, 0.7) 55%,
+      rgba(238, 241, 238, 0.5) 100%
     );
 
-    --shadow-color: 31 79 61;
-    --shadow-tint: rgba(31, 79, 61, 0.06);
+    --shadow-color: 25 74 55;
+    --shadow-tint: rgba(25, 74, 55, 0.06);
+    --message-bubble-border: transparent;
   }
 }
 
@@ -313,6 +353,16 @@
 
 @utility shadow-tint-lg {
   box-shadow: 0 24px 60px -16px var(--shadow-tint), 0 8px 24px -8px rgba(0, 0, 0, 0.18);
+}
+
+@utility card-elevated {
+  background-color: var(--card);
+  border: 1px solid var(--border);
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.2), 0 1px 2px -1px rgba(0, 0, 0, 0.2);
+}
+
+@utility card-inner-highlight {
+  box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.08);
 }
 
 @utility ambient-glow {
