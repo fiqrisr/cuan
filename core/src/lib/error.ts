@@ -40,3 +40,9 @@ export class InternalServerError extends AppError {
     super(500, message, code, details);
   }
 }
+
+export class TooManyRequestsError extends AppError {
+  constructor(message = 'Too Many Requests', code = 'RATE_LIMIT_EXCEEDED', details?: unknown) {
+    super(429, message, code, details);
+  }
+}

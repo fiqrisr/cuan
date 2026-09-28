@@ -8,6 +8,7 @@ import { HealthResponseDto, type HealthServiceStatus, RootResponseDto } from './
 import { db } from './db';
 import { env } from './env';
 import { errorHandler } from './middleware/error-handler';
+import { rateLimiter } from './middleware/rate-limiter';
 import { AuthOpenAPI, auth } from './modules/auth';
 import { categoryController } from './modules/category';
 import { chatController } from './modules/chat/';
@@ -40,11 +41,21 @@ export const app = new Elysia({
         return isAllowedOrigin(origin);
       },
       credentials: true,
-      exposeHeaders: ['X-Request-Id'],
+      exposeHeaders: [
+        'X-Request-Id',
+        'RateLimit-Limit',
+        'RateLimit-Remaining',
+        'RateLimit-Reset',
+        'Retry-After',
+        'X-RateLimit-Limit',
+        'X-RateLimit-Remaining',
+        'X-RateLimit-Reset',
+      ],
     }),
   )
   .use(requestContext)
   .use(errorHandler)
+  .use(rateLimiter)
   .use(
     openapi({
       documentation: {

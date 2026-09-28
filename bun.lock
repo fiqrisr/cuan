@@ -20,6 +20,7 @@
         "@ai-sdk/google": "^3.0.0",
         "@ai-sdk/openai": "^3.0.74",
         "@cuan/elysia-logger": "workspace:*",
+        "@cuan/elysia-rate-limiter": "workspace:*",
         "@elysiajs/cors": "^1.4.2",
         "ai": "^6.0.209",
         "better-auth": "^1.6.20",

@@ -17,13 +17,18 @@
     "paths": {
       "@/*": ["src/*"],
       "@cuan/elysia-logger": ["../packages/elysia-logger/src/index.ts"],
-      "@cuan/elysia-logger/*": ["../packages/elysia-logger/src/*"]
+      "@cuan/elysia-logger/*": ["../packages/elysia-logger/src/*"],
+      "@cuan/elysia-rate-limiter": ["../packages/elysia-rate-limiter/src/index.ts"],
+      "@cuan/elysia-rate-limiter/*": ["../packages/elysia-rate-limiter/src/*"]
     },
     "types": ["./worker-configuration.d.ts"]
   },
   "references": [
     {
       "path": "../packages/elysia-logger"
+    },
+    {
+      "path": "../packages/elysia-rate-limiter"
     }
   ]
 }
