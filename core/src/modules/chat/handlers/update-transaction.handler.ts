@@ -69,6 +69,16 @@ export async function handleUpdateTransaction(params: UpdateTransactionParams, u
     { event: 'transaction_updated_from_chat', transactionId: targetId, userId },
     'transaction updated from chat successfully',
   );
+  let accountName: string | undefined;
+  if (updated.accountId) {
+    const acct = await financialAccountService.getById(updated.accountId, userId);
+    accountName = acct?.name;
+  }
 
-  return { updatedTransaction: updated };
+  return {
+    updatedTransaction: {
+      ...updated,
+      accountName,
+    },
+  };
 }

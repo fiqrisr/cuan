@@ -38,13 +38,20 @@ async function processSingleTransaction(
   userId: string,
 ): Promise<{ error: string } | { saved: SavedTransaction }> {
   let accountId: string | null = null;
+  let accountName: string | null = null;
   if (tx.accountName) {
     const acct = await financialAccountService.getByName(tx.accountName, userId);
-    if (acct) accountId = acct.id;
+    if (acct) {
+      accountId = acct.id;
+      accountName = acct.name;
+    }
   }
   if (!accountId) {
     const defaultAcct = await financialAccountService.getDefault(userId);
-    if (defaultAcct) accountId = defaultAcct.id;
+    if (defaultAcct) {
+      accountId = defaultAcct.id;
+      accountName = defaultAcct.name;
+    }
   }
 
   const cat = await db.query.categories.findFirst({
@@ -84,6 +91,7 @@ async function processSingleTransaction(
       id: row.id,
       userId: row.userId,
       accountId: row.accountId,
+      accountName,
       type: row.type,
       amount: Number(row.amount),
       currency: row.currency,

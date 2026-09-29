@@ -6,6 +6,7 @@ import { getLanguageModel } from '@/lib/ai-provider';
 import { logger } from '@/lib/logger';
 import { metrics } from '@/lib/metrics';
 import { categoryService } from '../category/category.service';
+import { financialAccountService } from '../financial-account/financial-account.service';
 import { getSystemPrompt } from './chat.prompt';
 import { buildChatTools } from './chat.tools';
 import type { ChatResult, SavedTransaction, SavedTransfer } from './chat.types';
@@ -98,8 +99,17 @@ export class ChatService {
     logger.info({ event: 'chat_process_started', userId }, 'processing chat message');
     const tools = buildChatTools(userId);
 
-    const categories = await categoryService.getUserCategories(userId);
+    const [categories, userAccounts] = await Promise.all([
+      categoryService.getUserCategories(userId),
+      financialAccountService.getByUserId(userId),
+    ]);
     const categoriesInfo = categories.map(c => `- ${c.name} (${c.label})`).join('\n');
+    const accountsInfo =
+      userAccounts.length > 0
+        ? userAccounts
+            .map(a => `- ${a.name} (${a.type})${a.isDefault ? ' [DEFAULT]' : ''}`)
+            .join('\n')
+        : '- Belum ada akun keuangan yang dibuat.';
 
     const start = performance.now();
     const model =
@@ -112,7 +122,7 @@ export class ChatService {
       model: getLanguageModel(),
       tools,
       stopWhen: stepCountIs(3),
-      system: getSystemPrompt(categoriesInfo, locale),
+      system: getSystemPrompt(categoriesInfo, accountsInfo, locale),
       messages,
     });
     const durationMs = Math.round(performance.now() - start);
@@ -224,8 +234,17 @@ export class ChatService {
     logger.info({ event: 'chat_stream_started', userId }, 'streaming chat message');
     const tools = buildChatTools(userId);
 
-    const categories = await categoryService.getUserCategories(userId);
+    const [categories, userAccounts] = await Promise.all([
+      categoryService.getUserCategories(userId),
+      financialAccountService.getByUserId(userId),
+    ]);
     const categoriesInfo = categories.map(c => `- ${c.name} (${c.label})`).join('\n');
+    const accountsInfo =
+      userAccounts.length > 0
+        ? userAccounts
+            .map(a => `- ${a.name} (${a.type})${a.isDefault ? ' [DEFAULT]' : ''}`)
+            .join('\n')
+        : '- Belum ada akun keuangan yang dibuat.';
 
     const start = performance.now();
     const model =
@@ -238,7 +257,7 @@ export class ChatService {
       model: getLanguageModel(),
       tools,
       stopWhen: stepCountIs(3),
-      system: getSystemPrompt(categoriesInfo, locale),
+      system: getSystemPrompt(categoriesInfo, accountsInfo, locale),
       messages,
       onError({ error }) {
         logger.error(

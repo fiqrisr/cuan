@@ -27,6 +27,7 @@ export type SavedTransaction = {
   id: string;
   userId: string;
   accountId: string | null;
+  accountName?: string | null;
   type: string;
   amount: number;
   currency: string;

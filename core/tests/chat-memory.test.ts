@@ -14,6 +14,7 @@ import {
 } from '@/db/schema';
 import { auth } from '@/modules/auth';
 import { chatService } from '@/modules/chat/chat.service';
+import { handleAddTransaction } from '@/modules/chat/handlers/add-transaction.handler';
 import { handleDeleteTransaction } from '@/modules/chat/handlers/delete-transaction.handler';
 import { handleUpdateTransaction } from '@/modules/chat/handlers/update-transaction.handler';
 
@@ -107,12 +108,41 @@ describe('Chat Conversational Memory & Transaction Correction', () => {
 
       expect(result.updatedTransaction.id).toBe(tx.id);
       expect(result.updatedTransaction.amount).toBe(50000);
-
+      expect(result.updatedTransaction.accountName).toBe('Cash');
       // Verify account balance was adjusted from 500,000 to 950,000 (+450,000 difference)
       const updatedAcc = await db.query.financialAccounts.findFirst({
         where: (fa, { eq }) => eq(fa.id, acc.id),
       });
       expect(Number(updatedAcc?.balance)).toBe(950000);
+    });
+
+    it('returns exact accountName on add_transaction when default account is used', async () => {
+      const { userId } = await signUpAndGetCookies('add-acct-test@example.com');
+
+      await db.insert(financialAccounts).values({
+        userId,
+        name: 'Dompet Utama',
+        type: 'cash',
+        balance: '50000',
+        isDefault: true,
+      });
+
+      const result = await handleAddTransaction(
+        [
+          {
+            type: 'expense',
+            amount: 20000,
+            currency: 'IDR',
+            category: 'food-beverage',
+            description: 'kopi jago',
+            date: new Date().toISOString(),
+          },
+        ],
+        userId,
+      );
+
+      expect(result.savedTransactions.length).toBe(1);
+      expect(result.savedTransactions[0].accountName).toBe('Dompet Utama');
     });
 
     it('updates account when user switches account name', async () => {
