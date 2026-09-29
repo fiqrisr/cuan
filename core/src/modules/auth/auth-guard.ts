@@ -5,9 +5,17 @@ import { auth } from '.';
 
 export const authGuard = new Elysia({ name: 'auth-guard' }).macro({
   auth: {
-    async resolve({ request }) {
-      const reqId = request.headers.get('x-request-id');
-      const authLog = reqId ? logger.child({ requestId: reqId }) : logger;
+    async resolve({
+      request,
+      requestId,
+      log,
+    }: {
+      request: Request;
+      requestId?: string;
+      log?: typeof logger;
+    }) {
+      const reqId = requestId || request.headers.get('x-request-id');
+      const authLog = log || (reqId ? logger.child({ requestId: reqId }) : logger);
       const session = await auth.api.getSession({ headers: request.headers });
 
       if (!session) {

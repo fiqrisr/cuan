@@ -2,6 +2,7 @@ import type { MaybePromise } from 'bun';
 import { app } from './app';
 import { setD1Binding } from './db';
 import { type Env, getValidatedEnv } from './env';
+import { logger } from './middleware/logger';
 
 type WorkerEnv = Env & { CLOUDFLARE_D1_BINDING_NAME: D1Database };
 function createCorsErrorResponse(
@@ -27,8 +28,20 @@ function createCorsErrorResponse(
 }
 
 export default {
-  fetch: (request: Request, workerEnv: WorkerEnv): MaybePromise<Response> => {
+  fetch: (
+    request: Request,
+    workerEnv: WorkerEnv,
+    _ctx?: ExecutionContext,
+  ): MaybePromise<Response> => {
     try {
+      if (typeof process !== 'undefined' && process.env) {
+        for (const [key, value] of Object.entries(workerEnv)) {
+          if (typeof value === 'string' && process.env[key] === undefined) {
+            process.env[key] = value;
+          }
+        }
+      }
+
       const parsedEnv = getValidatedEnv(workerEnv);
 
       if (!parsedEnv.success) {
@@ -36,7 +49,7 @@ export default {
           issue => `${issue.path.join('.')}: ${issue.message}`,
         );
         const message = `Invalid environment variables:\n${issues.join('\n')}`;
-        console.error(message);
+        logger.error({ event: 'invalid_environment', issues }, message);
         return createCorsErrorResponse(request, 500, {
           code: 'INVALID_ENVIRONMENT',
           message,
@@ -48,7 +61,7 @@ export default {
       return app.fetch(request) satisfies MaybePromise<Response>;
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Internal Server Error';
-      console.error('Unhandled Worker error:', error);
+      logger.error({ event: 'unhandled_worker_error', err: error }, 'Unhandled Worker error');
       return createCorsErrorResponse(request, 500, {
         code: 'INTERNAL_SERVER_ERROR',
         message,
