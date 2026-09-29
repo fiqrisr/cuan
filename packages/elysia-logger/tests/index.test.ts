@@ -175,5 +175,81 @@ describe('elysia-logger package', () => {
       const body = (await res.json()) as { ping: string; requestId: string };
       expect(body.requestId).toBe(clientTraceId);
     });
+
+    it('records RED metrics and logs synchronously on app.fetch without event loop tick', async () => {
+      let loggedMessage = '';
+      class RecordingLogger extends Logger {
+        override info(dataOrMsg: Record<string, unknown> | string, msg?: string) {
+          loggedMessage = typeof dataOrMsg === 'string' ? dataOrMsg : (msg ?? '');
+          super.info(dataOrMsg, msg);
+        }
+      }
+
+      const customLogger = new RecordingLogger({}, 'info');
+      const app = new Elysia()
+        .use(createRequestContext({ logger: customLogger }))
+        .get('/fast', () => ({ ok: true }));
+
+      const res = await app.fetch(new Request('http://localhost/fast'));
+      expect(res.status).toBe(200);
+
+      // Synchronously logged before any setTimeout
+      expect(loggedMessage).toContain('GET /fast 200');
+
+      const snap = metrics.getSnapshot();
+      expect(snap.http.totalRequests).toBe(1);
+      expect(snap.http.requestsByRoute['GET /fast']['2xx']).toBe(1);
+    });
+
+    it('records errors and status codes accurately with single log entry', async () => {
+      const logs: string[] = [];
+      class RecordingLogger extends Logger {
+        override info(dataOrMsg: Record<string, unknown> | string, msg?: string) {
+          logs.push(typeof dataOrMsg === 'string' ? dataOrMsg : (msg ?? ''));
+          super.info(dataOrMsg, msg);
+        }
+        override warn(dataOrMsg: Record<string, unknown> | string, msg?: string) {
+          logs.push(typeof dataOrMsg === 'string' ? dataOrMsg : (msg ?? ''));
+          super.warn(dataOrMsg, msg);
+        }
+        override error(dataOrMsg: Record<string, unknown> | string, msg?: string) {
+          logs.push(typeof dataOrMsg === 'string' ? dataOrMsg : (msg ?? ''));
+          super.error(dataOrMsg, msg);
+        }
+      }
+
+      const customLogger = new RecordingLogger({}, 'info');
+      const app = new Elysia()
+        .use(createRequestContext({ logger: customLogger }))
+        .onError(({ code, set }) => {
+          if (code === 'NOT_FOUND') {
+            set.status = 404;
+            return { error: 'Not found' };
+          }
+          set.status = 500;
+          return { error: 'Server error' };
+        })
+        .post('/items', ({ set }) => {
+          set.status = 201;
+          return { created: true };
+        })
+        .get('/boom', () => {
+          throw new Error('fail');
+        });
+
+      const res1 = await app.fetch(new Request('http://localhost/items', { method: 'POST' }));
+      expect(res1.status).toBe(201);
+
+      const res2 = await app.fetch(new Request('http://localhost/boom'));
+      expect(res2.status).toBe(500);
+
+      const res3 = await app.fetch(new Request('http://localhost/missing'));
+      expect(res3.status).toBe(404);
+
+      expect(logs).toHaveLength(3);
+      expect(logs[0]).toContain('POST /items 201');
+      expect(logs[1]).toContain('GET /boom 500');
+      expect(logs[2]).toContain('GET /missing 404');
+    });
   });
 });

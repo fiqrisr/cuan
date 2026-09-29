@@ -80,7 +80,11 @@ export class Logger {
   }
 
   child(childContext: LogContext): Logger {
-    return new Logger(
+    const Ctor = this.constructor as new (
+      context?: LogContext,
+      options?: LoggerOptions | LogLevel,
+    ) => Logger;
+    return new Ctor(
       { ...this.context, ...childContext },
       {
         minLevel: this.minLevel,
