@@ -29,11 +29,11 @@ tasks:
       - "dist"
 
   deploy:
-    script: "cp .env.production .dev.vars && bunx wrangler deploy --secrets-file .env.production"
+    command: "bunx wrangler deploy --secrets-file .env.production"
     inputs:
       - "src/**/*"
       - "wrangler.toml"
-      - ".dev.vars"
+      - ".env.production"
     options:
       cache: false
 
