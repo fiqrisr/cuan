@@ -62,7 +62,12 @@ export function createRateLimiter<Tiers extends string = string>(
         'X-RateLimit-Reset': String(resetSeconds),
       });
 
-      if (origin) {
+      const isOriginAllowed = origin
+        ? options?.isAllowedOrigin
+          ? options.isAllowedOrigin(origin)
+          : true
+        : false;
+      if (origin && isOriginAllowed) {
         headers.set('Access-Control-Allow-Origin', origin);
         headers.set('Access-Control-Allow-Credentials', 'true');
         headers.set('Vary', 'Origin');

@@ -25,4 +25,5 @@ export type RateLimiterOptions<Tiers extends string = string> = {
   maxEntries?: number;
   cleanupInterval?: number;
   customErrorMessage?: (tier: Tiers, retryAfter: number) => string;
+  isAllowedOrigin?: (origin: string) => boolean;
 };
