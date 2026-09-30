@@ -13,7 +13,7 @@ type ChatMessageListProps = {
 export function ChatMessageList({ messages, error, onSuggestion }: ChatMessageListProps) {
   return (
     <MessageScroller>
-      <MessageScrollerContent>
+      <MessageScrollerContent className="max-w-6xl mx-auto">
         {messages.length === 0 ? (
           <ChatEmptyState onSuggestion={onSuggestion} />
         ) : (
