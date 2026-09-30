@@ -11,7 +11,7 @@ We use a Vercel AI SDK Tool Calling architecture. The AI acts as a parser and co
 - **Endpoints:**
   - `POST /api/chat`: Non-streaming endpoint returning full structured tool results and text response.
   - `POST /api/chat/stream`: SSE streaming endpoint returning incremental text deltas, reasoning, and tool states.
-  - `GET /api/chat/messages`: Retrieves the authenticated user's recent persisted conversation history (up to 30 messages).
+  - `GET /api/chat/messages`: Retrieves the authenticated user's recent persisted conversation history (up to 15 messages).
   - `DELETE /api/chat/messages`: Clears the authenticated user's conversation history.
 - **Controller:** `chat.controller.ts` routes incoming messages and requests to `ChatService`.
 - **Service:** `chat.service.ts` loads prior conversation turns, invokes the LLM (via Vercel AI SDK provider routing), coordinates tool execution, persists chat turns to Cloudflare D1, and enforces rolling retention limits.
@@ -84,9 +84,9 @@ Used when the user wants to transfer money between two of their own financial ac
 ## Conversational Memory & Persistence
 
 To support continuous conversation and referential requests ("make *that* 50k", "delete *the last one*"):
-1. **Multi-Turn Context:** Up to 29 previous conversation turns are loaded from the database or supplied in the request `history` payload and passed directly to `streamText`/`generateText`.
+1. **Multi-Turn Context:** Up to 14 previous conversation turns are loaded from the database or supplied in the request `history` payload and passed directly to `streamText`/`generateText`.
 2. **D1 Message Persistence:** Chat turns are persisted to the `chat_messages` table (`id`, `user_id`, `role`, `content`, `tool_calls`, `created_at`) so conversations survive page reloads and device switches.
-3. **Rolling Retention Pruning:** To optimize token usage and storage, message history is capped at 30 messages per user. Whenever new messages are saved, older messages beyond the most recent 30 are pruned automatically.
+3. **Rolling Retention Pruning:** To optimize token usage and storage, message history is capped at 15 messages per user. Whenever new messages are saved, older messages beyond the most recent 15 are pruned automatically.
 
 ## OpenModel & Gemini Provider Routing
 The interaction with the LLM is routed through `lib/ai-provider.ts`. Based on `AI_PROVIDER`, it selects either Google Gemini (`@ai-sdk/google`) or OpenModel/OpenAI-compatible endpoints (`@ai-sdk/openai`), configurable via environment variables (`OPENMODEL_API_KEY`, `OPENMODEL_BASE_URL`, `OPENMODEL_MODEL`, `GEMINI_API_KEY`, `GEMINI_MODEL`).

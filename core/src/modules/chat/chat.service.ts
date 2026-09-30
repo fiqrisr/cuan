@@ -11,6 +11,8 @@ import { getSystemPrompt } from './chat.prompt';
 import { buildChatTools } from './chat.tools';
 import type { ChatResult, SavedTransaction, SavedTransfer } from './chat.types';
 
+export const MAX_CHAT_MESSAGES = 15;
+
 type ChatTurn = { role: 'user' | 'assistant' | 'system'; content: string };
 
 export class ChatService {
@@ -20,8 +22,7 @@ export class ChatService {
       .from(chatMessages)
       .where(eq(chatMessages.userId, userId))
       .orderBy(asc(chatMessages.createdAt))
-      .limit(30);
-
+      .limit(MAX_CHAT_MESSAGES);
     return rows.map(r => ({
       id: r.id,
       role: r.role,
@@ -48,10 +49,10 @@ export class ChatService {
       content,
       toolCalls,
     });
-    await this.pruneOldMessages(userId, 30);
+    await this.pruneOldMessages(userId, MAX_CHAT_MESSAGES);
   }
 
-  async pruneOldMessages(userId: string, keepLimit = 30) {
+  async pruneOldMessages(userId: string, keepLimit = MAX_CHAT_MESSAGES) {
     const cutoff = await db
       .select({ createdAt: chatMessages.createdAt })
       .from(chatMessages)
@@ -73,18 +74,19 @@ export class ChatService {
     userId: string,
     history?: { role: 'user' | 'assistant'; content: string }[],
   ): Promise<ChatTurn[]> {
+    const maxPriorTurns = MAX_CHAT_MESSAGES - 1;
     if (history && history.length > 0) {
-      return history.slice(-29).map(m => ({ role: m.role, content: m.content }));
+      return history.slice(-maxPriorTurns).map(m => ({ role: m.role, content: m.content }));
     }
 
     const rows = await db
       .select({ role: chatMessages.role, content: chatMessages.content })
       .from(chatMessages)
       .where(eq(chatMessages.userId, userId))
-      .orderBy(asc(chatMessages.createdAt))
-      .limit(29);
+      .orderBy(desc(chatMessages.createdAt))
+      .limit(maxPriorTurns);
 
-    return rows.map(r => ({
+    return rows.reverse().map(r => ({
       role: r.role as 'user' | 'assistant',
       content: r.content,
     }));

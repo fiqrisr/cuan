@@ -320,22 +320,58 @@ describe('Chat Conversational Memory & Transaction Correction', () => {
       expect(json.data.length).toBe(0);
     });
 
-    it('prunes old messages to maintain maximum 30 messages in retention', async () => {
+    it('prunes old messages to maintain maximum 15 messages in retention', async () => {
       const { userId } = await signUpAndGetCookies('retention-test@example.com');
 
-      // Insert 35 messages
-      for (let i = 1; i <= 35; i++) {
+      // Insert 20 messages
+      for (let i = 1; i <= 20; i++) {
         await chatService.saveMessage(userId, 'user', `Message number ${i}`);
       }
 
       const messages = await chatService.getMessages(userId);
-      expect(messages.length).toBe(30);
+      expect(messages.length).toBe(15);
 
-      // The oldest 5 messages (1 to 5) should have been pruned; message 35 must be present
+      // The oldest 5 messages (1 to 5) should have been pruned; message 20 must be present
       const contents = messages.map(m => m.content);
-      expect(contents).toContain('Message number 35');
+      expect(contents).toContain('Message number 20');
       expect(contents).not.toContain('Message number 1');
       expect(contents).not.toContain('Message number 5');
+    });
+
+    it('limits conversation history to max 14 prior turns (15 total with user message)', async () => {
+      const { userId } = await signUpAndGetCookies('history-limit-test@example.com');
+      const anyChatService = chatService as unknown as {
+        buildConversationHistory: (
+          userId: string,
+          history?: { role: 'user' | 'assistant'; content: string }[],
+        ) => Promise<{ role: string; content: string }[]>;
+      };
+
+      // Test with history array > 15 items
+      const clientHistory: { role: 'user' | 'assistant'; content: string }[] = [];
+      for (let i = 1; i <= 20; i++) {
+        clientHistory.push({
+          role: i % 2 === 1 ? 'user' : 'assistant',
+          content: `History turn ${i}`,
+        });
+      }
+      const builtFromHistory = await anyChatService.buildConversationHistory(userId, clientHistory);
+      expect(builtFromHistory.length).toBe(14);
+      expect(builtFromHistory[0].content).toBe('History turn 7');
+      expect(builtFromHistory[13].content).toBe('History turn 20');
+
+      // Test with database rows
+      for (let i = 1; i <= 15; i++) {
+        await chatService.saveMessage(
+          userId,
+          i % 2 === 1 ? 'user' : 'assistant',
+          `DB message ${i}`,
+        );
+      }
+      const builtFromDb = await anyChatService.buildConversationHistory(userId);
+      expect(builtFromDb.length).toBe(14);
+      expect(builtFromDb[0].content).toBe('DB message 2');
+      expect(builtFromDb[13].content).toBe('DB message 15');
     });
   });
 });
