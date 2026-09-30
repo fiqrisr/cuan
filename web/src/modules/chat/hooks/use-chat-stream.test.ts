@@ -47,10 +47,11 @@ describe('streamChat', () => {
     expect(capturedInit?.headers).toMatchObject({ 'Content-Type': 'application/json' });
     const requestHeaders = (capturedInit?.headers ?? {}) as Record<string, string>;
     expect(requestHeaders['x-request-id']).toBeDefined();
-    expect(JSON.parse(capturedInit?.body as string)).toEqual({
-      message: 'test message',
-      locale: 'en',
-    });
+    expect(requestHeaders['x-timezone']).toBeDefined();
+    const parsedBody = JSON.parse(capturedInit?.body as string);
+    expect(parsedBody.message).toBe('test message');
+    expect(parsedBody.locale).toBe('en');
+    expect(parsedBody.timezone).toBeDefined();
     expect(events).toEqual([{ type: 'text-delta', id: '1', delta: 'Hi' }]);
   });
 

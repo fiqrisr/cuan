@@ -44,9 +44,14 @@ export async function streamChat(
   onEvent: (event: ChatStreamEvent) => void,
   signal: AbortSignal,
   history?: { role: 'user' | 'assistant'; content: string }[],
+  timezone?: string,
 ): Promise<void> {
   const startTime = performance.now();
   const requestId = generateRequestId();
+  const userTimezone =
+    timezone ??
+    (typeof Intl !== 'undefined' ? Intl.DateTimeFormat().resolvedOptions().timeZone : undefined) ??
+    'Asia/Jakarta';
   let firstChunkReceived = false;
   let eventCount = 0;
 
@@ -63,11 +68,13 @@ export async function streamChat(
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        'x-timezone': userTimezone,
         [HEADER_REQUEST_ID]: requestId,
       },
       body: JSON.stringify({
         message,
         locale,
+        timezone: userTimezone,
         ...(history && history.length > 0 ? { history } : {}),
       }),
       credentials: 'include',
