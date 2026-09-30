@@ -6,6 +6,7 @@ import {
   type RateLimitStore,
   type RateLimitTierConfig,
 } from '@cuan/elysia-rate-limiter';
+import { isAllowedOrigin } from '@/lib/cors';
 
 export type RateLimitTier = 'auth' | 'chat' | 'api';
 
@@ -17,6 +18,7 @@ export type AppRateLimiterOptions = {
   maxEntries?: number;
   cleanupInterval?: number;
   store?: MemoryRateLimitStore;
+  isAllowedOrigin?: (origin: string) => boolean;
 };
 
 export const DEFAULT_RATE_LIMITS: Record<RateLimitTier, RateLimitTierConfig> = {
@@ -80,6 +82,7 @@ export function createRateLimiter(options?: AppRateLimiterOptions) {
     store: options?.store,
     maxEntries: options?.maxEntries,
     cleanupInterval: options?.cleanupInterval,
+    isAllowedOrigin: options?.isAllowedOrigin ?? isAllowedOrigin,
   });
 }
 

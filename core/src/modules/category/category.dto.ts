@@ -8,13 +8,13 @@ export const CategoryDto = t.Object({
 });
 
 export const CreateCategoryRequestDto = t.Object({
-  name: t.String(),
-  label: t.String(),
+  name: t.String({ minLength: 1, maxLength: 50 }),
+  label: t.String({ minLength: 1, maxLength: 50 }),
 });
 
 export const UpdateCategoryRequestDto = t.Partial(
   t.Object({
-    name: t.String(),
-    label: t.String(),
+    name: t.String({ minLength: 1, maxLength: 50 }),
+    label: t.String({ minLength: 1, maxLength: 50 }),
   }),
 );

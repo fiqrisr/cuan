@@ -25,16 +25,21 @@ export const categoryController = new Elysia({ prefix: '/api/categories' })
   .post(
     '/',
     async ({ user, body, set }) => {
-      logger.info({ event: 'create_category', name: body.name }, 'creating category');
+      const slugName = body.name.toLowerCase().trim().replace(/\s+/g, '-');
+      if (!slugName) {
+        throw new BadRequestError('Invalid category name');
+      }
 
-      const existing = await categoryService.getByName(body.name, user.id);
+      logger.info({ event: 'create_category', name: slugName }, 'creating category');
+
+      const existing = await categoryService.getByName(slugName, user.id);
       if (existing) {
-        throw new BadRequestError(`Category '${body.name}' already exists`);
+        throw new BadRequestError(`Category '${slugName}' already exists`);
       }
 
       const created = await categoryService.create({
-        name: body.name.toLowerCase().replace(/\s+/g, '-'),
-        label: body.label,
+        name: slugName,
+        label: body.label.trim(),
         userId: user.id,
       });
 

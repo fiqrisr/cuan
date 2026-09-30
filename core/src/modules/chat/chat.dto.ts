@@ -1,14 +1,15 @@
 import { t } from 'elysia';
 
 export const CreateChatRequestDto = t.Object({
-  message: t.String({ minLength: 1 }),
+  message: t.String({ minLength: 1, maxLength: 2000 }),
   locale: t.Optional(t.Union([t.Literal('en'), t.Literal('id')])),
   history: t.Optional(
     t.Array(
       t.Object({
         role: t.Union([t.Literal('user'), t.Literal('assistant')]),
-        content: t.String(),
+        content: t.String({ minLength: 1, maxLength: 2000 }),
       }),
+      { maxItems: 30 },
     ),
   ),
 });

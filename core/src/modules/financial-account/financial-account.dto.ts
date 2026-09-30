@@ -12,7 +12,7 @@ export const FormattedFinancialAccountDto = t.Object({
 });
 
 export const CreateFinancialAccountRequestDto = t.Object({
-  name: t.String({ minLength: 1 }),
+  name: t.String({ minLength: 1, maxLength: 100 }),
   type: t.Union([t.Literal('bank'), t.Literal('e-wallet'), t.Literal('cash'), t.Literal('other')]),
   currency: t.Optional(t.String({ minLength: 3, maxLength: 3 })),
   initialBalance: t.Optional(t.Number({ minimum: 0 })),
@@ -21,13 +21,12 @@ export const CreateFinancialAccountRequestDto = t.Object({
 export type CreateFinancialAccountRequest = typeof CreateFinancialAccountRequestDto.static;
 
 export const UpdateFinancialAccountRequestDto = t.Object({
-  name: t.Optional(t.String({ minLength: 1 })),
+  name: t.Optional(t.String({ minLength: 1, maxLength: 100 })),
   type: t.Optional(
     t.Union([t.Literal('bank'), t.Literal('e-wallet'), t.Literal('cash'), t.Literal('other')]),
   ),
   isDefault: t.Optional(t.Boolean()),
 });
-
 export type UpdateFinancialAccountRequest = typeof UpdateFinancialAccountRequestDto.static;
 
 export const GetFinancialAccountsResponseDto = t.Object({

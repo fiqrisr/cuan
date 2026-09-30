@@ -1,12 +1,11 @@
 import type { z } from 'zod';
 import { db } from '@/db';
-import { transactions } from '@/db/schema';
 import { BadRequestError } from '@/lib/error';
 import { logger } from '@/middleware/logger';
 import type { SavedTransaction } from '@/modules/chat/chat.types';
 import { financialAccountService } from '@/modules/financial-account/financial-account.service';
+import { transactionService } from '@/modules/transaction/transaction.service';
 import type { extractedTransactionSchema } from '../chat.ai-schema';
-
 export async function handleAddTransaction(
   transactionsParams: z.infer<typeof extractedTransactionSchema>[],
   userId: string,
@@ -63,43 +62,31 @@ async function processSingleTransaction(
     return { error: `Category '${tx.category}' not found.` };
   }
 
-  const [row] = await db
-    .insert(transactions)
-    .values({
-      userId,
-      accountId,
-      type: tx.type,
-      amount: tx.amount.toString(),
-      currency: tx.currency,
-      categoryId: cat.id,
-      description: tx.description,
-      date: new Date(tx.date),
-    })
-    .returning();
-
-  logger.info(
-    { event: 'transaction_created', transactionId: row.id, amount: tx.amount },
-    'transaction created successfully',
-  );
-  if (accountId) {
-    const delta = tx.type === 'expense' ? -tx.amount : tx.amount;
-    await financialAccountService.adjustBalance(accountId, delta);
-  }
+  const created = await transactionService.create({
+    userId,
+    accountId: accountId ?? undefined,
+    type: tx.type,
+    amount: tx.amount,
+    currency: tx.currency,
+    categoryId: cat.id,
+    description: tx.description,
+    date: new Date(tx.date),
+  });
 
   return {
     saved: {
-      id: row.id,
-      userId: row.userId,
-      accountId: row.accountId,
+      id: created.id,
+      userId: created.userId,
+      accountId: created.accountId,
       accountName,
-      type: row.type,
-      amount: Number(row.amount),
-      currency: row.currency,
-      category: cat.label,
-      description: row.description,
-      date: row.date.toISOString(),
-      createdAt: row.createdAt.toISOString(),
-      updatedAt: row.updatedAt.toISOString(),
+      type: created.type as 'expense' | 'income',
+      amount: created.amount,
+      currency: created.currency,
+      category: created.category ?? cat.label,
+      description: created.description,
+      date: created.date,
+      createdAt: created.createdAt,
+      updatedAt: created.updatedAt,
     },
   };
 }

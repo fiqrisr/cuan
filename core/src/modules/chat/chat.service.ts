@@ -75,10 +75,8 @@ export class ChatService {
     history?: { role: 'user' | 'assistant'; content: string }[],
   ): Promise<ChatTurn[]> {
     const maxPriorTurns = MAX_CHAT_MESSAGES - 1;
-    if (history && history.length > 0) {
-      return history.slice(-maxPriorTurns).map(m => ({ role: m.role, content: m.content }));
-    }
 
+    // Authoritative source: Database records for this user
     const rows = await db
       .select({ role: chatMessages.role, content: chatMessages.content })
       .from(chatMessages)
@@ -86,10 +84,25 @@ export class ChatService {
       .orderBy(desc(chatMessages.createdAt))
       .limit(maxPriorTurns);
 
-    return rows.reverse().map(r => ({
-      role: r.role as 'user' | 'assistant',
-      content: r.content,
-    }));
+    if (rows.length > 0) {
+      return rows.reverse().map(r => ({
+        role: r.role as 'user' | 'assistant',
+        content: r.content,
+      }));
+    }
+
+    // Fallback: only if database is empty, accept sanitized client history
+    if (history && history.length > 0) {
+      return history
+        .filter(m => m.role === 'user' || m.role === 'assistant')
+        .slice(-maxPriorTurns)
+        .map(m => ({
+          role: m.role,
+          content: m.content.slice(0, 2000),
+        }));
+    }
+
+    return [];
   }
 
   async processChat(

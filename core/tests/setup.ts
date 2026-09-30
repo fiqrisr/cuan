@@ -1,11 +1,15 @@
-import { afterAll } from 'bun:test';
+import { afterAll, beforeEach } from 'bun:test';
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import { sql } from 'drizzle-orm';
 import { drizzle } from 'drizzle-orm/d1';
 import type { PlatformProxy } from 'wrangler';
 import { getPlatformProxy } from 'wrangler';
+import { rateLimitStore } from '@/middleware/rate-limiter';
 
+beforeEach(() => {
+  rateLimitStore.reset();
+});
 /**
  * Bun test preload: provisions a fresh, in-process D1 database (via wrangler's
  * getPlatformProxy with ephemeral storage), applies Drizzle migrations, and

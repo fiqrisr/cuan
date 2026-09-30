@@ -7,8 +7,10 @@ import { CloudflareAdapter } from 'elysia/adapter/cloudflare-worker';
 import { HealthResponseDto, type HealthServiceStatus, RootResponseDto } from './app.dto';
 import { db } from './db';
 import { env } from './env';
+import { isAllowedOrigin } from './lib/cors';
 import { errorHandler } from './middleware/error-handler';
 import { rateLimiter } from './middleware/rate-limiter';
+import { securityHeaders } from './middleware/security-headers';
 import { AuthOpenAPI, auth } from './modules/auth';
 import { categoryController } from './modules/category';
 import { chatController } from './modules/chat/';
@@ -17,18 +19,6 @@ import { telemetryController } from './modules/telemetry';
 import { transactionController } from './modules/transaction';
 
 const startedAt = Date.now();
-
-const isAllowedOrigin = (origin: string): boolean => {
-  if (env.NODE_ENV === 'development' || env.NODE_ENV === 'test') {
-    if (/^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin)) {
-      return true;
-    }
-  }
-  if (env.FRONTEND_URL && origin === env.FRONTEND_URL) {
-    return true;
-  }
-  return false;
-};
 
 export const app = new Elysia({
   adapter: CloudflareAdapter,
@@ -53,6 +43,7 @@ export const app = new Elysia({
       ],
     }),
   )
+  .use(securityHeaders)
   .use(requestContext)
   .use(errorHandler)
   .use(rateLimiter)
@@ -132,13 +123,27 @@ export const app = new Elysia({
       },
     },
   )
-  .get('/metrics', () => metrics.getSnapshot(), {
-    detail: {
-      tags: ['System'],
-      summary: 'Metrics',
-      description: 'Exposes in-memory RED and AI metrics snapshot',
+  .get(
+    '/metrics',
+    ({ request, set }) => {
+      const secret = process.env.METRICS_SECRET;
+      if (secret) {
+        const authHeader = request.headers.get('authorization');
+        if (authHeader !== `Bearer ${secret}`) {
+          set.status = 401;
+          return { error: 'Unauthorized', code: 'UNAUTHORIZED' };
+        }
+      }
+      return metrics.getSnapshot();
     },
-  })
+    {
+      detail: {
+        tags: ['System'],
+        summary: 'Metrics',
+        description: 'Exposes in-memory RED and AI metrics snapshot',
+      },
+    },
+  )
   .mount('/auth', auth.handler)
   .use(chatController)
   .use(financialAccountController)

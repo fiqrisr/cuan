@@ -17,11 +17,11 @@ export const FormattedTransactionDto = t.Object({
 
 export const CreateTransactionRequestDto = t.Object({
   type: t.Union([t.Literal('expense'), t.Literal('income')]),
-  amount: t.Numeric({ minimum: 0 }),
-  currency: t.Optional(t.String()),
-  categoryId: t.Numeric(),
-  description: t.Optional(t.String()),
-  date: t.String(),
+  amount: t.Numeric({ minimum: 0, maximum: 1_000_000_000_000 }),
+  currency: t.Optional(t.String({ minLength: 3, maxLength: 3 })),
+  categoryId: t.Numeric({ minimum: 1 }),
+  description: t.Optional(t.String({ maxLength: 500 })),
+  date: t.String({ minLength: 10, maxLength: 35 }),
   accountId: t.Optional(t.Union([t.String({ format: 'uuid' }), t.Null()])),
 });
 export type CreateTransactionRequest = typeof CreateTransactionRequestDto.static;
@@ -41,10 +41,10 @@ export const ListTransactionsRequestDto = t.Object({
 export type ListTransactionsRequest = typeof ListTransactionsRequestDto.static;
 
 export const UpdateTransactionRequestDto = t.Object({
-  amount: t.Optional(t.Numeric({ minimum: 0 })),
-  description: t.Optional(t.String({ minLength: 1 })),
-  categoryId: t.Optional(t.Numeric()),
-  date: t.Optional(t.String()),
+  amount: t.Optional(t.Numeric({ minimum: 0, maximum: 1_000_000_000_000 })),
+  description: t.Optional(t.String({ minLength: 1, maxLength: 500 })),
+  categoryId: t.Optional(t.Numeric({ minimum: 1 })),
+  date: t.Optional(t.String({ minLength: 10, maxLength: 35 })),
   type: t.Optional(t.Union([t.Literal('expense'), t.Literal('income')])),
   accountId: t.Optional(t.Union([t.String({ format: 'uuid' }), t.Null()])),
 });

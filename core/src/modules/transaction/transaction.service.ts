@@ -120,6 +120,24 @@ export class TransactionService {
     date: Date;
     accountId?: string;
   }): Promise<FormattedTransaction> {
+    if (data.accountId) {
+      const targetAccountId = data.accountId;
+      const acct = await db.query.financialAccounts.findFirst({
+        where: (fa, { and, eq }) => and(eq(fa.id, targetAccountId), eq(fa.userId, data.userId)),
+      });
+      if (!acct) {
+        throw new NotFoundError('Financial account not found');
+      }
+    }
+
+    const cat = await db.query.categories.findFirst({
+      where: (c, { eq, and, or, isNull }) =>
+        and(eq(c.id, data.categoryId), or(eq(c.userId, data.userId), isNull(c.userId))),
+    });
+    if (!cat) {
+      throw new NotFoundError('Category not found');
+    }
+
     const insertStmt = db
       .insert(transactions)
       .values({
@@ -143,7 +161,12 @@ export class TransactionService {
           db
             .update(financialAccounts)
             .set({ balance: sql`${financialAccounts.balance} + ${balanceDelta}` })
-            .where(eq(financialAccounts.id, data.accountId)),
+            .where(
+              and(
+                eq(financialAccounts.id, data.accountId),
+                eq(financialAccounts.userId, data.userId),
+              ),
+            ),
         ])
       : await db.batch([insertStmt]);
     const batchDurationMs = Math.round(performance.now() - startBatch);
@@ -162,10 +185,7 @@ export class TransactionService {
       },
       'Transaction created and account balance updated via atomic batch',
     );
-    const cat = await db.query.categories.findFirst({
-      where: (c, { eq }) => eq(c.id, data.categoryId),
-    });
-    return formatTransaction(created, cat?.label || null);
+    return formatTransaction(created, cat.label);
   }
 
   async update(
