@@ -7,6 +7,7 @@ export const authClient = createAuthClient({
   basePath: '/auth/api',
   fetchOptions: {
     credentials: 'include',
+    customFetchImpl: (input, init) => fetch(input, init),
     onResponse: context => {
       const url = context.request?.url ? String(context.request.url) : '';
       if (!url.includes('/sign-in') && !url.includes('/sign-out')) {
