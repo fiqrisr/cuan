@@ -7,7 +7,7 @@ import { logger } from '@/lib/logger';
 import { metrics } from '@/lib/metrics';
 import { categoryService } from '../category/category.service';
 import { financialAccountService } from '../financial-account/financial-account.service';
-import { getSystemPrompt } from './chat.prompt';
+import { getSystemPrompt, normalizeTimezone } from './chat.prompt';
 import { buildChatTools } from './chat.tools';
 import type { ChatResult, SavedTransaction, SavedTransfer } from './chat.types';
 
@@ -110,10 +110,11 @@ export class ChatService {
     userId: string,
     locale?: 'en' | 'id',
     history?: { role: 'user' | 'assistant'; content: string }[],
+    timezone: string = 'Asia/Jakarta',
   ): Promise<ChatResult> {
-    logger.info({ event: 'chat_process_started', userId }, 'processing chat message');
-    const tools = buildChatTools(userId);
-
+    const tz = normalizeTimezone(timezone);
+    logger.info({ event: 'chat_process_started', userId, timezone: tz }, 'processing chat message');
+    const tools = buildChatTools(userId, tz);
     const [categories, userAccounts] = await Promise.all([
       categoryService.getUserCategories(userId),
       financialAccountService.getByUserId(userId),
@@ -137,7 +138,7 @@ export class ChatService {
       model: getLanguageModel(),
       tools,
       stopWhen: stepCountIs(3),
-      system: getSystemPrompt(categoriesInfo, accountsInfo, locale),
+      system: getSystemPrompt(categoriesInfo, accountsInfo, locale, tz),
       messages,
     });
     const durationMs = Math.round(performance.now() - start);
@@ -245,10 +246,11 @@ export class ChatService {
     userId: string,
     locale?: 'en' | 'id',
     history?: { role: 'user' | 'assistant'; content: string }[],
+    timezone: string = 'Asia/Jakarta',
   ): Promise<Response> {
-    logger.info({ event: 'chat_stream_started', userId }, 'streaming chat message');
-    const tools = buildChatTools(userId);
-
+    const tz = normalizeTimezone(timezone);
+    logger.info({ event: 'chat_stream_started', userId, timezone: tz }, 'streaming chat message');
+    const tools = buildChatTools(userId, tz);
     const [categories, userAccounts] = await Promise.all([
       categoryService.getUserCategories(userId),
       financialAccountService.getByUserId(userId),
@@ -272,7 +274,7 @@ export class ChatService {
       model: getLanguageModel(),
       tools,
       stopWhen: stepCountIs(3),
-      system: getSystemPrompt(categoriesInfo, accountsInfo, locale),
+      system: getSystemPrompt(categoriesInfo, accountsInfo, locale, tz),
       messages,
       onError({ error }) {
         logger.error(

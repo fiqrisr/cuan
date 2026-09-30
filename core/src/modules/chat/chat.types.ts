@@ -16,6 +16,7 @@ export type SavedTransfer = {
   destinationAccount: { id: string; name: string; balance: number };
   amount: number;
   date: string;
+  localDate?: string;
   transactions: SavedTransaction[];
 };
 
@@ -34,6 +35,7 @@ export type SavedTransaction = {
   category: string;
   description: string;
   date: string;
+  localDate?: string;
   createdAt: string;
   updatedAt: string;
 };

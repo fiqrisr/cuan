@@ -37,12 +37,14 @@ export const chatController = new Elysia({ prefix: '/api/chat' })
   )
   .post(
     '/',
-    async ({ body, user, set }) => {
+    async ({ body, headers, user, set }) => {
+      const timezone = body.timezone || headers['x-timezone'];
       const result = await chatService.processChat(
         body.message,
         user.id,
         body.locale,
         body.history,
+        timezone,
       );
       set.status = result.transactions?.length ? 201 : 200;
       return { data: result };
@@ -58,8 +60,10 @@ export const chatController = new Elysia({ prefix: '/api/chat' })
   )
   .post(
     '/stream',
-    async ({ body, user }) =>
-      chatService.streamChat(body.message, user.id, body.locale, body.history),
+    async ({ body, headers, user }) => {
+      const timezone = body.timezone || headers['x-timezone'];
+      return chatService.streamChat(body.message, user.id, body.locale, body.history, timezone);
+    },
     {
       auth: true,
       body: CreateChatRequestDto,

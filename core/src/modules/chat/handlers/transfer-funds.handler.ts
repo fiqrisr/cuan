@@ -4,7 +4,7 @@ import { financialAccounts, transactions } from '@/db/schema';
 import { BadRequestError } from '@/lib/error';
 import { logger } from '@/middleware/logger';
 import { financialAccountService } from '@/modules/financial-account/financial-account.service';
-
+import { formatLocalDate } from '../chat.prompt';
 export type TransferFundsParams = {
   sourceAccount: string;
   destinationAccount: string;
@@ -13,7 +13,11 @@ export type TransferFundsParams = {
   currency?: string;
 };
 
-export async function handleTransferFunds(params: TransferFundsParams, userId: string) {
+export async function handleTransferFunds(
+  params: TransferFundsParams,
+  userId: string,
+  timezone: string = 'Asia/Jakarta',
+) {
   const { sourceAccount, destinationAccount, amount, date, currency = 'IDR' } = params;
 
   logger.info(
@@ -120,6 +124,7 @@ export async function handleTransferFunds(params: TransferFundsParams, userId: s
       },
       amount,
       date,
+      localDate: formatLocalDate(date, timezone),
       transactions: [
         {
           id: sourceTx.id,
@@ -131,6 +136,7 @@ export async function handleTransferFunds(params: TransferFundsParams, userId: s
           category: cat.label,
           description: sourceTx.description,
           date: sourceTx.date.toISOString(),
+          localDate: formatLocalDate(sourceTx.date, timezone),
           createdAt: sourceTx.createdAt.toISOString(),
           updatedAt: sourceTx.updatedAt.toISOString(),
         },
@@ -145,6 +151,7 @@ export async function handleTransferFunds(params: TransferFundsParams, userId: s
           description: destTx.description,
           date: destTx.date.toISOString(),
           createdAt: destTx.createdAt.toISOString(),
+          localDate: formatLocalDate(destTx.date, timezone),
           updatedAt: destTx.updatedAt.toISOString(),
         },
       ],

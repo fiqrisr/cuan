@@ -50,18 +50,18 @@ const manageCategoryParams = z.object({
   newName: z.string().optional().describe('New name for the category (if renaming)'),
 });
 
-export const buildChatTools = (userId: string) => ({
+export const buildChatTools = (userId: string, timezone: string = 'Asia/Jakarta') => ({
   add_transaction: tool({
     description: 'Record one or more transactions (expenses or income).',
     inputSchema: addTransactionParams,
     execute: async (args: z.infer<typeof addTransactionParams>) =>
-      handleAddTransaction(args.transactions, userId),
+      handleAddTransaction(args.transactions, userId, timezone),
   }),
   query_finances: tool({
     description: 'Query existing transactions to answer user questions about their finances.',
     inputSchema: queryParams,
     execute: async (args: z.infer<typeof queryParams>) =>
-      handleQuery(args.queryType, args.filters, userId),
+      handleQuery(args.queryType, args.filters, userId, timezone),
   }),
   manage_account: tool({
     description: 'Manage financial accounts (create, set default, list).',
@@ -77,14 +77,15 @@ export const buildChatTools = (userId: string) => ({
   transfer_funds: tool({
     description: 'Transfer funds between two financial accounts.',
     inputSchema: transferFundsSchema,
-    execute: async (args: z.infer<typeof transferFundsSchema>) => handleTransferFunds(args, userId),
+    execute: async (args: z.infer<typeof transferFundsSchema>) =>
+      handleTransferFunds(args, userId, timezone),
   }),
   update_transaction: tool({
     description:
       "Update or correct an existing transaction (e.g., mistyped amount, category, account, or description). Can target a specific transaction ID or the user's most recent transaction.",
     inputSchema: updateTransactionSchema,
     execute: async (args: z.infer<typeof updateTransactionSchema>) =>
-      handleUpdateTransaction(args, userId),
+      handleUpdateTransaction(args, userId, timezone),
   }),
   delete_transaction: tool({
     description:

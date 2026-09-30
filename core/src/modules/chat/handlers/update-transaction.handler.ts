@@ -3,7 +3,7 @@ import { BadRequestError } from '@/lib/error';
 import { logger } from '@/middleware/logger';
 import { financialAccountService } from '@/modules/financial-account/financial-account.service';
 import { transactionService } from '@/modules/transaction/transaction.service';
-
+import { formatLocalDate } from '../chat.prompt';
 export type UpdateTransactionParams = {
   transactionId?: string;
   amount?: number;
@@ -14,7 +14,11 @@ export type UpdateTransactionParams = {
   type?: 'expense' | 'income';
 };
 
-export async function handleUpdateTransaction(params: UpdateTransactionParams, userId: string) {
+export async function handleUpdateTransaction(
+  params: UpdateTransactionParams,
+  userId: string,
+  timezone: string = 'Asia/Jakarta',
+) {
   logger.info(
     { event: 'handle_update_transaction', params, userId },
     'updating transaction from chat',
@@ -79,6 +83,7 @@ export async function handleUpdateTransaction(params: UpdateTransactionParams, u
     updatedTransaction: {
       ...updated,
       accountName,
+      localDate: formatLocalDate(updated.date, timezone),
     },
   };
 }

@@ -13,9 +13,9 @@ export const extractedTransactionSchema = z.object({
   category: z.string().describe('Exact category name provided in the context'),
   description: z.string().min(1).describe('Short summary of the transaction'),
   date: z.iso
-    .datetime()
+    .datetime({ offset: true })
     .describe(
-      'ISO 8601 string of the transaction date. Resolve relative times using the provided current time.',
+      'ISO 8601 string of the transaction date (e.g. with timezone offset or UTC instant). Resolve relative times using the user local time.',
     ),
   accountName: z
     .string()
@@ -54,9 +54,9 @@ export const transferFundsSchema = z.object({
   currency: z.string().length(3).default('IDR').describe('3-letter ISO code, default IDR'),
   date: z
     .string()
-    .datetime()
+    .datetime({ offset: true })
     .describe(
-      'ISO 8601 string of the transfer date. Resolve relative times using the provided current time.',
+      'ISO 8601 string of the transfer date (e.g. with timezone offset or UTC instant). Resolve relative times using the user local time.',
     ),
 });
 
@@ -86,6 +86,7 @@ export const updateTransactionSchema = z.object({
   description: z.string().min(1).optional().describe('The updated description of the transaction.'),
   date: z
     .string()
+    .datetime({ offset: true })
     .optional()
     .describe('The updated ISO 8601 date string of the transaction if being changed.'),
   type: z

@@ -6,6 +6,7 @@ import { BadRequestError } from '@/lib/error';
 import { logger } from '@/middleware/logger';
 import { financialAccountService } from '@/modules/financial-account/financial-account.service';
 import type { queryFiltersSchema } from '../chat.ai-schema';
+import { formatLocalDate } from '../chat.prompt';
 
 type QueryType =
   | 'biggest_expense'
@@ -20,6 +21,7 @@ export async function handleQuery(
   queryType: QueryType,
   filters: z.infer<typeof queryFiltersSchema>,
   userId: string,
+  timezone: string = 'Asia/Jakarta',
 ) {
   logger.info({ event: 'handle_query', queryType, filters }, 'processing chat query');
   const conditions = [eq(transactions.userId, userId)];
@@ -61,7 +63,7 @@ export async function handleQuery(
     case 'transaction_count':
       return getTransactionCount(where);
     case 'recent_transactions':
-      return getRecentTransactions(where, limit);
+      return getRecentTransactions(where, limit, timezone);
     case 'category_breakdown':
       return getCategoryBreakdown(where);
     default:
@@ -108,7 +110,11 @@ async function getTransactionCount(where: SQL<unknown> | undefined) {
   return { count: result?.count ?? 0 };
 }
 
-async function getRecentTransactions(where: SQL<unknown> | undefined, limit: number) {
+async function getRecentTransactions(
+  where: SQL<unknown> | undefined,
+  limit: number,
+  timezone: string = 'Asia/Jakarta',
+) {
   const rows = await db
     .select()
     .from(transactions)
@@ -122,6 +128,7 @@ async function getRecentTransactions(where: SQL<unknown> | undefined, limit: num
     ...r,
     amount: Number(r.amount),
     category: catMap.get(r.categoryId) ?? null,
+    localDate: formatLocalDate(r.date, timezone),
   }));
 
   return { transactions: formatted };

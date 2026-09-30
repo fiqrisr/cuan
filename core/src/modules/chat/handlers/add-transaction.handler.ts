@@ -6,9 +6,11 @@ import type { SavedTransaction } from '@/modules/chat/chat.types';
 import { financialAccountService } from '@/modules/financial-account/financial-account.service';
 import { transactionService } from '@/modules/transaction/transaction.service';
 import type { extractedTransactionSchema } from '../chat.ai-schema';
+import { formatLocalDate } from '../chat.prompt';
 export async function handleAddTransaction(
   transactionsParams: z.infer<typeof extractedTransactionSchema>[],
   userId: string,
+  timezone: string = 'Asia/Jakarta',
 ) {
   logger.info(
     { event: 'handle_add_transaction', transactionCount: transactionsParams.length },
@@ -17,7 +19,7 @@ export async function handleAddTransaction(
   const saved: SavedTransaction[] = [];
 
   for (const tx of transactionsParams) {
-    const result = await processSingleTransaction(tx, userId);
+    const result = await processSingleTransaction(tx, userId, timezone);
     if ('error' in result) {
       logger.warn(
         { event: 'add_transaction_failed', reason: result.error, transaction: tx },
@@ -35,6 +37,7 @@ export async function handleAddTransaction(
 async function processSingleTransaction(
   tx: z.infer<typeof extractedTransactionSchema>,
   userId: string,
+  timezone: string = 'Asia/Jakarta',
 ): Promise<{ error: string } | { saved: SavedTransaction }> {
   let accountId: string | null = null;
   let accountName: string | null = null;
@@ -85,6 +88,7 @@ async function processSingleTransaction(
       category: created.category ?? cat.label,
       description: created.description,
       date: created.date,
+      localDate: formatLocalDate(created.date, timezone),
       createdAt: created.createdAt,
       updatedAt: created.updatedAt,
     },

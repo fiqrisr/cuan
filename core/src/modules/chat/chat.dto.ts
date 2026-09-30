@@ -3,6 +3,7 @@ import { t } from 'elysia';
 export const CreateChatRequestDto = t.Object({
   message: t.String({ minLength: 1, maxLength: 2000 }),
   locale: t.Optional(t.Union([t.Literal('en'), t.Literal('id')])),
+  timezone: t.Optional(t.String({ maxLength: 100 })),
   history: t.Optional(
     t.Array(
       t.Object({
