@@ -7,7 +7,7 @@ import { cn } from '../lib/utils';
 // ---------------------------------------------------------------------------
 
 const messageBubbleVariants = cva(
-  'relative max-w-[85%] rounded-[20px] p-5 text-sm leading-relaxed break-words',
+  'relative w-fit max-w-full rounded-[20px] p-5 text-sm leading-relaxed break-words',
   {
     variants: {
       variant: {
@@ -92,7 +92,7 @@ Message.displayName = 'Message';
 // MessageContent — wraps bubble + metadata in a column aligned to the side
 // ---------------------------------------------------------------------------
 
-const messageContentVariants = cva('flex flex-col gap-1', {
+const messageContentVariants = cva('flex flex-col gap-1 max-w-[85%]', {
   variants: {
     side: {
       left: 'items-start',
