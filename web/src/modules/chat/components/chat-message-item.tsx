@@ -5,6 +5,7 @@ import type { ChatMessage, ToolCall } from '../types';
 
 type ChatMessageItemProps = {
   message: ChatMessage;
+  hasGlobalError?: boolean;
 };
 
 function getToolRunningLabel(toolName: string, t: (key: string) => string): string {
@@ -103,7 +104,7 @@ function getPrimaryDoneTool(toolCalls: ToolCall[]): ToolCall | undefined {
   return doneTools[0];
 }
 
-export function ChatMessageItem({ message }: ChatMessageItemProps) {
+export function ChatMessageItem({ message, hasGlobalError }: ChatMessageItemProps) {
   const { t } = useTranslation();
   const side = message.role === 'user' ? 'right' : 'left';
   const hasReasoning = message.reasoning !== undefined && message.reasoning.length > 0;
@@ -112,10 +113,14 @@ export function ChatMessageItem({ message }: ChatMessageItemProps) {
   const toolCalls = message.toolCalls ?? [];
   const runningTool = toolCalls.find(tool => tool.status === 'running');
   const primaryDoneTool = getPrimaryDoneTool(toolCalls);
-  const hasError = toolCalls.some(tool => tool.status === 'error');
+  const hasToolError = toolCalls.some(tool => tool.status === 'error');
+  const hasError = Boolean(message.error) || hasToolError;
   const isAssistant = message.role === 'assistant';
-  const isThinking = isAssistant && !message.content;
+  const isThinking = isAssistant && isStreaming && !message.content && !hasError && !hasGlobalError;
 
+  if (isAssistant && !message.content && !hasReasoning && toolCalls.length === 0 && !isThinking) {
+    return null;
+  }
   return (
     <Message side={side}>
       {isAssistant && (
@@ -132,7 +137,7 @@ export function ChatMessageItem({ message }: ChatMessageItemProps) {
             </span>
           </div>
         )}
-        {isAssistant && hasError && !primaryDoneTool && message.content && (
+        {isAssistant && hasToolError && !primaryDoneTool && (
           <div className="flex items-center gap-1.5 mb-1.5 select-none">
             <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-destructive/10 text-destructive border border-destructive/20 transition-all">
               <AlertCircle size={11} strokeWidth={2.2} className="shrink-0" aria-hidden="true" />
@@ -142,14 +147,21 @@ export function ChatMessageItem({ message }: ChatMessageItemProps) {
         )}
 
         {hasReasoning && (
-          <details className="group mb-2 max-w-md" open={isStreaming && !message.content}>
+          <details
+            className="group mb-2 max-w-md"
+            open={isStreaming && !message.content && !hasError && !hasGlobalError}
+          >
             <summary className="flex items-center gap-1.5 list-none cursor-pointer text-xs text-muted-foreground hover:text-foreground transition-colors select-none py-0.5">
               <ChevronDown
                 size={13}
                 className="transition-transform group-open:rotate-180 shrink-0"
                 aria-hidden="true"
               />
-              <span>{isStreaming ? t('chat.thinking') : t('chat.thoughtProcess')}</span>
+              <span>
+                {isStreaming && !hasError && !hasGlobalError
+                  ? t('chat.thinking')
+                  : t('chat.thoughtProcess')}
+              </span>
             </summary>
             <div className="mt-1.5 p-3 rounded-xl bg-muted/30 text-muted-foreground text-xs leading-relaxed whitespace-pre-wrap border border-border/20 font-mono text-[11px]">
               {message.reasoning}

@@ -16,4 +16,5 @@ export type ChatMessage = {
   reasoningId?: string;
   toolCalls?: ToolCall[];
   isStreaming?: boolean;
+  error?: string;
 };

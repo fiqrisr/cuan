@@ -17,7 +17,9 @@ export function ChatMessageList({ messages, error, onSuggestion }: ChatMessageLi
         {messages.length === 0 ? (
           <ChatEmptyState onSuggestion={onSuggestion} />
         ) : (
-          messages.map(m => <ChatMessageItem key={m.id} message={m} />)
+          messages.map(m => (
+            <ChatMessageItem key={m.id} message={m} hasGlobalError={Boolean(error)} />
+          ))
         )}
         {error && <ChatErrorBanner error={error} />}
       </MessageScrollerContent>

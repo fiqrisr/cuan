@@ -202,9 +202,21 @@ describe('applyChatStreamEvent', () => {
     });
 
     expect(result.isStreaming).toBe(false);
+    expect(result.error).toBe('Internal server error');
     expect(result.toolCalls).toEqual([
       { id: 'call-1', name: 'add_transaction', status: 'done' },
       { id: 'call-2', name: 'manage_account', status: 'error' },
     ]);
+  });
+
+  test('sets error property when initial message encounters error event without tools', () => {
+    const result = applyChatStreamEvent(initialMessage, {
+      type: 'error',
+      errorText: 'An error occurred.',
+    });
+
+    expect(result.isStreaming).toBe(false);
+    expect(result.error).toBe('An error occurred.');
+    expect(result.content).toBe('');
   });
 });

@@ -219,6 +219,7 @@ export function applyChatStreamEvent(message: ChatMessage, event: ChatStreamEven
       return {
         ...message,
         isStreaming: false,
+        error: event.errorText,
         toolCalls: calls.map(c =>
           c.status === 'running' ? { ...c, status: 'error' as const } : c,
         ),
@@ -275,11 +276,23 @@ export function useChatStream(): UseChatStreamReturn {
   }, []);
 
   const applyEvent = useCallback((id: string, event: ChatStreamEvent) => {
-    setMessages(prev => prev.map(m => (m.id === id ? applyChatStreamEvent(m, event) : m)));
-
     if (event.type === 'error') {
       setError(event.errorText);
+      setMessages(prev =>
+        prev
+          .map(m => (m.id === id ? applyChatStreamEvent(m, event) : m))
+          .filter(m => {
+            if (m.id !== id) return true;
+            const hasContent = Boolean(m.content && m.content.trim().length > 0);
+            const hasReasoning = Boolean(m.reasoning && m.reasoning.length > 0);
+            const hasToolCalls = Boolean(m.toolCalls && m.toolCalls.length > 0);
+            return hasContent || hasReasoning || hasToolCalls;
+          }),
+      );
+      return;
     }
+
+    setMessages(prev => prev.map(m => (m.id === id ? applyChatStreamEvent(m, event) : m)));
   }, []);
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -318,22 +331,41 @@ export function useChatStream(): UseChatStreamReturn {
         controller.signal,
         history,
       );
-    } catch {
-      setMessages(prev => prev.filter(m => m.id !== aiMsgId));
+    } catch (err) {
+      if (!controller.signal.aborted && !(err instanceof Error && err.name === 'AbortError')) {
+        setError(err instanceof Error ? err.message : i18n.t('common.error'));
+      }
+      setMessages(prev =>
+        prev.filter(m => {
+          if (m.id !== aiMsgId) return true;
+          const hasContent = Boolean(m.content && m.content.trim().length > 0);
+          const hasReasoning = Boolean(m.reasoning && m.reasoning.length > 0);
+          const hasToolCalls = Boolean(m.toolCalls && m.toolCalls.length > 0);
+          return hasContent || hasReasoning || hasToolCalls;
+        }),
+      );
     } finally {
       setIsLoading(false);
       setMessages(prev =>
-        prev.map(m =>
-          m.id === aiMsgId
-            ? {
-                ...m,
-                isStreaming: false,
-                toolCalls: (m.toolCalls || []).map(c =>
-                  c.status === 'running' ? { ...c, status: 'error' as const } : c,
-                ),
-              }
-            : m,
-        ),
+        prev
+          .map(m =>
+            m.id === aiMsgId
+              ? {
+                  ...m,
+                  isStreaming: false,
+                  toolCalls: (m.toolCalls || []).map(c =>
+                    c.status === 'running' ? { ...c, status: 'error' as const } : c,
+                  ),
+                }
+              : m,
+          )
+          .filter(m => {
+            if (m.id !== aiMsgId) return true;
+            const hasContent = Boolean(m.content && m.content.trim().length > 0);
+            const hasReasoning = Boolean(m.reasoning && m.reasoning.length > 0);
+            const hasToolCalls = Boolean(m.toolCalls && m.toolCalls.length > 0);
+            return hasContent || hasReasoning || hasToolCalls;
+          }),
       );
     }
   };
