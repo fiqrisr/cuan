@@ -144,7 +144,6 @@ describe('Chat Timezone Handling', () => {
         userId,
         name: 'E-wallet',
         type: 'e-wallet',
-        isDefault: true,
       });
 
       const result = await handleAddTransaction(
@@ -178,13 +177,11 @@ describe('Chat Timezone Handling', () => {
         userId,
         name: 'BCA',
         type: 'bank',
-        isDefault: true,
       });
       await financialAccountService.create({
         userId,
         name: 'GoPay',
         type: 'e-wallet',
-        isDefault: false,
       });
 
       const result = await handleTransferFunds(
@@ -208,7 +205,6 @@ describe('Chat Timezone Handling', () => {
         userId,
         name: 'BCA',
         type: 'bank',
-        isDefault: true,
       });
 
       const addResult = await handleAddTransaction(

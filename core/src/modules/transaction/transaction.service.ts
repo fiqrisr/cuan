@@ -1,4 +1,4 @@
-import { and, count, eq, gte, lte, sql } from 'drizzle-orm';
+import { and, count, eq, gte, like, lte, sql } from 'drizzle-orm';
 import type { BatchItem } from 'drizzle-orm/batch';
 import { db, financialAccounts, transactions } from '@/db';
 import { BadRequestError, InternalServerError, NotFoundError } from '@/lib/error';
@@ -50,16 +50,40 @@ export class TransactionService {
     if (filters.to) {
       conditions.push(lte(transactions.date, new Date(filters.to)));
     }
+    if (filters.search && filters.search.trim().length > 0) {
+      conditions.push(like(transactions.description, `%${filters.search.trim()}%`));
+    }
+
+    if (filters.minAmount !== undefined) {
+      conditions.push(gte(sql`CAST(${transactions.amount} AS REAL)`, filters.minAmount));
+    }
+
+    if (filters.maxAmount !== undefined) {
+      conditions.push(lte(sql`CAST(${transactions.amount} AS REAL)`, filters.maxAmount));
+    }
+
+    if (filters.categoryId !== undefined) {
+      conditions.push(eq(transactions.categoryId, filters.categoryId));
+    }
 
     const categoryName = filters.category;
     if (categoryName) {
       const cat = await db.query.categories.findFirst({
-        where: (c, { eq }) => eq(c.name, categoryName),
+        where: (c, { eq, or }) => or(eq(c.name, categoryName), eq(c.label, categoryName)),
       });
       if (cat) {
         conditions.push(eq(transactions.categoryId, cat.id));
       } else {
-        return { data: [], meta: { page, limit, total: 0 } };
+        return {
+          data: [],
+          meta: {
+            page,
+            limit,
+            total: 0,
+            totalPages: 0,
+            summary: { totalIncome: 0, totalExpense: 0, netCashflow: 0 },
+          },
+        };
       }
     }
 
@@ -67,14 +91,14 @@ export class TransactionService {
 
     const sortCol =
       filters.sort === 'amount'
-        ? transactions.amount
+        ? sql`CAST(${transactions.amount} AS REAL)`
         : filters.sort === 'created_at'
           ? transactions.createdAt
           : transactions.date;
 
     const orderFn = filters.order === 'asc' ? sql`${sortCol} asc` : sql`${sortCol} desc`;
 
-    const [rows, totalResult] = await Promise.all([
+    const [rows, [aggResult]] = await Promise.all([
       db
         .select()
         .from(transactions)
@@ -82,11 +106,20 @@ export class TransactionService {
         .orderBy(orderFn)
         .limit(limit)
         .offset(offset),
-      db.select({ count: count() }).from(transactions).where(whereClause),
+      db
+        .select({
+          totalCount: count(),
+          totalIncome: sql<number>`COALESCE(SUM(CASE WHEN ${transactions.type} = 'income' THEN CAST(${transactions.amount} AS REAL) ELSE 0 END), 0)`,
+          totalExpense: sql<number>`COALESCE(SUM(CASE WHEN ${transactions.type} = 'expense' THEN CAST(${transactions.amount} AS REAL) ELSE 0 END), 0)`,
+        })
+        .from(transactions)
+        .where(whereClause),
     ]);
 
-    const total = totalResult[0]?.count ?? 0;
-
+    const total = aggResult?.totalCount ?? 0;
+    const totalIncome = Number(aggResult?.totalIncome ?? 0);
+    const totalExpense = Number(aggResult?.totalExpense ?? 0);
+    const netCashflow = totalIncome - totalExpense;
     // Batch-fetch category names
     const categoryIds = [...new Set(rows.map(r => r.categoryId))];
     const cats =
@@ -99,9 +132,23 @@ export class TransactionService {
 
     const data = rows.map(r => formatTransaction(r, catMap.get(r.categoryId) ?? null));
 
-    return { data, meta: { page, limit, total } };
-  }
+    const totalPages = Math.ceil(total / limit);
 
+    return {
+      data,
+      meta: {
+        page,
+        limit,
+        total,
+        totalPages,
+        summary: {
+          totalIncome,
+          totalExpense,
+          netCashflow,
+        },
+      },
+    };
+  }
   async getById(id: string, userId: string): Promise<FormattedTransaction | null> {
     const row = await db.query.transactions.findFirst({
       where: (tx, { and, eq }) => and(eq(tx.id, id), eq(tx.userId, userId)),

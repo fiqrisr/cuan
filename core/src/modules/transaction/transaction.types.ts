@@ -2,7 +2,11 @@ export type TransactionFilters = {
   userId: string;
   type?: 'expense' | 'income';
   category?: string;
+  categoryId?: number;
   accountId?: string;
+  search?: string;
+  minAmount?: number;
+  maxAmount?: number;
   from?: string;
   to?: string;
   page?: number;
@@ -13,7 +17,17 @@ export type TransactionFilters = {
 
 export type PaginatedResult = {
   data: FormattedTransaction[];
-  meta: { page: number; limit: number; total: number };
+  meta: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+    summary: {
+      totalIncome: number;
+      totalExpense: number;
+      netCashflow: number;
+    };
+  };
 };
 
 export type FormattedTransaction = {

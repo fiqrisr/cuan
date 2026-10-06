@@ -29,11 +29,15 @@ export type CreateTransactionRequest = typeof CreateTransactionRequestDto.static
 export const ListTransactionsRequestDto = t.Object({
   type: t.Optional(t.Union([t.Literal('expense'), t.Literal('income')])),
   category: t.Optional(t.String()),
+  categoryId: t.Optional(t.Numeric({ minimum: 1 })),
   accountId: t.Optional(t.String()),
+  search: t.Optional(t.String({ maxLength: 100 })),
+  minAmount: t.Optional(t.Numeric({ minimum: 0 })),
+  maxAmount: t.Optional(t.Numeric({ minimum: 0 })),
   from: t.Optional(t.String()),
   to: t.Optional(t.String()),
-  page: t.Optional(t.String()),
-  limit: t.Optional(t.String()),
+  page: t.Optional(t.Numeric({ minimum: 1 })),
+  limit: t.Optional(t.Numeric({ minimum: 1, maximum: 100 })),
   sort: t.Optional(t.Union([t.Literal('date'), t.Literal('amount'), t.Literal('created_at')])),
   order: t.Optional(t.Union([t.Literal('asc'), t.Literal('desc')])),
 });
@@ -57,6 +61,12 @@ export const ListTransactionsResponseDto = t.Object({
     total: t.Number(),
     page: t.Number(),
     limit: t.Number(),
+    totalPages: t.Number(),
+    summary: t.Object({
+      totalIncome: t.Number(),
+      totalExpense: t.Number(),
+      netCashflow: t.Number(),
+    }),
   }),
 });
 

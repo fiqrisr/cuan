@@ -114,14 +114,136 @@ describe('Transactions API', () => {
     expect(response.status).toBe(200);
     const body = (await response.json()) as {
       data: unknown[];
-      meta: { total: number; page: number; limit: number };
+      meta: {
+        total: number;
+        page: number;
+        limit: number;
+        totalPages: number;
+        summary: {
+          totalIncome: number;
+          totalExpense: number;
+          netCashflow: number;
+        };
+      };
     };
     expect(body.data).toHaveLength(2);
     expect(body.meta.total).toBe(3);
     expect(body.meta.page).toBe(1);
     expect(body.meta.limit).toBe(2);
+    expect(body.meta.totalPages).toBe(2);
+    expect(body.meta.summary).toBeDefined();
+    expect(body.meta.summary.totalExpense).toBe(75000);
+    expect(body.meta.summary.totalIncome).toBe(0);
+    expect(body.meta.summary.netCashflow).toBe(-75000);
   });
 
+  it('filters transactions by search query', async () => {
+    const cookies = await getAuthCookies(`tx-search-${Date.now()}@example.com`);
+    const acct = await createAccount(cookies, 'SearchBank');
+
+    await createTransaction(cookies, {
+      accountId: acct.id,
+      description: 'Morning Vanilla Latte',
+    });
+    await createTransaction(cookies, {
+      accountId: acct.id,
+      description: 'Groceries supermarket',
+    });
+
+    const response = await app.handle(
+      new Request('http://localhost/api/transactions?search=latte', {
+        headers: { Cookie: cookies },
+      }),
+    );
+    expect(response.status).toBe(200);
+    const body = (await response.json()) as {
+      data: Array<{ description: string }>;
+      meta: { total: number };
+    };
+    expect(body.data).toHaveLength(1);
+    expect(body.data[0].description).toBe('Morning Vanilla Latte');
+    expect(body.meta.total).toBe(1);
+  });
+
+  it('filters transactions by minAmount and maxAmount', async () => {
+    const cookies = await getAuthCookies(`tx-amt-${Date.now()}@example.com`);
+    const acct = await createAccount(cookies, 'AmtBank');
+
+    await createTransaction(cookies, {
+      accountId: acct.id,
+      amount: 15000,
+      description: 'Small snack',
+    });
+    await createTransaction(cookies, {
+      accountId: acct.id,
+      amount: 75000,
+      description: 'Dinner',
+    });
+    await createTransaction(cookies, {
+      accountId: acct.id,
+      amount: 300000,
+      description: 'Fancy dinner',
+    });
+
+    const response = await app.handle(
+      new Request('http://localhost/api/transactions?minAmount=50000&maxAmount=100000', {
+        headers: { Cookie: cookies },
+      }),
+    );
+    expect(response.status).toBe(200);
+    const body = (await response.json()) as {
+      data: Array<{ description: string; amount: number }>;
+      meta: { total: number };
+    };
+    expect(body.data).toHaveLength(1);
+    expect(body.data[0].description).toBe('Dinner');
+    expect(body.data[0].amount).toBe(75000);
+    expect(body.meta.total).toBe(1);
+  });
+
+  it('sorts transactions numerically by amount', async () => {
+    const cookies = await getAuthCookies(`tx-sort-${Date.now()}@example.com`);
+    const acct = await createAccount(cookies, 'SortBank');
+
+    // If sorted lexicographically as strings, "25000" > "100000"
+    await createTransaction(cookies, {
+      accountId: acct.id,
+      amount: 25000,
+      description: 'Mid amount',
+    });
+    await createTransaction(cookies, {
+      accountId: acct.id,
+      amount: 100000,
+      description: 'High amount',
+    });
+    await createTransaction(cookies, {
+      accountId: acct.id,
+      amount: 5000,
+      description: 'Low amount',
+    });
+
+    const descRes = await app.handle(
+      new Request('http://localhost/api/transactions?sort=amount&order=desc', {
+        headers: { Cookie: cookies },
+      }),
+    );
+    expect(descRes.status).toBe(200);
+    const descBody = (await descRes.json()) as {
+      data: Array<{ amount: number }>;
+    };
+    expect(descBody.data.map(d => d.amount)).toEqual([100000, 25000, 5000]);
+
+    const ascRes = await app.handle(
+      new Request('http://localhost/api/transactions?sort=amount&order=asc', {
+        headers: { Cookie: cookies },
+      }),
+    );
+    expect(ascRes.status).toBe(200);
+    const ascBody = (await ascRes.json()) as {
+      data: Array<{ amount: number }>;
+    };
+    expect(ascBody.data.map(d => d.amount)).toEqual([5000, 25000, 100000]);
+  });
   it('filters transactions by type', async () => {
     const cookies = await getAuthCookies(`tx-filter-${Date.now()}@example.com`);
     const acct = await createAccount(cookies, 'TestBank');
