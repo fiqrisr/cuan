@@ -1,5 +1,4 @@
 @import "tailwindcss";
-
 @custom-variant dark (&:where(.dark, .dark *));
 @theme {
   --color-border: var(--border);
@@ -477,3 +476,4 @@
 @utility slide-in-from-right-2 {
   --tw-enter-translate-x: 0.5rem;
 }
+
