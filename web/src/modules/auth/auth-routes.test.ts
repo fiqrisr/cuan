@@ -1,4 +1,4 @@
-import { type Mock, afterEach, beforeEach, describe, expect, spyOn, test } from 'bun:test';
+import { afterEach, beforeEach, describe, expect, type Mock, spyOn, test } from 'bun:test';
 import { isRedirect } from '@tanstack/react-router';
 import { Route as LoginRoute } from '@/routes/login';
 import { Route as RegisterRoute } from '@/routes/register';

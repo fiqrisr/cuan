@@ -8,7 +8,7 @@ const formatter = new Intl.NumberFormat('id-ID', {
 });
 
 type Props = {
-  amount: string;
+  amount: string | number;
   type: TransactionType;
 };
 

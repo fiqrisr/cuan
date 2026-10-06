@@ -1,4 +1,4 @@
-import { Button, Input } from '@cuan/ui';
+import { Button, DatePicker, Input } from '@cuan/ui';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useGetAccountListQuery } from '@/modules/account/hooks/use-get-account-list-query';
@@ -22,7 +22,7 @@ export function CreateTransactionForm({ onSuccess, onCancel, defaultAccountId }:
   const [type, setType] = useState<'expense' | 'income'>('expense');
   const [accountId, setAccountId] = useState(defaultAccountId || '');
   const [categoryId, setCategoryId] = useState('');
-  const [date, setDate] = useState(new Date().toISOString().slice(0, 10));
+  const [date, setDate] = useState<Date | undefined>(new Date());
   const [error, setError] = useState<string | null>(null);
 
   const accounts = accountsData?.data ?? [];
@@ -43,7 +43,7 @@ export function CreateTransactionForm({ onSuccess, onCancel, defaultAccountId }:
         currency: 'IDR',
         categoryId: Number(categoryId),
         description,
-        date: new Date(date).toISOString(),
+        date: date.toISOString(),
         accountId,
       });
       onSuccess();
@@ -131,13 +131,7 @@ export function CreateTransactionForm({ onSuccess, onCancel, defaultAccountId }:
           >
             {t('common.date')}
           </label>
-          <Input
-            id="tx-date"
-            type="date"
-            value={date}
-            onChange={e => setDate(e.target.value)}
-            className="h-10 text-sm"
-          />
+          <DatePicker value={date} onChange={setDate} placeholder={t('common.date')} />
         </div>
 
         <div className="flex flex-col gap-2">
