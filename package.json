@@ -1,19 +1,18 @@
 {
   "name": "@cuan/root",
   "version": "0.1.0",
-  "private": true,
+  "devDependencies": {
+    "@biomejs/biome": "^2.5.1",
+    "@moonrepo/cli": "^2.6.0",
+    "@types/bun": "^1.1.14",
+    "@types/node": "^22.10.2",
+    "tsconfig-moon": "^1.4.2",
+    "typescript": "^5.7.2"
+  },
   "description": "Cuan monorepo root",
   "license": "UNLICENSED",
-  "type": "module",
   "packageManager": "bun@1.3.14",
-  "workspaces": [
-    "core",
-    "web",
-    "landing",
-    "packages/ui",
-    "packages/elysia-logger",
-    "packages/elysia-rate-limiter"
-  ],
+  "private": true,
   "scripts": {
     "format": "biome format --write .",
     "format:check": "biome format .",
@@ -26,11 +25,13 @@
     "release:minor": "bun run scripts/release.ts --minor",
     "release:major": "bun run scripts/release.ts --major"
   },
-  "devDependencies": {
-    "@biomejs/biome": "^2.5.1",
-    "@types/bun": "^1.1.14",
-    "@types/node": "^22.10.2",
-    "tsconfig-moon": "^1.4.2",
-    "typescript": "^5.7.2"
-  }
+  "type": "module",
+  "workspaces": [
+    "core",
+    "web",
+    "landing",
+    "packages/ui",
+    "packages/elysia-logger",
+    "packages/elysia-rate-limiter"
+  ]
 }
