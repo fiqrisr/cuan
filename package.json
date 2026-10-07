@@ -19,7 +19,12 @@
     "format:check": "biome format .",
     "lint": "biome lint .",
     "check": "biome check .",
-    "check:write": "biome check --write ."
+    "check:write": "biome check --write .",
+    "release": "bun run scripts/release.ts",
+    "release:dry": "bun run scripts/release.ts --dry-run",
+    "release:patch": "bun run scripts/release.ts --patch",
+    "release:minor": "bun run scripts/release.ts --minor",
+    "release:major": "bun run scripts/release.ts --major"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.5.1",

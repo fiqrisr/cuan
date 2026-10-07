@@ -30,13 +30,13 @@ tasks:
 
   deploy:
     command: "bunx wrangler deploy --secrets-file .env.production"
+    preset: server
     inputs:
       - "src/**/*"
       - "wrangler.toml"
       - ".env.production"
     options:
       cache: false
-
   test:
     command: "bash scripts/test-with-db.sh"
     env:
@@ -58,7 +58,7 @@ tasks:
 
   "db-push":
     command: "bash scripts/db-push.sh"
-
+    preset: server
   seed:
     command: "bun run scripts/seed.ts"
     preset: server
